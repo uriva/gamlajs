@@ -1,0 +1,29 @@
+{
+  "name": "gamlajs",
+  "version": "0.0.1",
+  "description": "functional programing for javascript",
+  "main": "dist/index.js",
+  "scripts": {
+    "start": "npx babel src --watch --out-dir dist",
+    "build": "babel src --out-dir dist"
+  },
+  "keywords": [],
+  "author": "Nitzan Bar",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nitzo/gamlajs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nitzo/gamlajs/issues"
+  },
+  "homepage": "https://github.com/nitzo/gamlajs#readme",
+  "dependencies": {
+    "ramda": "^0.26.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.3",
+    "@babel/core": "^7.8.3",
+    "@babel/preset-env": "^7.8.3"
+  }
+}
