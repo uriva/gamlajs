@@ -1,4 +1,17 @@
-import { apply, chain, groupBy, map, nth, pipe, tap, uniq, xprod } from "ramda";
+import {
+  apply,
+  chain,
+  groupBy,
+  map,
+  nth,
+  pipe,
+  tap,
+  uniq,
+  xprod,
+  filter,
+  reduce,
+  identity
+} from "ramda";
 
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
@@ -10,12 +23,19 @@ export const groupByMany = f =>
 
 export const log = tap(console.log);
 
-export const first = (funcs, default_value) => (...args) => {
-  for (let i = 0; i < funcs.length; i++) {
-    const result = apply(funcs, ...args);
-    if (result !== default_value) {
-      return result;
-    }
+export const asyncIdentity = async input => await Promise.resolve(input);
+
+export const asyncPipe = (...funcs) => input =>
+  reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
+
+export const asyncFirst = (...funcs) => async (...args) => {
+  const results = await asyncPipe(
+    map(f => f(...args)),
+    promises => new Promise(resolve => Promise.all(promises).then(resolve)),
+    filter(identity)
+  )(funcs);
+
+  if (results.length) {
+    return results[0];
   }
-  return default_value;
 };
