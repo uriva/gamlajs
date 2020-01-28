@@ -1,5 +1,5 @@
 const { asyncFirst, asyncPipe, asyncIdentity } = require("./index");
-const { multiply, map, identity } = require("ramda");
+const { multiply } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, input =>
