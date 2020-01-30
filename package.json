@@ -19,6 +19,8 @@
   },
   "homepage": "https://github.com/nitzo/gamlajs#readme",
   "dependencies": {
+    "node-cache": "^5.1.0",
+    "object-hash": "^2.0.1",
     "ramda": "^0.26.1"
   },
   "devDependencies": {

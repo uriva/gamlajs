@@ -1,4 +1,4 @@
-const { asyncFirst, asyncPipe, asyncIdentity } = require("./index");
+const { asyncFirst, asyncPipe, asyncIdentity } = require("./functional");
 const { multiply } = require("ramda");
 
 test("test asyncPipe", async () => {
