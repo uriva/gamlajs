@@ -10,6 +10,7 @@
   "jest": {
     "testPathIgnorePatterns": ["dist"]
   },
+  "engines" : { "node" : ">=12.14" },
   "keywords": [],
   "author": "Nitzan Bar",
   "license": "MIT",
