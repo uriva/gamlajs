@@ -1,4 +1,10 @@
-const { asyncFirst, asyncPipe, asyncIdentity } = require("./functional");
+const {
+  asyncFirst,
+  asyncPipe,
+  asyncIdentity,
+  asyncJuxt,
+  asyncMap
+} = require("./functional");
 const { multiply } = require("ramda");
 
 test("test asyncPipe", async () => {
@@ -24,4 +30,25 @@ test("test asyncFirst all fail", async () => {
 
   expect.assertions(1);
   expect(result).toBeFalsy();
+});
+
+test("test async map", async () => {
+  const result = await asyncMap(input => Promise.resolve(multiply(input, 2)), [
+    1,
+    2,
+    3
+  ]);
+
+  expect.assertions(1);
+  expect(result).toEqual([2, 4, 6]);
+});
+
+test("test async juxt", async () => {
+  const result = await asyncJuxt([
+    asyncIdentity,
+    input => Promise.resolve(multiply(input, 2))
+  ])(2);
+
+  expect.assertions(1);
+  expect(result).toEqual([2, 4]);
 });

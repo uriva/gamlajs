@@ -6,12 +6,11 @@
   "scripts": {
     "start": "npx babel src --watch --out-dir dist",
     "build": "babel src --out-dir dist",
-    "test" : "jest"
+    "test": "jest"
   },
-  "jest": {
-    "testPathIgnorePatterns": ["dist"]
+  "engines": {
+    "node": ">=12.14"
   },
-  "engines" : { "node" : ">=12.14" },
   "keywords": [],
   "author": "Nitzan Bar",
   "license": "MIT",
