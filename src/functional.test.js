@@ -5,7 +5,7 @@ const {
   asyncJuxt,
   asyncMap
 } = require("./functional");
-const { multiply } = require("ramda");
+const { multiply, map } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, input =>
@@ -46,9 +46,12 @@ test("test async map", async () => {
 test("test async juxt", async () => {
   const result = await asyncJuxt([
     asyncIdentity,
-    input => Promise.resolve(multiply(input, 2))
-  ])(2);
+    input => Promise.resolve(map(multiply(2), input))
+  ])(2, 3);
 
   expect.assertions(1);
-  expect(result).toEqual([2, 4]);
+  expect(result).toEqual([
+    [2, 3],
+    [4, 6]
+  ]);
 });

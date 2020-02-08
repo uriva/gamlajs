@@ -46,5 +46,5 @@ export const asyncFirst = (...funcs) => async (...args) => {
 
 export const asyncMap = curry((f, seq) => asyncPipe(map(f), resolveAll)(seq));
 
-export const asyncJuxt = funcs => args =>
+export const asyncJuxt = funcs => (...args) =>
   asyncPipe(juxt(funcs), resolveAll)(args);
