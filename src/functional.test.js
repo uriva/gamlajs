@@ -3,7 +3,9 @@ const {
   asyncPipe,
   asyncIdentity,
   asyncJuxt,
-  asyncMap
+  asyncMap,
+  asyncFilter,
+  keyMap
 } = require("./functional");
 const { multiply, map } = require("ramda");
 
@@ -54,4 +56,23 @@ test("test async juxt", async () => {
     [2, 3],
     [4, 6]
   ]);
+});
+
+test("test async filter", async () => {
+  const result = await asyncFilter(arg => Promise.resolve(arg % 2 === 0))([
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ]);
+
+  expect.assertions(1);
+  expect(result).toEqual([2, 4, 6]);
+});
+
+test("test key map", () => {
+  const result = keyMap(key => key + "2")({ a: 1, b: [1, 2, 3] });
+  expect(result).toEqual({ a2: 1, b2: [1, 2, 3] });
 });
