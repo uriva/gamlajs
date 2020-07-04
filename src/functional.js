@@ -63,4 +63,5 @@ export const asyncFilter = pred => seq =>
 
 export const keyMap = fn => pipe(toPairs, map(adjust(0, fn)), fromPairs);
 
-export const sortAlphabetically = (array) => array.sort((str1, str2) => str1.localeCompare(str2));
+export const sortAlphabetically = array =>
+  array.sort((str1, str2) => str1.localeCompare(str2));
