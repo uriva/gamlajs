@@ -87,3 +87,17 @@ test("test async reduce", async () => {
   expect.assertions(1);
   expect(result).toEqual(21);
 });
+
+test("test async reduce no async input", async () => {
+  const result = await asyncReduce((acc, item) => acc + item, 0, [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+  ]);
+
+  expect.assertions(1);
+  expect(result).toEqual(21);
+});

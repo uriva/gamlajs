@@ -67,4 +67,4 @@ export const sortAlphabetically = (array) =>
   array.sort((str1, str2) => str1.localeCompare(str2));
 
 export const asyncReduce = (f, initial, seq) =>
-  asyncPipe(...map((item) => (acc) => f(acc, item), seq))(initial);
+  reduce(async (acc, item) => f(await acc, item), initial, seq);
