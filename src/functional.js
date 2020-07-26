@@ -17,29 +17,29 @@ import {
   head,
   toPairs,
   fromPairs,
-  adjust
+  adjust,
 } from "ramda";
 
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
-export const groupByMany = f =>
+export const groupByMany = (f) =>
   pipe(
-    chain(pipe(element => [f(element), [element]], apply(xprod))),
+    chain(pipe((element) => [f(element), [element]], apply(xprod))),
     edgesToGraph
   );
 
 export const log = tap(console.log);
 
-const resolveAll = promises => Promise.all(promises);
+const resolveAll = (promises) => Promise.all(promises);
 
-export const asyncIdentity = async input => await Promise.resolve(input);
+export const asyncIdentity = async (input) => await Promise.resolve(input);
 
-export const asyncPipe = (...funcs) => input =>
+export const asyncPipe = (...funcs) => (input) =>
   reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
 
 export const asyncFirst = (...funcs) => async (...args) => {
   const results = await asyncPipe(
-    map(f => f(...args)),
+    map((f) => f(...args)),
     resolveAll,
     filter(identity)
   )(funcs);
@@ -51,17 +51,20 @@ export const asyncFirst = (...funcs) => async (...args) => {
 
 export const asyncMap = curry((f, seq) => asyncPipe(map(f), resolveAll)(seq));
 
-export const asyncJuxt = funcs => (...args) =>
+export const asyncJuxt = (funcs) => (...args) =>
   asyncPipe(juxt(funcs), resolveAll)(args);
 
-export const asyncFilter = pred => seq =>
+export const asyncFilter = (pred) => (seq) =>
   asyncPipe(
-    asyncMap(async arg => [arg, await pred(arg)]),
+    asyncMap(async (arg) => [arg, await pred(arg)]),
     filter(last),
     map(head)
   )(seq);
 
-export const keyMap = fn => pipe(toPairs, map(adjust(0, fn)), fromPairs);
+export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
 
-export const sortAlphabetically = array =>
+export const sortAlphabetically = (array) =>
   array.sort((str1, str2) => str1.localeCompare(str2));
+
+export const asyncReduce = (f, initial, seq) =>
+  reduce(async (acc, item) => f(await acc, item), initial, seq);
