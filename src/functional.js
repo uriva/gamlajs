@@ -68,3 +68,7 @@ export const sortAlphabetically = (array) =>
 
 export const asyncReduce = (f, initial, seq) =>
   reduce(async (acc, item) => f(await acc, item), initial, seq);
+
+// Zips arrays by the length of the first.
+export const zip = (...arrays) =>
+  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));

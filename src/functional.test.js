@@ -7,6 +7,7 @@ const {
   asyncFilter,
   keyMap,
   asyncReduce,
+  zip,
 } = require("./functional");
 const { multiply, map } = require("ramda");
 
@@ -100,4 +101,12 @@ test("test async reduce no async input", async () => {
 
   expect.assertions(1);
   expect(result).toEqual(21);
+});
+
+test("test zip", () => {
+  expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
+    [1, 0],
+    [2, 0],
+    [3, 0],
+  ]);
 });
