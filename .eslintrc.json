@@ -1,0 +1,33 @@
+{
+  "env": {
+    "node": true,
+    "es6": true,
+    "jest/globals": true
+  },
+  "ignorePatterns": ["dist/**"],
+  "extends": "eslint:recommended",
+  "globals": {
+    "Atomics": "readonly",
+    "SharedArrayBuffer": "readonly"
+  },
+  "parserOptions": {
+    "ecmaVersion": 2018,
+    "sourceType": "module"
+  },
+  "rules": {
+    "spaced-comment": "error",
+    "no-unused-vars": "error",
+    "no-return-await": "error",
+    "require-await": "error",
+    "object-shorthand": "error",
+    "sort-imports": "error",
+    "prefer-const": "error",
+    "prefer-destructuring": "error",
+    "prefer-arrow-callback": "error",
+    "no-useless-rename": "error",
+    "no-var": "error",
+    "yoda": "error",
+    "arrow-body-style": "error"
+  },
+  "plugins": ["jest"]
+}

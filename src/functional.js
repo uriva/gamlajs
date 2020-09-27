@@ -1,23 +1,23 @@
 import {
+  adjust,
   apply,
   chain,
+  curry,
+  filter,
+  fromPairs,
   groupBy,
+  head,
+  identity,
+  juxt,
+  last,
   map,
   nth,
   pipe,
+  reduce,
   tap,
+  toPairs,
   uniq,
   xprod,
-  filter,
-  reduce,
-  identity,
-  curry,
-  juxt,
-  last,
-  head,
-  toPairs,
-  fromPairs,
-  adjust,
 } from "ramda";
 
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
@@ -32,7 +32,7 @@ export const log = tap(console.log);
 
 const resolveAll = (promises) => Promise.all(promises);
 
-export const asyncIdentity = async (input) => await Promise.resolve(input);
+export const asyncIdentity = (input) => Promise.resolve(input);
 
 export const asyncPipe = (...funcs) => (input) =>
   reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
@@ -72,3 +72,12 @@ export const asyncReduce = (f, initial, seq) =>
 // Zips arrays by the length of the first.
 export const zip = (...arrays) =>
   arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
+
+const getTimestampMilliseconds = () => new Date().getTime();
+
+export const timeit = (handler, f) => async (...args) => {
+  const started = getTimestampMilliseconds();
+  const result = await f(...args);
+  handler(getTimestampMilliseconds() - started);
+  return result;
+};
