@@ -13,7 +13,7 @@ export const makeLockUnlockWithId = (set, unset) => [
       await sleep(50);
     }
   },
-  (id) => unset(id),
+  unset,
 ];
 
 export const withLockByInput = (argsToLockId, lock, unlock, f) => (...args) => {

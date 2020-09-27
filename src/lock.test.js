@@ -4,6 +4,7 @@ const {
   makeLockUnlockWithId,
   withLockByInput,
 } = require("./lock");
+const { identity } = require("ramda");
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
   await sleep(ms);
@@ -59,26 +60,27 @@ test("test lock by input", async () => {
     async (id) => {
       await sleep(50);
       lockObj[id] = false;
-      return true;
     }
   );
 
   expect.assertions(2);
   const results1 = [];
   const f1 = withLockByInput(
-    (key) => key,
+    identity,
     lock,
     unlock,
     pushToArrayAfterMs(results1)
   );
   const results2 = [];
   const f2 = withLockByInput(
-    (key) => key,
+    identity,
     lock,
     unlock,
     pushToArrayAfterMs(results2)
   );
+  // Test locking on different inputs (Should not lock in this case).
   await Promise.all([f1("key1", 300), f1("key2", 100)]);
+  // Test locking on same input.
   await Promise.all([f2("key1", 300), f2("key1", 100)]);
   expect(results1).toStrictEqual([100, 300]);
   expect(results2).toStrictEqual([300, 100]);
