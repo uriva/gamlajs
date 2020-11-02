@@ -82,3 +82,10 @@ export const timeit = (handler, f) => async (...args) => {
   handler(getTimestampMilliseconds() - started);
   return result;
 };
+
+export const asyncTap = (f) => async (x) => {
+  await f(x);
+  return x;
+};
+
+export const asyncPairRight = (f) => asyncJuxt([identity, f]);
