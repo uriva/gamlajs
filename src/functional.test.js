@@ -9,7 +9,7 @@ const {
   asyncReduce,
   zip,
 } = require("./functional");
-const { multiply, map } = require("ramda");
+const { multiply, map, unapply } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, (input) =>
@@ -48,8 +48,8 @@ test("test async map", async () => {
 
 test("test async juxt", async () => {
   const result = await asyncJuxt([
-    asyncIdentity,
-    (input) => Promise.resolve(map(multiply(2), input)),
+    unapply(asyncIdentity),
+    unapply((input) => Promise.resolve(map(multiply(2), input))),
   ])(2, 3);
 
   expect.assertions(1);
