@@ -8,8 +8,10 @@ const {
   keyMap,
   asyncReduce,
   zip,
+  asyncPairRight,
+  asyncTap,
 } = require("./functional");
-const { multiply, map } = require("ramda");
+const { multiply, map, unapply } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, (input) =>
@@ -48,8 +50,8 @@ test("test async map", async () => {
 
 test("test async juxt", async () => {
   const result = await asyncJuxt([
-    asyncIdentity,
-    (input) => Promise.resolve(map(multiply(2), input)),
+    unapply(asyncIdentity),
+    unapply((input) => Promise.resolve(map(multiply(2), input))),
   ])(2, 3);
 
   expect.assertions(1);
@@ -109,4 +111,16 @@ test("test zip", () => {
     [2, 0],
     [3, 0],
   ]);
+});
+
+test("test asyncPairRight", async () => {
+  const result = await asyncPairRight((x) => Promise.resolve(x * 2))(5);
+  expect.assertions(1);
+  expect(result).toStrictEqual([5, 10]);
+});
+
+test("test asyncTap", async () => {
+  const result = await asyncTap((x) => Promise.resolve(x * 2))(2);
+  expect.assertions(1);
+  expect(result).toStrictEqual(2);
 });

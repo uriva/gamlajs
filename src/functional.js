@@ -52,7 +52,8 @@ export const asyncFirst = (...funcs) => async (...args) => {
 export const asyncMap = curry((f, seq) => asyncPipe(map(f), resolveAll)(seq));
 
 export const asyncJuxt = (funcs) => (...args) =>
-  asyncPipe(juxt(funcs), resolveAll)(args);
+  // asyncPipe is unary so we apply.
+  asyncPipe(juxt(map(apply, funcs)), resolveAll)(args);
 
 export const asyncFilter = (pred) => (seq) =>
   asyncPipe(
@@ -81,3 +82,10 @@ export const timeit = (handler, f) => async (...args) => {
   handler(getTimestampMilliseconds() - started);
   return result;
 };
+
+export const asyncTap = (f) => async (x) => {
+  await f(x);
+  return x;
+};
+
+export const asyncPairRight = (f) => asyncJuxt([identity, f]);
