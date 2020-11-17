@@ -55,12 +55,12 @@ export const asyncJuxt = (funcs) => (...args) =>
   // asyncPipe is unary so we apply.
   asyncPipe(juxt(map(apply, funcs)), resolveAll)(args);
 
-export const asyncFilter = (pred) => (seq) =>
+export const asyncFilter = (pred) =>
   asyncPipe(
     asyncMap(async (arg) => [arg, await pred(arg)]),
     filter(last),
     map(head)
-  )(seq);
+  );
 
 export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
 
@@ -89,3 +89,17 @@ export const asyncTap = (f) => async (x) => {
 };
 
 export const asyncPairRight = (f) => asyncJuxt([identity, f]);
+
+export const asyncExcepts = (func, handler) => async (...args) => {
+  try {
+    return await func(...args);
+  } catch (err) {
+    return handler(err);
+  }
+};
+
+export const stack = (functions) =>
+  pipe(
+    zip(functions),
+    map(([f, x]) => f(x))
+  );

@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/prettier/pre-commit
+    rev: v2.1.2
+    hooks:
+      - id: prettier
+        # Restricted because prettier doesn't handle templated YAML files (which Helm uses).
+        files: \.(js|md|jsx)$
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v7.9.0
+    hooks:
+      - id: eslint
+        entry: eslint --fix --ext js,jsx .
+        files: \.(js|jsx|md)$
+        additional_dependencies:
+          - eslint-plugin-sort-requires@latest
+          - eslint@latest
+          - eslint-plugin-react@v7.21.5
+          - eslint-plugin-react-hooks@latest
+  - repo: https://github.com/codespell-project/codespell
+    rev: v1.16.0
+    hooks:
+      - id: codespell
+        entry: codespell --ignore-words=.codespell_ignore --quiet-level=4 --check-filenames
+        exclude: \.(csv|json|txt)$

@@ -1,65 +1,55 @@
 import {
-  apply,
-  equals,
-  head,
-  last,
-  length,
+  applySpec,
+  isNil,
+  juxt,
   map,
+  pipe,
   prop,
   tap,
-  unapply,
-  zip,
+  unless,
+  when,
 } from "ramda";
-import { asyncJuxt, asyncPairRight, asyncPipe } from "./functional";
+import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 
-/**
- * Batches calls to `executeQueues` at a specified interval.
- * @param argsToKey(arg1, arg2...) Invoked with f's arguments expected to return a textual key.
- * @param waitTime Interval in ms to wait for subsequent calls.
- * @param executeQueue - Invoked with a list of tasks. A task is a pair of [ resolve, [args] ].
- * @returns {function(...[*]): Promise}
- */
-export const batch = (argsToKey, waitTime, executeQueue) => {
+export const executeConditionally = (executeQueue, condition) => (
+  clear,
+  resolveAll
+) => when(condition, asyncPipe(tap(clear), executeQueue, resolveAll));
+
+export const batch = (keyFn, waitTime, execute) => {
   const queues = {};
 
-  return unapply(
-    asyncPipe(
-      asyncPairRight(apply(argsToKey)),
-      ([args, key]) =>
-        new Promise((resolve) => {
-          queues[key] = queues[key] || [];
-          queues[key].push([resolve, args]);
+  return asyncPipe(
+    asyncPairRight(keyFn),
+    ([input, key]) =>
+      new Promise((resolve, reject) => {
+        queues[key] = queues[key] || [];
+        queues[key].push({ resolve, reject, input });
 
-          if (equals(length(queues[key]), 1)) {
-            setTimeout(() => {
-              asyncPipe(
-                prop(key),
-                tap(() => delete queues[key]),
-                asyncJuxt([map(head), asyncPipe(map(last), executeQueue)]),
-                apply(zip),
-                map(applyPair)
-              )(queues);
-            }, waitTime);
-          }
-        })
-    )
+        setTimeout(
+          pipe(
+            () => queues[key],
+            unless(
+              isNil,
+              pipe(
+                applySpec({
+                  input: map(prop("input")),
+                  reject: pipe(map(prop("reject")), juxt),
+                  resolve: pipe(map(prop("resolve")), stack),
+                }),
+                ({ input, resolve, reject }) =>
+                  asyncExcepts(
+                    execute(() => delete queues[key], resolve),
+                    reject
+                  )(input)
+              )
+            )
+          ),
+          waitTime
+        );
+      })
   );
 };
 
-const applyPair = ([f, args]) => f(args);
-
-/* Transform `f` into a function that receives a list of tasks and executes them in a single call to `f`.
- *   Where a task is the pair [ resolve, [args] ].
- * @param merge([[call1Args], [call2Args],...])
- *    Invoked with an array of arguments.
- *    Each element in the array is a list of arguments that was passed in for a specific call to `f`.
- *    Expected to merge all function calls into a single argument list `f` will be invoked with.
- * @param split(args, results)
- *    Invoked with the original call list (similar to merge) and the results.
- *    Expected to return a list of length `args.length` where each element
- *    represents the results to return to a single caller.
- * @param f
- *    The function to transform.
- */
 export const singleToMultiple = (merge, split, f) => (tasks) =>
-  asyncPipe(merge, apply(f), (results) => split(tasks, results))(tasks);
+  asyncPipe(merge, f, (results) => split(tasks, results))(tasks);
