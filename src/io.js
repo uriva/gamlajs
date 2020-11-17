@@ -1,29 +1,49 @@
-import { apply, equals, head, last, length, map, zip } from "ramda";
-import { asyncPipe } from "./functional";
+import {
+  apply,
+  equals,
+  head,
+  last,
+  length,
+  map,
+  prop,
+  tap,
+  unapply,
+  zip,
+} from "ramda";
+import { asyncJuxt, asyncPairRight, asyncPipe } from "./functional";
 
 /**
  * Batches calls to `executeQueues` at a specified interval.
  * @param argsToKey(arg1, arg2...) Invoked with f's arguments expected to return a textual key.
- * @param interval Interval in ms to wait for subsequent calls.
+ * @param waitTime Interval in ms to wait for subsequent calls.
  * @param executeQueue - Invoked with a list of tasks. A task is a pair of [ resolve, [args] ].
  * @returns {function(...[*]): Promise}
  */
-export const batch = (argsToKey, interval, executeQueue) => {
+export const batch = (argsToKey, waitTime, executeQueue) => {
   const queues = {};
 
-  return (...args) =>
-    new Promise((resolve) => {
-      const key = argsToKey(...args);
-      queues[key] = queues[key] || [];
-      queues[key].push([resolve, args]);
+  return unapply(
+    asyncPipe(
+      asyncPairRight(apply(argsToKey)),
+      ([args, key]) =>
+        new Promise((resolve) => {
+          queues[key] = queues[key] || [];
+          queues[key].push([resolve, args]);
 
-      if (equals(length(queues[key]), 1)) {
-        setTimeout(() => {
-          executeQueue(queues[key]);
-          delete queues[key];
-        }, interval);
-      }
-    });
+          if (equals(length(queues[key]), 1)) {
+            setTimeout(() => {
+              asyncPipe(
+                prop(key),
+                tap(() => delete queues[key]),
+                asyncJuxt([map(head), asyncPipe(map(last), executeQueue)]),
+                apply(zip),
+                map(applyPair)
+              )(queues);
+            }, waitTime);
+          }
+        })
+    )
+  );
 };
 
 const applyPair = ([f, args]) => f(args);
@@ -41,12 +61,5 @@ const applyPair = ([f, args]) => f(args);
  * @param f
  *    The function to transform.
  */
-export const singleToMultiple = (merge, split, f) => (tasks) => {
-  const args = merge(map(last, tasks));
-  asyncPipe(
-    apply(f),
-    (results) => split(args, results),
-    zip(map(head, tasks)),
-    map(applyPair)
-  )(args);
-};
+export const singleToMultiple = (merge, split, f) => (tasks) =>
+  asyncPipe(merge, apply(f), (results) => split(tasks, results))(tasks);
