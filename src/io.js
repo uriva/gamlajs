@@ -2,7 +2,7 @@ import { apply, equals, head, last, length, map, zip } from "ramda";
 import { asyncPipe } from "./functional";
 
 /**
- * Transforms f so calls to f are batched into intervals.
+ * Batches calls to `executeQueues` at a specified interval.
  * @param argsToKey(arg1, arg2...) Invoked with f's arguments expected to return a textual key.
  * @param interval Interval in ms to wait for subsequent calls.
  * @param executeQueue - Invoked with a list of tasks. A task is a pair of [ resolve, [args] ].
