@@ -1,5 +1,5 @@
+import { batch, singleToMultiple } from "./io";
 import { concat, head, juxt, last, map, pipe, reduce, repeat } from "ramda";
-import { batch } from "./io";
 
 const sumOfThings = (id, numbers) =>
   Promise.resolve(
@@ -9,9 +9,12 @@ const sumOfThings = (id, numbers) =>
 
 const batchedSum = batch(
   (id) => id,
-  juxt([pipe(head, head), pipe(map(last), reduce(concat, []))]),
-  (args, results) => repeat(results, args.length),
-  sumOfThings
+  100,
+  singleToMultiple(
+    juxt([pipe(head, head), pipe(map(last), reduce(concat, []))]),
+    (args, results) => repeat(results, args.length),
+    sumOfThings
+  )
 );
 
 test("batch", async () => {
