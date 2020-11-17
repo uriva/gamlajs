@@ -100,6 +100,6 @@ export const asyncExcepts = (func, handler) => async (...args) => {
 
 export const stack = (functions) =>
   pipe(
-    zip(functions),
+    (values) => zip(functions, values),
     map(([f, x]) => f(x))
   );
