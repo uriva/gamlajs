@@ -1,6 +1,6 @@
 {
   "name": "gamlajs",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "functional programing for javascript",
   "main": "dist/index.js",
   "scripts": {
