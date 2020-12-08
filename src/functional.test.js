@@ -2,6 +2,7 @@ const {
   asyncFirst,
   asyncPipe,
   asyncIdentity,
+  asyncIfElse,
   asyncJuxt,
   asyncMap,
   asyncFilter,
@@ -11,7 +12,7 @@ const {
   asyncPairRight,
   asyncTap,
 } = require("./functional");
-const { multiply, map, unapply } = require("ramda");
+const { equals, multiply, map, unapply, T, F } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, (input) =>
@@ -123,4 +124,12 @@ test("test asyncTap", async () => {
   const result = await asyncTap((x) => Promise.resolve(x * 2))(2);
   expect.assertions(1);
   expect(result).toStrictEqual(2);
+});
+
+test("test asyncIfElse", async () => {
+  const testFunction = asyncIfElse((x) => Promise.resolve(equals(x, 2)), T, F);
+
+  expect.assertions(2);
+  expect(await testFunction(2)).toStrictEqual(true);
+  expect(await testFunction(3)).toStrictEqual(false);
 });

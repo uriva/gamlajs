@@ -103,3 +103,10 @@ export const stack = (functions) =>
     (values) => zip(functions, values),
     map(([f, x]) => f(x))
   );
+
+export const asyncIfElse = (predicate, fTrue, fFalse) => async (...args) => {
+  if (await predicate(...args)) {
+    return fTrue(...args);
+  }
+  return fFalse(...args);
+};
