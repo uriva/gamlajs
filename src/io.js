@@ -14,7 +14,7 @@ import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 export const executeConditionally = (executeQueue, condition) => (
   clear,
   resolveAll
-) => when(condition, asyncPipe(tap(clear), executeQueue, resolveAll));
+) => pipe(tap(clear), when(condition, asyncPipe(executeQueue, resolveAll)));
 
 export const batch = (keyFn, waitTime, execute) => {
   const queues = {};
