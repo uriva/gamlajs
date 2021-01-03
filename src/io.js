@@ -1,5 +1,6 @@
 import {
   applySpec,
+  ifElse,
   isNil,
   juxt,
   map,
@@ -7,17 +8,39 @@ import {
   prop,
   tap,
   unless,
-  when,
 } from "ramda";
 import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 
-export const executeConditionally = (executeQueue, condition) => (
-  clear,
-  resolveAll
-) => pipe(tap(clear), when(condition, asyncPipe(executeQueue, resolveAll)));
-
-export const batch = (keyFn, waitTime, execute) => {
+const maxWaitTimeout = {};
+/**
+ * Queues the "execute" function until the condition is met or maxWaitTime has passed.
+ * Once that happens we flush the queue and run the execute functions
+ */
+export const batch = (keyFn, maxWaitTime, execute, condition) => {
   const queues = {};
+  const flush_queue = (key) =>
+    pipe(
+      () => queues[key],
+      unless(
+        isNil,
+        pipe(
+          applySpec({
+            input: map(prop("input")),
+            reject: pipe(map(prop("reject")), juxt),
+            resolve: pipe(map(prop("resolve")), stack),
+          }),
+          ({ input, resolve, reject }) =>
+            asyncExcepts(
+              asyncPipe(
+                tap(() => delete queues[key]),
+                execute,
+                resolve
+              ),
+              reject
+            )(input)
+        )
+      )
+    );
 
   return asyncPipe(
     asyncPairRight(keyFn),
@@ -25,28 +48,13 @@ export const batch = (keyFn, waitTime, execute) => {
       new Promise((resolve, reject) => {
         queues[key] = queues[key] || [];
         queues[key].push({ resolve, reject, input });
-
-        setTimeout(
-          pipe(
-            () => queues[key],
-            unless(
-              isNil,
-              pipe(
-                applySpec({
-                  input: map(prop("input")),
-                  reject: pipe(map(prop("reject")), juxt),
-                  resolve: pipe(map(prop("resolve")), stack),
-                }),
-                ({ input, resolve, reject }) =>
-                  asyncExcepts(
-                    execute(() => delete queues[key], resolve),
-                    reject
-                  )(input)
-              )
-            )
-          ),
-          waitTime
-        );
+        ifElse(condition, flush_queue(key), () => {
+          clearTimeout(maxWaitTimeout[key]);
+          maxWaitTimeout[key] = setTimeout(
+            pipe(() => delete maxWaitTimeout[key], flush_queue(key)),
+            maxWaitTime
+          );
+        })(input);
       })
   );
 };
