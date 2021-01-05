@@ -11,13 +11,14 @@ import {
 } from "ramda";
 import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 
-const maxWaitTimeout = {};
 /**
  * Queues the "execute" function until the condition is met or maxWaitTime has passed.
- * Once that happens we flush the queue and run the execute functions
+ * Once one of the above happens we flush the queue and run the execute functions
  */
 export const batch = (keyFn, maxWaitTime, execute, condition) => {
   const queues = {};
+  const maxWaitTimeout = {};
+
   const flush_queue = (key) =>
     pipe(
       () => queues[key],
