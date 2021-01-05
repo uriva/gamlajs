@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/nitzo/gamlajs#readme",
   "dependencies": {
-    "node-cache": "^5.1.0",
+    "node-cache": "^5.1.2",
     "object-hash": "^2.0.1",
     "ramda": "^0.26.1"
   },
@@ -35,7 +35,7 @@
     "eslint": "^7.9.0",
     "eslint-plugin-import": "^2.22.0",
     "eslint-plugin-jest": "^24.0.2",
-    "jest": "^26.1.0",
+    "jest": "^26.6.3",
     "prettier": "^2.1.2"
   }
 }
