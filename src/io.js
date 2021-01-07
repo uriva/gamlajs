@@ -1,5 +1,6 @@
 import {
   applySpec,
+  ifElse,
   isNil,
   juxt,
   map,
@@ -7,17 +8,36 @@ import {
   prop,
   tap,
   unless,
-  when,
 } from "ramda";
 import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 
-export const executeConditionally = (executeQueue, condition) => (
-  clear,
-  resolveAll
-) => when(condition, asyncPipe(tap(clear), executeQueue, resolveAll));
+const clearAndExecuteQueue = (getQueue, clearQueue, execute) =>
+  pipe(
+    getQueue,
+    unless(
+      isNil,
+      pipe(
+        applySpec({
+          input: map(prop("input")),
+          reject: pipe(map(prop("reject")), juxt),
+          resolve: pipe(map(prop("resolve")), stack),
+        }),
+        ({ input, resolve, reject }) =>
+          asyncExcepts(
+            asyncPipe(tap(clearQueue), execute, resolve),
+            reject
+          )(input)
+      )
+    )
+  );
 
-export const batch = (keyFn, waitTime, execute) => {
+/**
+ * Queues the "execute" function until the condition is met or maxWaitTime has passed.
+ * Once one of the above happens we flush the queue and run the execute functions
+ */
+export const batch = (keyFn, maxWaitTime, execute, condition) => {
   const queues = {};
+  const maxWaitTimeout = {};
 
   return asyncPipe(
     asyncPairRight(keyFn),
@@ -25,28 +45,19 @@ export const batch = (keyFn, waitTime, execute) => {
       new Promise((resolve, reject) => {
         queues[key] = queues[key] || [];
         queues[key].push({ resolve, reject, input });
-
-        setTimeout(
-          pipe(
-            () => queues[key],
-            unless(
-              isNil,
-              pipe(
-                applySpec({
-                  input: map(prop("input")),
-                  reject: pipe(map(prop("reject")), juxt),
-                  resolve: pipe(map(prop("resolve")), stack),
-                }),
-                ({ input, resolve, reject }) =>
-                  asyncExcepts(
-                    execute(() => delete queues[key], resolve),
-                    reject
-                  )(input)
-              )
-            )
-          ),
-          waitTime
+        const clearQueue = clearAndExecuteQueue(
+          () => queues[key],
+          () => delete queues[key],
+          execute
         );
+
+        ifElse(condition, clearQueue, () => {
+          clearTimeout(maxWaitTimeout[key]);
+          maxWaitTimeout[key] = setTimeout(
+            pipe(() => delete maxWaitTimeout[key], clearQueue),
+            maxWaitTime
+          );
+        })(input);
       })
   );
 };

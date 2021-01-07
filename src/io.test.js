@@ -9,7 +9,8 @@ import {
   reduce,
   repeat,
 } from "ramda";
-import { batch, executeConditionally, singleToMultiple } from "./io";
+import { batch, singleToMultiple } from "./io";
+import { sleep } from "./lock";
 
 const sumOfThings = (numbers) =>
   Promise.resolve(
@@ -20,14 +21,12 @@ const sumOfThings = (numbers) =>
 const batchedSum = batch(
   prop("id"),
   100,
-  executeConditionally(
-    singleToMultiple(
-      pipe(map(prop("numbers")), reduce(concat, [])),
-      (tasks, results) => repeat(results, tasks.length),
-      sumOfThings
-    ),
-    always(true)
-  )
+  singleToMultiple(
+    pipe(map(prop("numbers")), reduce(concat, [])),
+    (tasks, results) => repeat(results, tasks.length),
+    sumOfThings
+  ),
+  always(true)
 );
 
 test("batch", async () => {
@@ -37,8 +36,8 @@ test("batch", async () => {
   ]);
 
   expect.assertions(2);
-  expect(result[0]).toEqual(result[1]);
-  expect(result[0]).toEqual(22);
+  expect(result[0]).toEqual(10);
+  expect(result[1]).toEqual(22);
 });
 
 test("batch key", async () => {
@@ -55,11 +54,12 @@ test("batch condition", async () => {
   let count = 0;
   const f = batch(
     () => "key",
-    0,
-    executeConditionally((args) => {
+    1,
+    (args) => {
       count++;
       return Promise.resolve(args);
-    }, pipe(length, equals(5)))
+    },
+    pipe(length, equals(5))
   );
 
   const result = await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
@@ -71,11 +71,9 @@ test("batch condition", async () => {
 test("batch with exceptions", async () => {
   const f = batch(
     () => "key",
-    0,
-    executeConditionally(
-      () => Promise.reject("error!"),
-      pipe(length, equals(5))
-    )
+    1,
+    () => Promise.reject("error!"),
+    pipe(length, equals(5))
   );
 
   expect.assertions(1);
@@ -85,4 +83,27 @@ test("batch with exceptions", async () => {
   } catch (err) {
     expect(err).toEqual("error!");
   }
+});
+
+test("batch condition max wait time", async () => {
+  let count = 0;
+  const f = batch(
+    () => "key",
+    100,
+    (args) => {
+      count++;
+      return Promise.resolve(args);
+    },
+    always(false)
+  );
+
+  f(1);
+  await sleep(10);
+  f(2);
+  await sleep(10);
+  f(3);
+  const result = await f(4);
+  expect.assertions(2);
+  expect(result).toEqual(4);
+  expect(count).toEqual(1);
 });
