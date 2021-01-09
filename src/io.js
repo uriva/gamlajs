@@ -57,7 +57,7 @@ export const batch = (keyFn, maxWaitTime, execute, condition) => {
             pipe(() => delete maxWaitTimeout[key], clearQueue),
             maxWaitTime
           );
-        })(input);
+        })(queues[key]);
       })
   );
 };
