@@ -1,63 +1,53 @@
-import {
-  applySpec,
-  ifElse,
-  isNil,
-  juxt,
-  map,
-  pipe,
-  prop,
-  tap,
-  unless,
-} from "ramda";
+import { applySpec, ifElse, juxt, map, pipe, prop, tap } from "ramda";
 import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional";
 
-const clearAndExecuteQueue = (getQueue, clearQueue, execute) =>
+const clearAndExecuteTasks = (clearTasks, execute) =>
   pipe(
-    getQueue,
-    unless(
-      isNil,
-      pipe(
-        applySpec({
-          input: map(prop("input")),
-          reject: pipe(map(prop("reject")), juxt),
-          resolve: pipe(map(prop("resolve")), stack),
-        }),
-        ({ input, resolve, reject }) =>
-          asyncExcepts(
-            asyncPipe(tap(clearQueue), execute, resolve),
-            reject
-          )(input)
-      )
-    )
+    tap(clearTasks),
+    applySpec({
+      input: map(prop("input")),
+      reject: pipe(map(prop("reject")), juxt),
+      resolve: pipe(map(prop("resolve")), stack),
+    }),
+    ({ input, resolve, reject }) =>
+      asyncExcepts(asyncPipe(execute, resolve), reject)(input)
   );
 
 /**
  * Queues the "execute" function until the condition is met or maxWaitTime has passed.
  * Once one of the above happens we flush the queue and run the execute functions
  */
-export const batch = (keyFn, maxWaitTime, execute, condition) => {
-  const queues = {};
-  const maxWaitTimeout = {};
+export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
+  const keyToTasks = {};
+  const keyToTimeoutObject = {};
+
+  const clearTasks = (key) => () => {
+    clearTimeout(keyToTimeoutObject[key]);
+    delete keyToTimeoutObject[key];
+    delete keyToTasks[key];
+  };
+
+  const clearAndExecute = (key) =>
+    clearAndExecuteTasks(clearTasks(key), execute)(keyToTasks[key]);
 
   return asyncPipe(
     asyncPairRight(keyFn),
     ([input, key]) =>
       new Promise((resolve, reject) => {
-        queues[key] = queues[key] || [];
-        queues[key].push({ resolve, reject, input });
-        const clearQueue = clearAndExecuteQueue(
-          () => queues[key],
-          () => delete queues[key],
-          execute
-        );
+        keyToTasks[key] = [
+          ...(keyToTasks[key] || []),
+          { resolve, reject, input },
+        ];
 
-        ifElse(condition, clearQueue, () => {
-          clearTimeout(maxWaitTimeout[key]);
-          maxWaitTimeout[key] = setTimeout(
-            pipe(() => delete maxWaitTimeout[key], clearQueue),
-            maxWaitTime
+        if (condition(map(prop("input"), keyToTasks[key]))) {
+          clearAndExecute(key);
+        } else {
+          clearTimeout(keyToTimeoutObject[key]);
+          keyToTimeoutObject[key] = setTimeout(
+            () => clearAndExecute(key),
+            maxWaitMilliseconds
           );
-        })(map(prop("input"), queues[key]));
+        }
       })
   );
 };

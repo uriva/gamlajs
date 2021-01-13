@@ -37,7 +37,7 @@ test("batch", async () => {
 
   expect.assertions(2);
   expect(result[0]).toEqual(10);
-  expect(result[1]).toEqual(22);
+  expect(result[1]).toEqual(12);
 });
 
 test("batch key", async () => {
@@ -50,7 +50,7 @@ test("batch key", async () => {
   expect(result).toEqual([10, 12]);
 });
 
-test("batch condition", async () => {
+test("batch condition", async (done) => {
   let count = 0;
   const f = batch(
     () => "key",
@@ -64,8 +64,11 @@ test("batch condition", async () => {
 
   const result = await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
   expect.assertions(2);
-  expect(result).toEqual([1, 2, 3, 4, 5]);
-  expect(count).toEqual(1);
+  setTimeout(() => {
+    expect(result).toEqual([1, 2, 3, 4, 5]);
+    expect(count).toEqual(1);
+    done();
+  }, 100);
 });
 
 test("batch with exceptions", async () => {
