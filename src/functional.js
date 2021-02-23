@@ -79,7 +79,7 @@ const getTimestampMilliseconds = () => new Date().getTime();
 export const timeit = (handler, f) => async (...args) => {
   const started = getTimestampMilliseconds();
   const result = await f(...args);
-  handler(getTimestampMilliseconds() - started);
+  handler(getTimestampMilliseconds() - started, args, result);
   return result;
 };
 
