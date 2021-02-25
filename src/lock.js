@@ -24,3 +24,27 @@ export const withLockByInput = (argsToLockId, lock, unlock, f) => (...args) => {
     f
   )(...args);
 };
+
+export const sequentialized = (f) => {
+  const queue = []
+  const lock = { isLocked: false };
+
+  return (...args) => new Promise(async (resolve, reject) => { // eslint-disable-line no-async-promise-executor
+      queue.push([args, resolve, reject])
+
+      if (lock.isLocked) return;
+
+      lock.isLocked = true;
+
+      while (queue.length) {
+        const [args, resolve, reject] = queue.shift();
+        try {
+          resolve(await f(...args));
+        } catch (e) {
+          reject(e);
+        }
+      }
+
+      lock.isLocked = false;
+    })
+}
