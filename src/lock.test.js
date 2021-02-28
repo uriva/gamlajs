@@ -3,6 +3,7 @@ const {
   withLock,
   makeLockUnlockWithId,
   withLockByInput,
+  sequentialized
 } = require("./lock");
 const { identity } = require("ramda");
 
@@ -85,3 +86,19 @@ test("test lock by input", async () => {
   expect(results1).toStrictEqual([100, 300]);
   expect(results2).toStrictEqual([300, 100]);
 });
+
+
+test("sequentialized", async () => {
+  const arr = []
+  const f = async (a) => {
+    await sleep(a)
+    arr.push(a)
+  }
+  const f_sec = sequentialized(f)
+  await Promise.all([f_sec(100),f_sec(10)])
+
+  expect(arr).toStrictEqual([100,10])
+
+
+
+})
