@@ -2,6 +2,7 @@ import {
   adjust,
   apply,
   chain,
+  concat,
   curry,
   filter,
   fromPairs,
@@ -110,3 +111,8 @@ export const asyncIfElse = (predicate, fTrue, fFalse) => async (...args) => {
   }
   return fFalse(...args);
 };
+
+export const after = (f1) => (f2) => asyncPipe(f2, f1);
+export const before = (f1) => (f2) => asyncPipe(f1, f2);
+export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
+export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
