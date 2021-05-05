@@ -5,10 +5,12 @@ import {
   concat,
   curry,
   filter,
+  flip,
   fromPairs,
   groupBy,
   head,
   identity,
+  includes,
   juxt,
   last,
   map,
@@ -116,3 +118,5 @@ export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
+
+export const contains = flip(includes);

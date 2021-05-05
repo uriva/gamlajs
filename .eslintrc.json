@@ -27,7 +27,8 @@
     "no-useless-rename": "error",
     "no-var": "error",
     "yoda": "error",
-    "arrow-body-style": "error"
+    "arrow-body-style": "error",
+    "no-async-promise-executor": "warn"
   },
   "plugins": ["jest"]
 }
