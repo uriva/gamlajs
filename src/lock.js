@@ -30,8 +30,8 @@ export const sequentialized = (f) => {
   const lock = { isLocked: false };
 
   return (...args) =>
+    // eslint-disable-next-line no-async-promise-executor
     new Promise(async (resolve, reject) => {
-      // eslint-disable-line no-async-promise-executor
       queue.push([args, resolve, reject]);
 
       if (lock.isLocked) return;
