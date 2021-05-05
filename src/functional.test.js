@@ -6,6 +6,7 @@ const {
   asyncJuxt,
   asyncMap,
   asyncFilter,
+  contains,
   keyMap,
   asyncReduce,
   zip,
@@ -151,4 +152,10 @@ test("mapCat", async () => {
 
   expect.assertions(1);
   expect(await testFunction([1, 2])).toStrictEqual([1, 2, 2, 3]);
+});
+
+test("contains", () => {
+  expect.assertions(2);
+  expect(contains([1, 2, 3])(1)).toBeTruthy();
+  expect(contains([1, 2, 3])(4)).toBeFalsy();
 });
