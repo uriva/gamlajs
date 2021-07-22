@@ -67,12 +67,7 @@ test("test async juxt", async () => {
 
 test("test async filter", async () => {
   const result = await asyncFilter((arg) => Promise.resolve(arg % 2 === 0))([
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
+    1, 2, 3, 4, 5, 6,
   ]);
 
   expect.assertions(1);
@@ -96,14 +91,11 @@ test("test async reduce", async () => {
 });
 
 test("test async reduce no async input", async () => {
-  const result = await asyncReduce((acc, item) => acc + item, 0, [
-    1,
-    2,
-    3,
-    4,
-    5,
-    6,
-  ]);
+  const result = await asyncReduce(
+    (acc, item) => acc + item,
+    0,
+    [1, 2, 3, 4, 5, 6]
+  );
 
   expect.assertions(1);
   expect(result).toEqual(21);

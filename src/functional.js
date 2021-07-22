@@ -37,26 +37,32 @@ const resolveAll = (promises) => Promise.all(promises);
 
 export const asyncIdentity = (input) => Promise.resolve(input);
 
-export const asyncPipe = (...funcs) => (input) =>
-  reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
+export const asyncPipe =
+  (...funcs) =>
+  (input) =>
+    reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
 
-export const asyncFirst = (...funcs) => async (...args) => {
-  const results = await asyncPipe(
-    map((f) => f(...args)),
-    resolveAll,
-    filter(identity)
-  )(funcs);
+export const asyncFirst =
+  (...funcs) =>
+  async (...args) => {
+    const results = await asyncPipe(
+      map((f) => f(...args)),
+      resolveAll,
+      filter(identity)
+    )(funcs);
 
-  if (results.length) {
-    return results[0];
-  }
-};
+    if (results.length) {
+      return results[0];
+    }
+  };
 
 export const asyncMap = curry((f, seq) => asyncPipe(map(f), resolveAll)(seq));
 
-export const asyncJuxt = (funcs) => (...args) =>
-  // asyncPipe is unary so we apply.
-  asyncPipe(juxt(map(apply, funcs)), resolveAll)(args);
+export const asyncJuxt =
+  (funcs) =>
+  (...args) =>
+    // asyncPipe is unary so we apply.
+    asyncPipe(juxt(map(apply, funcs)), resolveAll)(args);
 
 export const asyncFilter = (pred) =>
   asyncPipe(
@@ -79,12 +85,14 @@ export const zip = (...arrays) =>
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
-export const timeit = (handler, f) => async (...args) => {
-  const started = getTimestampMilliseconds();
-  const result = await f(...args);
-  handler(getTimestampMilliseconds() - started, args, result);
-  return result;
-};
+export const timeit =
+  (handler, f) =>
+  async (...args) => {
+    const started = getTimestampMilliseconds();
+    const result = await f(...args);
+    handler(getTimestampMilliseconds() - started, args, result);
+    return result;
+  };
 
 export const asyncTap = (f) => async (x) => {
   await f(x);
@@ -93,13 +101,15 @@ export const asyncTap = (f) => async (x) => {
 
 export const asyncPairRight = (f) => asyncJuxt([identity, f]);
 
-export const asyncExcepts = (func, handler) => async (...args) => {
-  try {
-    return await func(...args);
-  } catch (err) {
-    return handler(err);
-  }
-};
+export const asyncExcepts =
+  (func, handler) =>
+  async (...args) => {
+    try {
+      return await func(...args);
+    } catch (err) {
+      return handler(err);
+    }
+  };
 
 export const stack = (functions) =>
   pipe(
@@ -107,12 +117,14 @@ export const stack = (functions) =>
     map(([f, x]) => f(x))
   );
 
-export const asyncIfElse = (predicate, fTrue, fFalse) => async (...args) => {
-  if (await predicate(...args)) {
-    return fTrue(...args);
-  }
-  return fFalse(...args);
-};
+export const asyncIfElse =
+  (predicate, fTrue, fFalse) =>
+  async (...args) => {
+    if (await predicate(...args)) {
+      return fTrue(...args);
+    }
+    return fFalse(...args);
+  };
 
 export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
