@@ -137,15 +137,6 @@ export const type = (x) => typeof x;
 
 export const isInstance = (x) => pipe(type, equals(x));
 
-export const cases =
-  (cases) =>
-  (...args) => {
-    for (const [condition, result] of cases) {
-      if (condition(...args)) return result(...args);
-    }
-    throw `No condition matched`;
-  };
-
 export const testRegExp = (regexp) => (x) => regexp.test(x);
 
 export const isValidRegExp = (str) => {
