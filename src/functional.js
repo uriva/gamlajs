@@ -132,8 +132,6 @@ export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
 export const contains = flip(includes);
 
-export const type = (x) => typeof x;
-
 export const testRegExp = (regexp) => (x) => regexp.test(x);
 
 export const isValidRegExp = (str) => {

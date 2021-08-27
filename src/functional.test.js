@@ -14,7 +14,6 @@ const {
   asyncTap,
   juxtCat,
   mapCat,
-  type,
   testRegExp,
   isValidRegExp,
 } = require("./functional");
@@ -153,11 +152,6 @@ test("contains", () => {
   expect.assertions(2);
   expect(contains([1, 2, 3])(1)).toBeTruthy();
   expect(contains([1, 2, 3])(4)).toBeFalsy();
-});
-
-test("type", () => {
-  expect(type("asd")).toEqual("string");
-  expect(type({})).toEqual("object");
 });
 
 test("testRegExp", () => {
