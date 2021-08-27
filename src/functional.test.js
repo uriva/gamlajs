@@ -14,8 +14,12 @@ const {
   asyncTap,
   juxtCat,
   mapCat,
+  cases,
+  type,
+  testRegExp,
+  isInstance,
 } = require("./functional");
-const { equals, multiply, map, unapply, T, F } = require("ramda");
+const { equals, multiply, map, unapply, T, F, identity } = require("ramda");
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(asyncIdentity, (input) =>
@@ -150,4 +154,29 @@ test("contains", () => {
   expect.assertions(2);
   expect(contains([1, 2, 3])(1)).toBeTruthy();
   expect(contains([1, 2, 3])(4)).toBeFalsy();
+});
+
+test("type", () => {
+  expect(type("asd")).toEqual("string");
+  expect(type({})).toEqual("object");
+});
+
+test("isInstance", () => {
+  expect(isInstance("string")("asd")).toBeTruthy();
+  expect(isInstance("object")("asd")).toBeFalsy();
+});
+
+test("cases", () => {
+  expect(
+    cases([
+      [equals(1), identity],
+      [equals(2), (x) => x + 1],
+      [equals(2), identity],
+    ])(2)
+  ).toEqual(3);
+});
+
+test("testRegExp", () => {
+  expect(testRegExp(/asd/)("asd")).toBeTruthy();
+  expect(testRegExp(/asd/)("ooo")).toBeFalsy();
 });

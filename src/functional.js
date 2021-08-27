@@ -4,6 +4,7 @@ import {
   chain,
   concat,
   curry,
+  equals,
   filter,
   flip,
   fromPairs,
@@ -130,5 +131,19 @@ export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
-
 export const contains = flip(includes);
+
+export const type = (x) => typeof x;
+
+export const isInstance = (x) => pipe(type, equals(x));
+
+export const cases =
+  (cases) =>
+  (...args) => {
+    for (const [condition, result] of cases) {
+      if (condition(...args)) return result(...args);
+    }
+    throw `No condition matched`;
+  };
+
+export const testRegExp = (regex) => (x) => regex.test(x);
