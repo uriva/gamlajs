@@ -18,6 +18,7 @@ const {
   type,
   testRegExp,
   isInstance,
+  isValidRegExp,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F, identity } = require("ramda");
 
@@ -179,4 +180,10 @@ test("cases", () => {
 test("testRegExp", () => {
   expect(testRegExp(/asd/)("asd")).toBeTruthy();
   expect(testRegExp(/asd/)("ooo")).toBeFalsy();
+});
+
+test("isValidRegExp", () => {
+  expect(isValidRegExp("\bhello\b")).toBeTruthy();
+  expect(isValidRegExp("?")).toBeFalsy();
+  expect(isValidRegExp("a?")).toBeTruthy();
 });

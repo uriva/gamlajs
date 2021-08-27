@@ -146,4 +146,13 @@ export const cases =
     throw `No condition matched`;
   };
 
-export const testRegExp = (regex) => (x) => regex.test(x);
+export const testRegExp = (regexp) => (x) => regexp.test(x);
+
+export const isValidRegExp = (str) => {
+  try {
+    new RegExp(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
