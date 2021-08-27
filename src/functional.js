@@ -4,7 +4,6 @@ import {
   chain,
   concat,
   curry,
-  equals,
   filter,
   flip,
   fromPairs,
@@ -134,8 +133,6 @@ export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
 export const contains = flip(includes);
 
 export const type = (x) => typeof x;
-
-export const isInstance = (x) => pipe(type, equals(x));
 
 export const testRegExp = (regexp) => (x) => regexp.test(x);
 

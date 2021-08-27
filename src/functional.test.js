@@ -16,7 +16,6 @@ const {
   mapCat,
   type,
   testRegExp,
-  isInstance,
   isValidRegExp,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F } = require("ramda");
@@ -159,11 +158,6 @@ test("contains", () => {
 test("type", () => {
   expect(type("asd")).toEqual("string");
   expect(type({})).toEqual("object");
-});
-
-test("isInstance", () => {
-  expect(isInstance("string")("asd")).toBeTruthy();
-  expect(isInstance("object")("asd")).toBeFalsy();
 });
 
 test("testRegExp", () => {
