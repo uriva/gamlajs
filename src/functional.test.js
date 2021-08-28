@@ -14,6 +14,8 @@ const {
   asyncTap,
   juxtCat,
   mapCat,
+  testRegExp,
+  isValidRegExp,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F } = require("ramda");
 
@@ -150,4 +152,15 @@ test("contains", () => {
   expect.assertions(2);
   expect(contains([1, 2, 3])(1)).toBeTruthy();
   expect(contains([1, 2, 3])(4)).toBeFalsy();
+});
+
+test("testRegExp", () => {
+  expect(testRegExp(/asd/)("asd")).toBeTruthy();
+  expect(testRegExp(/asd/)("ooo")).toBeFalsy();
+});
+
+test("isValidRegExp", () => {
+  expect(isValidRegExp("\bhello\b")).toBeTruthy();
+  expect(isValidRegExp("?")).toBeFalsy();
+  expect(isValidRegExp("a?")).toBeTruthy();
 });

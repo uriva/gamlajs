@@ -130,5 +130,15 @@ export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
-
 export const contains = flip(includes);
+
+export const testRegExp = (regexp) => (x) => regexp.test(x);
+
+export const isValidRegExp = (str) => {
+  try {
+    new RegExp(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};
