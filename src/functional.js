@@ -117,6 +117,12 @@ export const stack = (functions) =>
     map(([f, x]) => f(x))
   );
 
+export const asyncStack = (functions) =>
+  asyncPipe(
+    (values) => zip(functions, values),
+    asyncMap(([f, x]) => f(x))
+  );
+
 export const asyncIfElse =
   (predicate, fTrue, fFalse) =>
   async (...args) => {
@@ -142,3 +148,32 @@ export const isValidRegExp = (str) => {
     return false;
   }
 };
+
+export const asyncValMap = (f) =>
+  asyncPipe(toPairs, asyncMap(asyncStack([identity, f])), fromPairs);
+
+// See MDN Object constructor.
+const isObject = (obj) => obj === Object(obj);
+
+export const asyncMapObjectTerminals = (terminalMapper) => (obj) => {
+  if (Array.isArray(obj)) {
+    return asyncMap(asyncMapObjectTerminals(terminalMapper), obj);
+  }
+
+  if (isObject(obj) && !(obj instanceof Function)) {
+    return asyncValMap(asyncMapObjectTerminals(terminalMapper))(obj);
+  }
+
+  return terminalMapper(obj);
+};
+
+// This function differs from ramda's by the fact it supports variadic functions.
+export const applyTo =
+  (...args) =>
+  (f) =>
+    f(...args);
+
+export const asyncApplySpec =
+  (spec) =>
+  (...args) =>
+    asyncMapObjectTerminals(applyTo(...args))(spec);

@@ -1,21 +1,24 @@
 const {
+  asyncApplySpec,
+  asyncFilter,
   asyncFirst,
-  asyncPipe,
   asyncIdentity,
   asyncIfElse,
   asyncJuxt,
   asyncMap,
-  asyncFilter,
-  contains,
-  keyMap,
-  asyncReduce,
-  zip,
+  asyncMapObjectTerminals,
   asyncPairRight,
+  asyncPipe,
+  asyncReduce,
   asyncTap,
+  asyncValMap,
+  contains,
+  isValidRegExp,
   juxtCat,
+  keyMap,
   mapCat,
   testRegExp,
-  isValidRegExp,
+  zip,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F } = require("ramda");
 
@@ -163,4 +166,36 @@ test("isValidRegExp", () => {
   expect(isValidRegExp("\bhello\b")).toBeTruthy();
   expect(isValidRegExp("?")).toBeFalsy();
   expect(isValidRegExp("a?")).toBeTruthy();
+});
+
+test("asyncValMap", async () => {
+  expect(
+    await asyncValMap((x) => Promise.resolve(x + 1))({ a: 1, b: 3 })
+  ).toEqual({
+    a: 2,
+    b: 4,
+  });
+});
+
+test("asyncMapObject", async () => {
+  expect(
+    await asyncMapObjectTerminals((x) => Promise.resolve(x + 1))({
+      a: { a: 1, b: 2 },
+      b: 3,
+      c: [1, 2, 3],
+    })
+  ).toEqual({
+    a: { a: 2, b: 3 },
+    b: 4,
+    c: [2, 3, 4],
+  });
+});
+
+test("asyncApplySpec", async () => {
+  expect(
+    await asyncApplySpec({
+      a: (obj) => Promise.resolve(obj.x),
+      b: { a: (obj) => Promise.resolve(obj.y) },
+    })({ x: 1, y: 2 })
+  ).toEqual({ a: 1, b: { a: 2 } });
 });
