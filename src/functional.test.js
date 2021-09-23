@@ -12,6 +12,8 @@ const {
   asyncReduce,
   asyncTap,
   asyncValMap,
+  asyncUnless,
+  asyncWhen,
   contains,
   isValidRegExp,
   juxtCat,
@@ -132,6 +134,22 @@ test("test asyncIfElse", async () => {
   expect.assertions(2);
   expect(await testFunction(2)).toStrictEqual(true);
   expect(await testFunction(3)).toStrictEqual(false);
+});
+
+test("test asyncUnless", async () => {
+  const testFunction = asyncUnless((x) => Promise.resolve(equals(x, 2)), T);
+
+  expect.assertions(2);
+  expect(await testFunction(2)).toStrictEqual(2);
+  expect(await testFunction(3)).toStrictEqual(true);
+});
+
+test("test asyncWhen", async () => {
+  const testFunction = asyncWhen((x) => Promise.resolve(equals(x, 2)), T);
+
+  expect.assertions(2);
+  expect(await testFunction(2)).toStrictEqual(true);
+  expect(await testFunction(3)).toStrictEqual(3);
 });
 
 test("juxtCat", async () => {
