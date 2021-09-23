@@ -132,6 +132,11 @@ export const asyncIfElse =
     return fFalse(...args);
   };
 
+export const asyncUnless = (predicate, fFalse) =>
+  asyncIfElse(predicate, asyncIdentity, fFalse);
+export const asyncWhen = (predicate, fTrue) =>
+  asyncIfElse(predicate, fTrue, asyncIdentity);
+
 export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
