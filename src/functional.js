@@ -1,7 +1,9 @@
 import {
+  addIndex,
   adjust,
   apply,
   chain,
+  complement,
   concat,
   curry,
   filter,
@@ -10,14 +12,15 @@ import {
   groupBy,
   head,
   identity,
+  ifElse,
   includes,
   juxt,
   last,
   map,
   nth,
   pipe,
+  prop,
   reduce,
-  tap,
   toPairs,
   uniq,
   xprod,
@@ -31,11 +34,11 @@ export const groupByMany = (f) =>
     edgesToGraph
   );
 
-export const log = tap(console.log);
+// Cannot be made point free.
+export const promiseAll = (promises) => Promise.all(promises);
 
-const resolveAll = (promises) => Promise.all(promises);
-
-export const asyncIdentity = (input) => Promise.resolve(input);
+// Cannot be made point free.
+export const wrapPromise = (x) => Promise.resolve(x);
 
 export const asyncPipe =
   (...funcs) =>
@@ -47,7 +50,7 @@ export const asyncFirst =
   async (...args) => {
     const results = await asyncPipe(
       map((f) => f(...args)),
-      resolveAll,
+      promiseAll,
       filter(identity)
     )(funcs);
 
@@ -56,13 +59,13 @@ export const asyncFirst =
     }
   };
 
-export const asyncMap = curry((f, seq) => asyncPipe(map(f), resolveAll)(seq));
+export const asyncMap = curry((f, seq) => asyncPipe(map(f), promiseAll)(seq));
 
 export const asyncJuxt =
   (funcs) =>
   (...args) =>
     // asyncPipe is unary so we apply.
-    asyncPipe(juxt(map(apply, funcs)), resolveAll)(args);
+    asyncPipe(juxt(map(apply, funcs)), promiseAll)(args);
 
 export const asyncFilter = (pred) =>
   asyncPipe(
@@ -182,3 +185,53 @@ export const asyncApplySpec =
   (spec) =>
   (...args) =>
     asyncMapObjectTerminals(applyTo(...args))(spec);
+
+export const product = reduce(
+  (a, b) => a.flatMap((x) => b.map((y) => [...x, y])),
+  [[]]
+);
+
+export const sideEffect = (f) => (x) => {
+  f(x);
+  return x;
+};
+
+export const wrapArray = (x) => [x];
+
+export const log = sideEffect(console.log);
+export const logTable = sideEffect(console.table);
+export const includedIn = (stuff) => (x) => stuff.includes(x);
+export const logWith = (...x) => sideEffect((y) => console.log(...x, y));
+export const pack = (...stuff) => stuff;
+
+const doOnPositions = (f, predicate) =>
+  pipe(pack, ifElse(pipe(nth(1), predicate), pipe(head, f), head));
+
+export const remove = pipe(complement, (f) => (arr) => arr.remove(f));
+
+export const explode = (...positions) =>
+  pipe(
+    addIndex(map)(doOnPositions(wrapArray, complement(includedIn(positions)))),
+    product
+  );
+
+export const anymap = (f) => (arr) => arr.some(f);
+export const allmap = (f) => (arr) => arr.every(f);
+export const count = prop("length");
+export const mapcat = (f) => pipe(map(f), reduce(concat, []));
+export const rate = (f) =>
+  pipe(juxt([pipe(filter(f), count), count]), ([x, y]) => x / y);
+
+export const countTo = (x) => {
+  const result = [];
+  for (let i = 0; i < x; i++) result.push(i);
+  return result;
+};
+
+export const valmap = (f) => (o) =>
+  Object.fromEntries(Object.entries(o).map(([x, y]) => [x, f(y)]));
+
+export const between =
+  ([start, end]) =>
+  (x) =>
+    start <= x && x < end;

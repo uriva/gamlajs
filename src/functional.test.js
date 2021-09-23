@@ -2,7 +2,7 @@ const {
   asyncApplySpec,
   asyncFilter,
   asyncFirst,
-  asyncIdentity,
+  wrapPromise,
   asyncIfElse,
   asyncJuxt,
   asyncMap,
@@ -21,11 +21,14 @@ const {
   mapCat,
   testRegExp,
   zip,
+  product,
+  explode,
+  between,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F } = require("ramda");
 
 test("test asyncPipe", async () => {
-  const result = await asyncPipe(asyncIdentity, (input) =>
+  const result = await asyncPipe(wrapPromise, (input) =>
     Promise.resolve(multiply(input, 2))
   )(2);
   expect.assertions(1);
@@ -35,7 +38,7 @@ test("test asyncPipe", async () => {
 test("test asyncFirst", async () => {
   const result = await asyncFirst(
     () => Promise.resolve(null),
-    asyncIdentity
+    wrapPromise
   )([1, 2, 3]);
 
   expect.assertions(1);
@@ -61,7 +64,7 @@ test("test async map", async () => {
 
 test("test async juxt", async () => {
   const result = await asyncJuxt([
-    unapply(asyncIdentity),
+    unapply(wrapPromise),
     unapply((input) => Promise.resolve(map(multiply(2), input))),
   ])(2, 3);
 
@@ -216,4 +219,34 @@ test("asyncApplySpec", async () => {
       b: { a: (obj) => Promise.resolve(obj.y) },
     })({ x: 1, y: 2 })
   ).toEqual({ a: 1, b: { a: 2 } });
+});
+
+test("product", () => {
+  expect(product([])).toEqual([[]]);
+  expect(product([[], [1, 2, 3]])).toEqual([]);
+  expect(
+    product([
+      ["a", "b"],
+      [1, 2],
+    ])
+  ).toEqual([
+    ["a", 1],
+    ["a", 2],
+    ["b", 1],
+    ["b", 2],
+  ]);
+});
+
+test("explode", () => {
+  expect(explode(1)(["a", [1, 2, 3], "b"])).toEqual([
+    ["a", 1, "b"],
+    ["a", 2, "b"],
+    ["a", 3, "b"],
+  ]);
+});
+
+test("between", () => {
+  expect(between([1, 2])(1)).toBeTruthy();
+  expect(between([1, 2])(2)).toBeFalsy();
+  expect(between([1, 4])(2.5)).toBeTruthy();
 });
