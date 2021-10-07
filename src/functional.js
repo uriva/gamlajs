@@ -136,9 +136,9 @@ export const asyncIfElse =
   };
 
 export const asyncUnless = (predicate, fFalse) =>
-  asyncIfElse(predicate, asyncIdentity, fFalse);
+  asyncIfElse(predicate, wrapPromise, fFalse);
 export const asyncWhen = (predicate, fTrue) =>
-  asyncIfElse(predicate, fTrue, asyncIdentity);
+  asyncIfElse(predicate, fTrue, wrapPromise);
 
 export const after = (f1) => (f2) => asyncPipe(f2, f1);
 export const before = (f1) => (f2) => asyncPipe(f1, f2);
