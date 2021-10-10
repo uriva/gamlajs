@@ -207,7 +207,7 @@ export const pack = (...stuff) => stuff;
 const doOnPositions = (f, predicate) =>
   pipe(pack, ifElse(pipe(nth(1), predicate), pipe(head, f), head));
 
-export const remove = pipe(complement, (f) => (arr) => arr.remove(f));
+export const remove = pipe(complement, (f) => (arr) => arr.filter(f));
 
 export const explode = (...positions) =>
   pipe(
