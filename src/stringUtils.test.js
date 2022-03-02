@@ -7,7 +7,7 @@ test("test capitalize", () => {
 });
 
 test("test trim", () => {
-  const result = trim("-Test", ["-"]);
+  const result = trim(["-"])("-Test");
 
   expect.assertions(1);
   expect(result).toEqual("Test");

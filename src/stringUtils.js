@@ -9,7 +9,7 @@ export const capitalize = R.pipe(
   R.join("")
 );
 
-export const trim = (str, characters) => {
+export const trim = (characters) => (str) => {
   let start = 0;
   while (characters.indexOf(str[start]) >= 0) {
     start += 1;
