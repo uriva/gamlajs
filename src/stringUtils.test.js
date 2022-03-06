@@ -6,11 +6,20 @@ test("test capitalize", () => {
   expect(result).toBe("Test");
 });
 
-test("test trim", () => {
-  const result = trim(["-"])("-Test");
+describe("test trim", () => {
+  test("start char", () => {
+    const result = trim(["-"])("-Test");
 
-  expect.assertions(1);
-  expect(result).toEqual("Test");
+    expect.assertions(1);
+    expect(result).toEqual("Test");
+  });
+
+  test("start end", () => {
+    const result = trim(["."])("OK.");
+
+    expect.assertions(1);
+    expect(result).toEqual("OK");
+  });
 });
 
 test("test truncate", () => {
