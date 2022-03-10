@@ -1,3 +1,5 @@
+import { F, T, ifElse, pipe } from "ramda";
+
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const withLock =
@@ -53,4 +55,19 @@ export const sequentialized = (f) => {
 
       lock.isLocked = false;
     });
+};
+
+export const throttle = (maxParallelism, f) => {
+  const lockObj = { count: 0 };
+  return withLock(
+    ...makeLockUnlockWithId(
+      ifElse(
+        () => lockObj.count < maxParallelism,
+        pipe(() => lockObj.count++, T),
+        F
+      ),
+      () => lockObj.count--
+    ),
+    f
+  );
 };

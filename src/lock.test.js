@@ -4,7 +4,9 @@ const {
   makeLockUnlockWithId,
   withLockByInput,
   sequentialized,
+  throttle,
 } = require("./lock");
+const { asyncMap } = require("./functional");
 const { identity } = require("ramda");
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
@@ -97,4 +99,26 @@ test("sequentialized", async () => {
   await Promise.all([f_sec(100), f_sec(10)]);
 
   expect(arr).toStrictEqual([100, 10]);
+});
+
+test("throttle", async () => {
+  let maxConcurrent = 0;
+  let insideNow = 0;
+  const enter = () => {
+    insideNow++;
+    maxConcurrent = Math.max(maxConcurrent, insideNow);
+  };
+  const exit = () => {
+    insideNow--;
+  };
+
+  const mapFn = async (x) => {
+    enter();
+    await sleep(0.01);
+    exit();
+    return x;
+  };
+
+  await asyncMap(throttle(1, mapFn))([1, 2, 3]);
+  expect(maxConcurrent).toEqual(1);
 });
