@@ -89,6 +89,45 @@ test("test lock by input", async () => {
   expect(results2).toStrictEqual([300, 100]);
 });
 
+test("lock with exception", async () => {
+  let locked = false;
+  let shouldThrow = false;
+  const [lock, unlock] = makeLockUnlockWithId(
+    () => {
+      if (locked) {
+        return false;
+      }
+      locked = true;
+      return locked;
+    },
+    async () => {
+      await sleep(0.01);
+      locked = false;
+    }
+  );
+
+  const func = withLock(lock, unlock, (x) => {
+    shouldThrow = !shouldThrow;
+    if (!shouldThrow) {
+      throw new Error("Error!");
+    }
+    return x;
+  });
+
+  const result = await asyncMap(
+    async (x) => {
+      try {
+        return await func(x);
+      } catch (e) {
+        return 0;
+      }
+    },
+    [1, 1, 1, 1]
+  );
+
+  expect(result).toEqual([1, 0, 1, 0]);
+});
+
 test("sequentialized", async () => {
   const arr = [];
   const f = async (a) => {

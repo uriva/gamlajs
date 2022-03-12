@@ -6,9 +6,14 @@ export const withLock =
   (lock, unlock, f) =>
   async (...args) => {
     await lock();
-    const result = await f(...args);
-    await unlock();
-    return result;
+    try {
+      const result = await f(...args);
+      await unlock();
+      return result;
+    } catch (e) {
+      await unlock();
+      throw e;
+    }
   };
 
 export const makeLockUnlockWithId = (set, unset) => [
