@@ -24,6 +24,7 @@ const {
   product,
   explode,
   between,
+  renameKeys,
 } = require("./functional");
 const { equals, multiply, map, unapply, T, F } = require("ramda");
 
@@ -249,4 +250,12 @@ test("between", () => {
   expect(between([1, 2])(1)).toBeTruthy();
   expect(between([1, 2])(2)).toBeFalsy();
   expect(between([1, 4])(2.5)).toBeTruthy();
+});
+
+test("test renameKeys", () => {
+  expect(renameKeys({ b: "bb", c: "cc" }, { a: 1, b: 2, c: 3 })).toEqual({
+    a: 1,
+    bb: 2,
+    cc: 3,
+  });
 });

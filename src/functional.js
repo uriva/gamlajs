@@ -2,6 +2,7 @@ import {
   addIndex,
   adjust,
   apply,
+  assoc,
   chain,
   complement,
   concat,
@@ -15,6 +16,7 @@ import {
   ifElse,
   includes,
   juxt,
+  keys,
   last,
   map,
   nth,
@@ -235,3 +237,11 @@ export const between =
   ([start, end]) =>
   (x) =>
     start <= x && x < end;
+
+export const renameKeys = curry((keysMap, obj) =>
+  reduce(
+    (acc, key) => assoc(prop(key, keysMap) || key, prop(key, obj), acc),
+    {},
+    keys(obj)
+  )
+);
