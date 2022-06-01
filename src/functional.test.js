@@ -53,14 +53,26 @@ test("test asyncFirst all fail", async () => {
   expect(result).toBeFalsy();
 });
 
-test("test async map", async () => {
-  const result = await asyncMap(
-    (input) => Promise.resolve(multiply(input, 2)),
-    [1, 2, 3]
-  );
+describe("asyncMap", () => {
+  test("test asyncMap", async () => {
+    const result = await asyncMap(
+      (input) => Promise.resolve(multiply(input, 2)),
+      [1, 2, 3]
+    );
 
-  expect.assertions(1);
-  expect(result).toEqual([2, 4, 6]);
+    expect.assertions(1);
+    expect(result).toEqual([2, 4, 6]);
+  });
+
+  test("test asyncMap empty", async () => {
+    const result = await asyncMap(
+      (input) => Promise.resolve(multiply(input, 2)),
+      []
+    );
+
+    expect.assertions(1);
+    expect(result).toEqual([]);
+  });
 });
 
 test("test async juxt", async () => {
@@ -190,12 +202,18 @@ test("isValidRegExp", () => {
   expect(isValidRegExp("a?")).toBeTruthy();
 });
 
-test("asyncValMap", async () => {
-  expect(
-    await asyncValMap((x) => Promise.resolve(x + 1))({ a: 1, b: 3 })
-  ).toEqual({
-    a: 2,
-    b: 4,
+describe("asyncValMap", () => {
+  test("asyncValMap", async () => {
+    expect(
+      await asyncValMap((x) => Promise.resolve(x + 1))({ a: 1, b: 3 })
+    ).toEqual({
+      a: 2,
+      b: 4,
+    });
+  });
+
+  test("asyncValMap empty", async () => {
+    expect(await asyncValMap((x) => Promise.resolve(x + 1))({})).toEqual({});
   });
 });
 
