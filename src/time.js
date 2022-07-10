@@ -5,3 +5,5 @@ export const addDays = (date, days) => {
 };
 
 export const lastNDays = (n) => [addDays(Date.now(), -n), Date.now()];
+
+export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
