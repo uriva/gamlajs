@@ -10,7 +10,7 @@ import {
   repeat,
 } from "ramda";
 import { batch, singleToMultiple } from "./io";
-import { sleep } from "./lock";
+import { sleep } from "./time";
 
 const sumOfThings = (numbers) =>
   Promise.resolve(

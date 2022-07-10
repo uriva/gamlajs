@@ -1,11 +1,11 @@
 const {
-  sleep,
   withLock,
   makeLockUnlockWithId,
   withLockByInput,
   sequentialized,
   throttle,
 } = require("./lock");
+const { sleep } = require("./time");
 const { asyncMap } = require("./functional");
 const { identity } = require("ramda");
 
