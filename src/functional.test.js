@@ -53,26 +53,20 @@ test("test asyncFirst all fail", async () => {
   expect(result).toBeFalsy();
 });
 
-describe("asyncMap", () => {
-  test("test asyncMap", async () => {
-    const result = await asyncMap(
-      (input) => Promise.resolve(multiply(input, 2)),
-      [1, 2, 3]
-    );
+test.each([
+  [
+    [1, 2, 3],
+    [2, 4, 6],
+  ],
+  [[], []],
+])("asyncMap with iterable %s", async (it, expected) => {
+  const result = await asyncMap(
+    (input) => Promise.resolve(multiply(input, 2)),
+    it
+  );
 
-    expect.assertions(1);
-    expect(result).toEqual([2, 4, 6]);
-  });
-
-  test("test asyncMap empty", async () => {
-    const result = await asyncMap(
-      (input) => Promise.resolve(multiply(input, 2)),
-      []
-    );
-
-    expect.assertions(1);
-    expect(result).toEqual([]);
-  });
+  expect.assertions(1);
+  expect(result).toEqual(expected);
 });
 
 test("test async juxt", async () => {
@@ -202,19 +196,16 @@ test("isValidRegExp", () => {
   expect(isValidRegExp("a?")).toBeTruthy();
 });
 
-describe("asyncValMap", () => {
-  test("asyncValMap", async () => {
-    expect(
-      await asyncValMap((x) => Promise.resolve(x + 1))({ a: 1, b: 3 })
-    ).toEqual({
-      a: 2,
-      b: 4,
-    });
-  });
-
-  test("asyncValMap empty", async () => {
-    expect(await asyncValMap((x) => Promise.resolve(x + 1))({})).toEqual({});
-  });
+test.each([
+  [
+    { a: 1, b: 3 },
+    { a: 2, b: 4 },
+  ],
+  [{}, {}],
+])("asyncValMap with input %s", async (obj, expected) => {
+  expect(await asyncValMap((x) => Promise.resolve(x + 1))(obj)).toEqual(
+    expected
+  );
 });
 
 test("asyncMapObject", async () => {
