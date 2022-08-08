@@ -1,12 +1,13 @@
 import NodeCache from "node-cache";
 import hash from "object-hash";
 import { isNil } from "ramda";
+import { throttle } from "./lock";
 
 const getCacheKey = (args) => hash.sha1(args);
 
 export const withCacheAsync = (f, options) => {
   const cache = new NodeCache(options);
-  return withCacheAsyncCustom(cache.get, cache.set, f);
+  return throttle(1, withCacheAsyncCustom(cache.get, cache.set, f));
 };
 
 export const withCacheAsyncCustom =
