@@ -7,11 +7,12 @@ const getCacheKey = (args) => hash.sha1(args);
 
 export const withCacheAsync = (f, options) => {
   const cache = new NodeCache(options);
-  return withCacheAsyncCustom(cache.get, cache.set, f);
+  return throttle(1, withCacheAsyncCustom(cache.get, cache.set, f));
 };
 
-export const withCacheAsyncCustom = (get, set, f) =>
-  throttle(1, async (...args) => {
+export const withCacheAsyncCustom =
+  (get, set, f) =>
+  async (...args) => {
     const cacheKey = getCacheKey(args);
     const value = await get(cacheKey);
     if (!isNil(value)) {
@@ -20,7 +21,7 @@ export const withCacheAsyncCustom = (get, set, f) =>
     const result = await f.apply(this, args);
     set(cacheKey, result);
     return result;
-  });
+  };
 
 export const deleteCacheAsync =
   (del) =>
