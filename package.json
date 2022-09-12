@@ -2,7 +2,7 @@
   "name": "gamlajs",
   "version": "0.0.36",
   "description": "functional programing for javascript",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "scripts": {
     "start": "npx babel src --watch --out-dir dist",
     "build": "babel src --out-dir dist",
@@ -13,7 +13,6 @@
     "node": ">=12.14"
   },
   "keywords": [],
-  "author": "Nitzan Bar",
   "license": "MIT",
   "repository": {
     "type": "git",
