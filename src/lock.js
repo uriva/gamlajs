@@ -1,5 +1,6 @@
 import { F, T, ifElse, pipe } from "ramda";
-import { sleep } from "./time";
+
+import { sleep } from "./time.js";
 
 export const withLock =
   (lock, unlock, f) =>
