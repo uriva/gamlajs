@@ -1,5 +1,5 @@
 {
-  "name": "gamlajs",
+  "name": "gamla",
   "version": "0.0.36",
   "description": "functional programing for javascript",
   "main": "src/index.js",
@@ -15,14 +15,6 @@
   },
   "keywords": [],
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/nitzo/gamlajs.git"
-  },
-  "bugs": {
-    "url": "https://github.com/nitzo/gamlajs/issues"
-  },
-  "homepage": "https://github.com/nitzo/gamlajs#readme",
   "dependencies": {
     "node-cache": "^5.1.2",
     "object-hash": "^2.0.1",
