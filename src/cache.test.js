@@ -1,4 +1,4 @@
-const { withCacheAsync } = require("./cache");
+import { withCacheAsync } from "./cache";
 
 test("async cache", async () => {
   const foo = withCacheAsync(() => Math.random());

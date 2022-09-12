@@ -1,8 +1,8 @@
-const {
+import { F, T, equals, map, multiply, unapply } from "ramda";
+import {
   asyncApplySpec,
   asyncFilter,
   asyncFirst,
-  wrapPromise,
   asyncIfElse,
   asyncJuxt,
   asyncMap,
@@ -12,24 +12,25 @@ const {
   asyncReduce,
   asyncTap,
   asyncTimeit,
-  asyncValMap,
   asyncUnless,
+  asyncValMap,
   asyncWhen,
+  between,
   contains,
+  explode,
   isValidRegExp,
   juxtCat,
   keyMap,
   mapCat,
-  testRegExp,
-  zip,
   product,
-  explode,
-  between,
   renameKeys,
+  testRegExp,
   timeit,
-} = require("./functional");
-const { equals, multiply, map, unapply, T, F } = require("ramda");
-const { sleep } = require("./time");
+  wrapPromise,
+  zip,
+} from "./functional";
+
+import { sleep } from "./time";
 
 test("test asyncPipe", async () => {
   const result = await asyncPipe(wrapPromise, (input) =>

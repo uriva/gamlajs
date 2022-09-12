@@ -1,6 +1,7 @@
-const { prop, sum } = require("ramda");
+import { prop, sum } from "ramda";
 
-const { reduceTree } = require("./tree");
+import { reduceTree } from "./tree";
+
 test("test reduceTree", () => {
   expect(
     reduceTree(prop("children"), (current, children) =>

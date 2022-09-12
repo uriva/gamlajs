@@ -1,4 +1,4 @@
-const { capitalize, trim, truncate } = require("./stringUtils");
+import { capitalize, trim, truncate } from "./stringUtils";
 
 test("test capitalize", () => {
   const result = capitalize("test");

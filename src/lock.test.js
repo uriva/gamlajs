@@ -1,13 +1,14 @@
-const {
-  withLock,
+import {
   makeLockUnlockWithId,
-  withLockByInput,
   sequentialized,
   throttle,
-} = require("./lock");
-const { sleep } = require("./time");
-const { asyncMap } = require("./functional");
-const { identity } = require("ramda");
+  withLock,
+  withLockByInput,
+} from "./lock";
+
+import { asyncMap } from "./functional";
+import { identity } from "ramda";
+import { sleep } from "./time";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
   await sleep(ms);
