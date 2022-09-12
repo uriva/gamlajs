@@ -5,6 +5,7 @@ import * as lock from "./lock";
 import * as math from "./math";
 import * as stringUtils from "./stringUtils";
 import * as time from "./time";
+import * as tree from "./tree";
 
 export default {
   ...cache,
@@ -14,4 +15,5 @@ export default {
   ...math,
   ...stringUtils,
   ...time,
+  ...tree,
 };
