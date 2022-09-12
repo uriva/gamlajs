@@ -1,19 +1,8 @@
-import * as cache from "./cache.js";
-import * as functional from "./functional.js";
-import * as io from "./io.js";
-import * as lock from "./lock.js";
-import * as math from "./math.js";
-import * as stringUtils from "./stringUtils.js";
-import * as time from "./time.js";
-import * as tree from "./tree.js";
-
-export default {
-  ...cache,
-  ...functional,
-  ...io,
-  ...lock,
-  ...math,
-  ...stringUtils,
-  ...time,
-  ...tree,
-};
+export * from "./cache.js";
+export * from "./functional.js";
+export * from "./io.js";
+export * from "./lock.js";
+export * from "./math.js";
+export * from "./stringUtils.js";
+export * from "./time.js";
+export * from "./tree.js";
