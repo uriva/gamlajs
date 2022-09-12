@@ -3,6 +3,7 @@
   "version": "0.0.36",
   "description": "functional programing for javascript",
   "main": "src/index.js",
+  "type": "module",
   "scripts": {
     "start": "npx babel src --watch --out-dir dist",
     "build": "babel src --out-dir dist",
