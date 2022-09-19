@@ -80,9 +80,6 @@ export const asyncFilter = (pred) =>
 
 export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
 
-export const sortAlphabetically = (array) =>
-  array.sort((str1, str2) => str1.localeCompare(str2));
-
 export const asyncReduce = (f, initial, seq) =>
   reduce(async (acc, item) => f(await acc, item), initial, seq);
 
