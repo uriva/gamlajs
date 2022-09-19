@@ -4,12 +4,13 @@ import {
   equals,
   length,
   map,
-  pipe,
   prop,
   reduce,
   repeat,
 } from "ramda";
 import { batch, singleToMultiple } from "./io";
+
+import { pipe } from "./functional";
 import { sleep } from "./time";
 
 const sumOfThings = (numbers) =>

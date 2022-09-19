@@ -11,16 +11,13 @@ import {
   flip,
   fromPairs,
   groupBy,
-  head,
   identity,
-  ifElse,
   includes,
   juxt,
   keys,
   last,
   map,
   nth,
-  pipe,
   prop,
   reduce,
   toPairs,
@@ -28,6 +25,15 @@ import {
   xprod,
 } from "ramda";
 
+const isPromise = (x) => !!(typeof x === "object" && x !== null && x.then);
+export const tail = (x) => x.slice(1);
+export const head = (x) => x[0];
+export const empty = (x) => !x.length;
+const pipeStep = (fs) => (x) => pipe(...tail(fs))(head(fs)(x));
+export const pipe =
+  (...fs) =>
+  (x) =>
+    empty(fs) ? x : isPromise(x) ? x.then(pipeStep(fs)) : pipeStep(fs)(x);
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
 export const groupByMany = (f) =>
@@ -42,15 +48,10 @@ export const promiseAll = (promises) => Promise.all(promises);
 // Cannot be made point free.
 export const wrapPromise = (x) => Promise.resolve(x);
 
-export const asyncPipe =
-  (...funcs) =>
-  (input) =>
-    reduce(async (acc, f) => f(await acc), Promise.resolve(input), funcs);
-
 export const asyncFirst =
   (...funcs) =>
   async (...args) => {
-    const results = await asyncPipe(
+    const results = await pipe(
       map((f) => f(...args)),
       promiseAll,
       filter(identity)
@@ -61,16 +62,16 @@ export const asyncFirst =
     }
   };
 
-export const asyncMap = curry((f, seq) => asyncPipe(map(f), promiseAll)(seq));
+export const asyncMap = curry((f, seq) => pipe(map(f), promiseAll)(seq));
 
 export const asyncJuxt =
   (funcs) =>
   (...args) =>
-    // asyncPipe is unary so we apply.
-    asyncPipe(juxt(map(apply, funcs)), promiseAll)(args);
+    // pipe is unary so we apply.
+    pipe(juxt(map(apply, funcs)), promiseAll)(args);
 
 export const asyncFilter = (pred) =>
-  asyncPipe(
+  pipe(
     asyncMap(async (arg) => [arg, await pred(arg)]),
     filter(last),
     map(head)
@@ -132,7 +133,7 @@ export const stack = (functions) =>
   );
 
 export const asyncStack = (functions) =>
-  asyncPipe(
+  pipe(
     (values) => zip(functions, values),
     asyncMap(([f, x]) => f(x))
   );
@@ -151,8 +152,8 @@ export const asyncUnless = (predicate, fFalse) =>
 export const asyncWhen = (predicate, fTrue) =>
   asyncIfElse(predicate, fTrue, wrapPromise);
 
-export const after = (f1) => (f2) => asyncPipe(f2, f1);
-export const before = (f1) => (f2) => asyncPipe(f1, f2);
+export const after = (f1) => (f2) => pipe(f2, f1);
+export const before = (f1) => (f2) => pipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
 export const contains = flip(includes);
@@ -169,7 +170,7 @@ export const isValidRegExp = (str) => {
 };
 
 export const asyncValMap = (f) =>
-  asyncPipe(toPairs, asyncMap(asyncStack([identity, f])), fromPairs);
+  pipe(toPairs, asyncMap(asyncStack([identity, f])), fromPairs);
 
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);
@@ -215,14 +216,13 @@ export const includedIn = (stuff) => (x) => stuff.includes(x);
 export const logWith = (...x) => sideEffect((y) => console.log(...x, y));
 export const pack = (...stuff) => stuff;
 
-const doOnPositions = (f, predicate) =>
-  pipe(pack, ifElse(pipe(nth(1), predicate), pipe(head, f), head));
-
 export const remove = pipe(complement, (f) => (arr) => arr.filter(f));
 
 export const explode = (...positions) =>
   pipe(
-    addIndex(map)(doOnPositions(wrapArray, complement(includedIn(positions)))),
+    addIndex(map)((x, i) =>
+      complement(includedIn(positions))(i) ? wrapArray(x) : x
+    ),
     product
   );
 

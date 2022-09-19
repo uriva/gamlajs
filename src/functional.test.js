@@ -8,7 +8,6 @@ import {
   asyncMap,
   asyncMapObjectTerminals,
   asyncPairRight,
-  asyncPipe,
   asyncReduce,
   asyncTap,
   asyncTimeit,
@@ -22,6 +21,7 @@ import {
   juxtCat,
   keyMap,
   mapCat,
+  pipe,
   product,
   renameKeys,
   testRegExp,
@@ -32,8 +32,8 @@ import {
 
 import { sleep } from "./time";
 
-test("test asyncPipe", async () => {
-  const result = await asyncPipe(wrapPromise, (input) =>
+test("test pipe", async () => {
+  const result = await pipe(wrapPromise, (input) =>
     Promise.resolve(multiply(input, 2))
   )(2);
   expect.assertions(1);

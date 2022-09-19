@@ -1,5 +1,5 @@
-import { applySpec, juxt, map, pipe, prop, tap } from "ramda";
-import { asyncExcepts, asyncPairRight, asyncPipe, stack } from "./functional.js";
+import { applySpec, juxt, map, prop, tap } from "ramda";
+import { asyncExcepts, asyncPairRight, pipe, stack } from "./functional.js";
 
 const clearAndExecuteTasks = (clearTasks, execute) =>
   pipe(
@@ -10,7 +10,7 @@ const clearAndExecuteTasks = (clearTasks, execute) =>
       resolve: pipe(map(prop("resolve")), stack),
     }),
     ({ input, resolve, reject }) =>
-      asyncExcepts(asyncPipe(execute, resolve), reject)(input)
+      asyncExcepts(pipe(execute, resolve), reject)(input)
   );
 
 /**
@@ -30,7 +30,7 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
   const clearAndExecute = (key) =>
     clearAndExecuteTasks(clearTasks(key), execute)(keyToTasks[key]);
 
-  return asyncPipe(
+  return pipe(
     asyncPairRight(keyFn),
     ([input, key]) =>
       new Promise((resolve, reject) => {
@@ -53,4 +53,4 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
 };
 
 export const singleToMultiple = (merge, split, f) => (tasks) =>
-  asyncPipe(merge, f, (results) => split(tasks, results))(tasks);
+  pipe(merge, f, (results) => split(tasks, results))(tasks);
