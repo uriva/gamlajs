@@ -6,6 +6,6 @@ export * from "./io.js";
 export * from "./lock.js";
 export * from "./math.js";
 export * from "./promise.js";
-export * from "./stringUtils.js";
+export * from "./string.js";
 export * from "./time.js";
 export * from "./tree.js";

@@ -1,4 +1,4 @@
-import { capitalize, trim, truncate } from "./stringUtils";
+import { capitalize, trim, truncate } from "./string";
 
 test("test capitalize", () => {
   const result = capitalize("test");
