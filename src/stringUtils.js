@@ -1,13 +1,13 @@
-import * as R from "ramda";
+import { curry, juxt, toUpper } from "ramda";
+import { head, join, tail } from "./array";
 
-export const truncate = R.curry((maxLength, input) =>
+import { pipe } from "./composition";
+
+export const truncate = curry((maxLength, input) =>
   input.length > maxLength ? `${input.substring(0, maxLength)}...` : input
 );
 
-export const capitalize = R.pipe(
-  R.juxt([R.pipe(R.head, R.toUpper), R.tail]),
-  R.join("")
-);
+export const capitalize = pipe(juxt([pipe(head, toUpper), tail]), join(""));
 
 export const trim = (characters) => (str) => {
   const charactersSet = new Set(characters);

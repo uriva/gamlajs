@@ -1,5 +1,7 @@
 import { applySpec, juxt, map, prop, tap } from "ramda";
-import { asyncExcepts, asyncPairRight, pipe, stack } from "./functional.js";
+import { asyncExcepts, asyncPairRight, stack } from "./functional.js";
+
+import { pipe } from "./composition";
 
 const clearAndExecuteTasks = (clearTasks, execute) =>
   pipe(

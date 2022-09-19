@@ -10,7 +10,7 @@ import {
 } from "ramda";
 import { batch, singleToMultiple } from "./io";
 
-import { pipe } from "./functional";
+import { pipe } from "./composition";
 import { sleep } from "./time";
 
 const sumOfThings = (numbers) =>

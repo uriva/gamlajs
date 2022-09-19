@@ -3,14 +3,12 @@ import {
   adjust,
   apply,
   assoc,
-  chain,
   complement,
   concat,
   curry,
   filter,
   flip,
   fromPairs,
-  groupBy,
   identity,
   includes,
   juxt,
@@ -22,35 +20,35 @@ import {
   reduce,
   toPairs,
   uniq,
-  xprod,
 } from "ramda";
+import { after, pipe } from "./composition";
+import { promiseAll, wrapPromise } from "./promise";
 
-const isPromise = (x) => !!(typeof x === "object" && x !== null && x.then);
-export const tail = (x) => x.slice(1);
-export const head = (x) => x[0];
-export const empty = (x) => !x.length;
-const pipeStep = (fs) => (x) => pipe(...tail(fs))(head(fs)(x));
-export const pipe =
-  (...fs) =>
-  (x) =>
-    empty(fs) ? x : isPromise(x) ? x.then(pipeStep(fs)) : pipeStep(fs)(x);
-export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
+import { head } from "./array";
 
-export const reverse = (array) => array.slice().reverse();
+export const groupByManyReduce = (keys, reducer, initial) => (it) => {
+  const result = {};
+  for (const x of it) {
+    for (const key of keys(x)) {
+      result[key] = reducer(key in result ? result[key] : initial(), x);
+    }
+  }
+  return result;
+};
 
-export const compose = (...fs) => pipe(...reverse(fs));
-
-export const groupByMany = (f) =>
-  pipe(
-    chain(pipe((element) => [f(element), [element]], apply(xprod))),
-    edgesToGraph
+export const groupByMany = (keys) =>
+  groupByManyReduce(
+    keys,
+    (s, x) => {
+      s.push(x);
+      return s;
+    },
+    () => []
   );
 
-// Cannot be made point free.
-export const promiseAll = (promises) => Promise.all(promises);
+export const groupBy = pipe(after(wrapArray), groupByMany);
 
-// Cannot be made point free.
-export const wrapPromise = (x) => Promise.resolve(x);
+export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
 export const asyncFirst =
   (...funcs) =>
@@ -156,8 +154,6 @@ export const asyncUnless = (predicate, fFalse) =>
 export const asyncWhen = (predicate, fTrue) =>
   asyncIfElse(predicate, fTrue, wrapPromise);
 
-export const after = (f1) => (f2) => pipe(f2, f1);
-export const before = (f1) => (f2) => pipe(f1, f2);
 export const juxtCat = pipe(asyncJuxt, after(reduce(concat, [])));
 export const mapCat = pipe(asyncMap, after(reduce(concat, [])));
 export const contains = flip(includes);

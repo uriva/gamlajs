@@ -1,4 +1,4 @@
-import { F, T, equals, map, multiply, unapply } from "ramda";
+import { F, T, equals, map, unapply } from "ramda";
 import {
   asyncApplySpec,
   asyncFilter,
@@ -15,49 +15,33 @@ import {
   asyncValMap,
   asyncWhen,
   between,
-  compose,
   contains,
   explode,
   isValidRegExp,
   juxtCat,
   keyMap,
   mapCat,
-  pipe,
   product,
   renameKeys,
   testRegExp,
   timeit,
-  wrapPromise,
   zip,
 } from "./functional";
 
+import { multiply } from "./math";
 import { sleep } from "./time";
+import { wrapPromise } from "./promise";
 
-test("test pipe", async () => {
-  const result = await pipe(wrapPromise, (input) =>
-    Promise.resolve(multiply(input, 2))
-  )(2);
-  expect.assertions(1);
-  expect(result).toBe(4);
-});
-
-test("test compose", () => {
-  const result = compose((x) => x + 1, multiply(10))(1);
-  expect.assertions(1);
-  expect(result).toBe(11);
-});
-
-test("test asyncFirst", async () => {
+test("asyncFirst", async () => {
   const result = await asyncFirst(
     () => Promise.resolve(null),
     wrapPromise
   )([1, 2, 3]);
-
   expect.assertions(1);
   expect(result).toEqual([1, 2, 3]);
 });
 
-test("test asyncFirst all fail", async () => {
+test("asyncFirst all fail", async () => {
   const result = await asyncFirst(() => Promise.resolve(null))(1);
 
   expect.assertions(1);
@@ -71,16 +55,13 @@ test.each([
   ],
   [[], []],
 ])("asyncMap with iterable %s", async (it, expected) => {
-  const result = await asyncMap(
-    (input) => Promise.resolve(multiply(input, 2)),
-    it
-  );
+  const result = await asyncMap((input) => Promise.resolve(input * 2), it);
 
   expect.assertions(1);
   expect(result).toEqual(expected);
 });
 
-test("test async juxt", async () => {
+test("async juxt", async () => {
   const result = await asyncJuxt([
     unapply(wrapPromise),
     unapply((input) => Promise.resolve(map(multiply(2), input))),
@@ -93,7 +74,7 @@ test("test async juxt", async () => {
   ]);
 });
 
-test("test async filter", async () => {
+test("async filter", async () => {
   const result = await asyncFilter((arg) => Promise.resolve(arg % 2 === 0))([
     1, 2, 3, 4, 5, 6,
   ]);
@@ -102,12 +83,12 @@ test("test async filter", async () => {
   expect(result).toEqual([2, 4, 6]);
 });
 
-test("test key map", () => {
+test("key map", () => {
   const result = keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] });
   expect(result).toEqual({ a2: 1, b2: [1, 2, 3] });
 });
 
-test("test async reduce", async () => {
+test("async reduce", async () => {
   const result = await asyncReduce(
     (acc, item) => Promise.resolve(acc + item),
     0,
@@ -118,7 +99,7 @@ test("test async reduce", async () => {
   expect(result).toEqual(21);
 });
 
-test("test async reduce no async input", async () => {
+test("async reduce no async input", async () => {
   const result = await asyncReduce(
     (acc, item) => acc + item,
     0,
@@ -129,7 +110,7 @@ test("test async reduce no async input", async () => {
   expect(result).toEqual(21);
 });
 
-test("test zip", () => {
+test("zip", () => {
   expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
     [1, 0],
     [2, 0],
@@ -137,19 +118,19 @@ test("test zip", () => {
   ]);
 });
 
-test("test asyncPairRight", async () => {
+test("asyncPairRight", async () => {
   const result = await asyncPairRight((x) => Promise.resolve(x * 2))(5);
   expect.assertions(1);
   expect(result).toStrictEqual([5, 10]);
 });
 
-test("test asyncTap", async () => {
+test("asyncTap", async () => {
   const result = await asyncTap((x) => Promise.resolve(x * 2))(2);
   expect.assertions(1);
   expect(result).toStrictEqual(2);
 });
 
-test("test asyncIfElse", async () => {
+test("asyncIfElse", async () => {
   const testFunction = asyncIfElse((x) => Promise.resolve(equals(x, 2)), T, F);
 
   expect.assertions(2);
@@ -157,7 +138,7 @@ test("test asyncIfElse", async () => {
   expect(await testFunction(3)).toStrictEqual(false);
 });
 
-test("test asyncUnless", async () => {
+test("asyncUnless", async () => {
   const testFunction = asyncUnless((x) => Promise.resolve(equals(x, 2)), T);
 
   expect.assertions(2);
@@ -165,7 +146,7 @@ test("test asyncUnless", async () => {
   expect(await testFunction(3)).toStrictEqual(true);
 });
 
-test("test asyncWhen", async () => {
+test("asyncWhen", async () => {
   const testFunction = asyncWhen((x) => Promise.resolve(equals(x, 2)), T);
 
   expect.assertions(2);
@@ -272,7 +253,7 @@ test("between", () => {
   expect(between([1, 4])(2.5)).toBeTruthy();
 });
 
-test("test renameKeys", () => {
+test("renameKeys", () => {
   expect(renameKeys({ b: "bb", c: "cc" }, { a: 1, b: 2, c: 3 })).toEqual({
     a: 1,
     bb: 2,
@@ -280,7 +261,7 @@ test("test renameKeys", () => {
   });
 });
 
-test("test timeit", () => {
+test("timeit", () => {
   const logSpy = jest.spyOn(console, "log");
   timeit(
     (time, args) => console.log(`took some time to run ${args[0]}^${args[1]}`),
@@ -289,7 +270,7 @@ test("test timeit", () => {
   expect(logSpy).toHaveBeenCalledWith("took some time to run 2^1000");
 });
 
-test("test asyncTimeit", async () => {
+test("asyncTimeit", async () => {
   const logSpy = jest.spyOn(console, "log");
   await asyncTimeit(
     (_, args) => console.log(`slept for ${args[0]}ms`),
