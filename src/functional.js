@@ -36,6 +36,10 @@ export const pipe =
     empty(fs) ? x : isPromise(x) ? x.then(pipeStep(fs)) : pipeStep(fs)(x);
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
+export const reverse = (array) => array.slice().reverse();
+
+export const compose = (...fs) => pipe(...reverse(fs));
+
 export const groupByMany = (f) =>
   pipe(
     chain(pipe((element) => [f(element), [element]], apply(xprod))),

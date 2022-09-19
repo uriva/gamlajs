@@ -15,6 +15,7 @@ import {
   asyncValMap,
   asyncWhen,
   between,
+  compose,
   contains,
   explode,
   isValidRegExp,
@@ -38,6 +39,12 @@ test("test pipe", async () => {
   )(2);
   expect.assertions(1);
   expect(result).toBe(4);
+});
+
+test("test compose", () => {
+  const result = compose((x) => x + 1, multiply(10))(1);
+  expect.assertions(1);
+  expect(result).toBe(11);
 });
 
 test("test asyncFirst", async () => {
