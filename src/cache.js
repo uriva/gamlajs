@@ -1,7 +1,7 @@
 import NodeCache from "node-cache";
 import hash from "object-hash";
 import { isNil } from "ramda";
-import { throttle } from "./lock.js";
+import { throttle } from "./lock";
 
 const getCacheKey = (args) => hash.sha1(args);
 

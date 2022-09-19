@@ -22,9 +22,8 @@ import {
   uniq,
 } from "ramda";
 import { after, pipe } from "./composition";
+import { head, wrapArray } from "./array";
 import { promiseAll, wrapPromise } from "./promise";
-
-import { head } from "./array";
 
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   const result = {};
@@ -207,8 +206,6 @@ export const sideEffect = (f) => (x) => {
   f(x);
   return x;
 };
-
-export const wrapArray = (x) => [x];
 
 export const log = sideEffect(console.log);
 export const logTable = sideEffect(console.table);
