@@ -8,7 +8,7 @@ export const truncate = (maxLength) => (input) =>
 
 export const uppercase = (s) => s.toUpperCase();
 
-export const capitalize = pipe(juxt([pipe(head, uppercase), tail]), join(""));
+export const capitalize = pipe(juxt(pipe(head, uppercase), tail), join(""));
 
 export const trim = (characters) => (str) => {
   const charactersSet = new Set(characters);

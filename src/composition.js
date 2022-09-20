@@ -1,11 +1,20 @@
-import { empty, head, reverse, tail } from "./array";
+import { empty, reverse, tail } from "./array";
 
-import {isPromise}from "./promise"
-const pipeStep = (fs) => (x) => pipe(...tail(fs))(head(fs)(x));
+import { isPromise } from "./promise";
+
+const pipeStep =
+  (fs) =>
+  (...x) =>
+    pipe(...tail(fs))(fs[0](...x));
+
 export const pipe =
   (...fs) =>
-  (x) =>
-    empty(fs) ? x : isPromise(x) ? x.then(pipeStep(fs)) : pipeStep(fs)(x);
+  (...x) =>
+    empty(fs)
+      ? x[0]
+      : x.length === 1 && isPromise(x[0])
+      ? x[0].then(pipeStep(fs))
+      : pipeStep(fs)(...x);
 
 export const compose = (...fs) => pipe(...reverse(fs));
 

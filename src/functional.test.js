@@ -62,7 +62,7 @@ test.each([
 
 test("async juxt", async () => {
   expect(
-    await juxt([wrapPromise, pipe(map(multiply(2)), wrapPromise)])([2])
+    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2])
   ).toEqual([[2], [4]]);
 });
 
@@ -147,10 +147,10 @@ test("asyncWhen", async () => {
 });
 
 test("juxtCat", async () => {
-  const testFunction = juxtCat([
+  const testFunction = juxtCat(
     (x) => Promise.resolve([x, x + 1]),
     (x) => Promise.resolve([x + 2, x + 3]),
-  ]);
+  );
 
   expect.assertions(1);
   expect(await testFunction(1)).toStrictEqual([1, 2, 3, 4]);

@@ -61,8 +61,11 @@ export const asyncFirst =
       return results[0];
     }
   };
-
-export const juxt = (fs) => (x) => map((f) => f(x))(fs);
+export const spread = (f) => (x) => f(...x);
+export const juxt =
+  (...fs) =>
+  (x) =>
+    map((f) => f(x))(fs);
 
 export const asyncFilter = (pred) =>
   pipe(
@@ -105,7 +108,7 @@ export const asyncTap = (f) => async (x) => {
   return x;
 };
 
-export const asyncPairRight = (f) => juxt([identity, f]);
+export const asyncPairRight = (f) => juxt(identity, f);
 
 export const asyncExcepts =
   (func, handler) =>
@@ -216,7 +219,7 @@ export const explode = (...positions) =>
 export const count = prop("length");
 export const mapcat = (f) => pipe(map(f), reduce(concat, []));
 export const rate = (f) =>
-  pipe(juxt([pipe(filter(f), count), count]), ([x, y]) => x / y);
+  pipe(juxt(pipe(filter(f), count), count), ([x, y]) => x / y);
 
 export const countTo = (x) => {
   const result = [];
