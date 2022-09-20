@@ -6,8 +6,8 @@ import {
   withLockByInput,
 } from "./lock";
 
-import { asyncMap } from "./functional";
 import { identity } from "ramda";
+import { map } from "./functional";
 import { sleep } from "./time";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
@@ -115,16 +115,13 @@ test("lock with exception", async () => {
     return x;
   });
 
-  const result = await asyncMap(
-    async (x) => {
-      try {
-        return await func(x);
-      } catch (e) {
-        return 0;
-      }
-    },
-    [1, 1, 1, 1]
-  );
+  const result = await map(async (x) => {
+    try {
+      return await func(x);
+    } catch (e) {
+      return 0;
+    }
+  })([1, 1, 1, 1]);
 
   expect(result).toEqual([1, 0, 1, 0]);
 });
@@ -159,6 +156,6 @@ test("throttle", async () => {
     return x;
   };
 
-  await asyncMap(throttle(1, mapFn))([1, 2, 3]);
+  await map(throttle(1, mapFn))([1, 2, 3]);
   expect(maxConcurrent).toEqual(1);
 });

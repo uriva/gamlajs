@@ -1,13 +1,14 @@
-import { curry, juxt, toUpper } from "ramda";
 import { head, join, tail } from "./array";
 
+import { juxt } from "./functional";
 import { pipe } from "./composition";
 
-export const truncate = curry((maxLength, input) =>
-  input.length > maxLength ? `${input.substring(0, maxLength)}...` : input
-);
+export const truncate = (maxLength) => (input) =>
+  input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;
 
-export const capitalize = pipe(juxt([pipe(head, toUpper), tail]), join(""));
+export const uppercase = (s) => s.toUpperCase();
+
+export const capitalize = pipe(juxt([pipe(head, uppercase), tail]), join(""));
 
 export const trim = (characters) => (str) => {
   const charactersSet = new Set(characters);

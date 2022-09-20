@@ -1,11 +1,9 @@
-import { F, T, equals, map, unapply } from "ramda";
+import { F, T, equals } from "ramda";
 import {
   asyncApplySpec,
   asyncFilter,
   asyncFirst,
   asyncIfElse,
-  asyncJuxt,
-  asyncMap,
   asyncMapObjectTerminals,
   asyncPairRight,
   asyncReduce,
@@ -18,17 +16,19 @@ import {
   contains,
   explode,
   isValidRegExp,
+  juxt,
   juxtCat,
   keyMap,
+  map,
   mapCat,
   product,
-  renameKeys,
   testRegExp,
   timeit,
   zip,
 } from "./functional";
 
 import { multiply } from "./math";
+import { pipe } from "./composition";
 import { sleep } from "./time";
 import { wrapPromise } from "./promise";
 
@@ -54,24 +54,16 @@ test.each([
     [2, 4, 6],
   ],
   [[], []],
-])("asyncMap with iterable %s", async (it, expected) => {
-  const result = await asyncMap((input) => Promise.resolve(input * 2), it);
-
+])("async map with iterable %s", async (it, expected) => {
+  const result = await map((input) => Promise.resolve(input * 2))(it);
   expect.assertions(1);
   expect(result).toEqual(expected);
 });
 
 test("async juxt", async () => {
-  const result = await asyncJuxt([
-    unapply(wrapPromise),
-    unapply((input) => Promise.resolve(map(multiply(2), input))),
-  ])(2, 3);
-
-  expect.assertions(1);
-  expect(result).toEqual([
-    [2, 3],
-    [4, 6],
-  ]);
+  expect(
+    await juxt([wrapPromise, pipe(map(multiply(2)), wrapPromise)])([2])
+  ).toEqual([[2], [4]]);
 });
 
 test("async filter", async () => {
@@ -251,14 +243,6 @@ test("between", () => {
   expect(between([1, 2])(1)).toBeTruthy();
   expect(between([1, 2])(2)).toBeFalsy();
   expect(between([1, 4])(2.5)).toBeTruthy();
-});
-
-test("renameKeys", () => {
-  expect(renameKeys({ b: "bb", c: "cc" }, { a: 1, b: 2, c: 3 })).toEqual({
-    a: 1,
-    bb: 2,
-    cc: 3,
-  });
 });
 
 test("timeit", () => {

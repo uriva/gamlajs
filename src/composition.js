@@ -1,6 +1,6 @@
 import { empty, head, reverse, tail } from "./array";
 
-const isPromise = (x) => !!(typeof x === "object" && x !== null && x.then);
+import {isPromise}from "./promise"
 const pipeStep = (fs) => (x) => pipe(...tail(fs))(head(fs)(x));
 export const pipe =
   (...fs) =>

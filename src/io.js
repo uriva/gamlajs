@@ -1,5 +1,5 @@
-import { applySpec, juxt, map, prop, tap } from "ramda";
-import { asyncExcepts, asyncPairRight, stack } from "./functional";
+import { applySpec, prop, tap } from "ramda";
+import { asyncExcepts, asyncPairRight, juxt, map, stack } from "./functional";
 
 import { pipe } from "./composition";
 
@@ -41,7 +41,7 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
           { resolve, reject, input },
         ];
 
-        if (condition(map(prop("input"), keyToTasks[key]))) {
+        if (condition(map(prop("input"))(keyToTasks[key]))) {
           clearAndExecute(key);
         } else {
           clearTimeout(keyToTimeoutObject[key]);

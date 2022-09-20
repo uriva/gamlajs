@@ -1,3 +1,5 @@
+export const any = (f) => (arr) => arr.some(f);
+export const all = (f) => (arr) => arr.every(f);
 export const reverse = (array) => array.slice().reverse();
 export const tail = (x) => x.slice(1);
 export const head = (x) => x[0];
