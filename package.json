@@ -1,6 +1,6 @@
 {
   "name": "gamla",
-  "version": "0.0.36",
+  "version": "1.0.0",
   "description": "functional programing for javascript",
   "main": "src/index.js",
   "type": "module",

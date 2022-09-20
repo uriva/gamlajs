@@ -1,5 +1,12 @@
 import { applySpec, prop, tap } from "ramda";
-import { asyncExcepts, asyncPairRight, juxt, map, spread, stack } from "./functional";
+import {
+  asyncExcepts,
+  asyncPairRight,
+  juxt,
+  map,
+  spread,
+  stack,
+} from "./functional";
 
 import { pipe } from "./composition";
 
@@ -12,7 +19,7 @@ const clearAndExecuteTasks = (clearTasks, execute) =>
       resolve: pipe(map(prop("resolve")), stack),
     }),
     ({ input, resolve, reject }) =>
-      asyncExcepts(pipe(execute, resolve), reject)(input)
+      asyncExcepts(pipe(execute, resolve), reject)(input),
   );
 
 /**
@@ -47,10 +54,10 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
           clearTimeout(keyToTimeoutObject[key]);
           keyToTimeoutObject[key] = setTimeout(
             () => clearAndExecute(key),
-            maxWaitMilliseconds
+            maxWaitMilliseconds,
           );
         }
-      })
+      }),
   );
 };
 
