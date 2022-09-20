@@ -10,3 +10,4 @@ export * from "./promise";
 export * from "./string";
 export * from "./time";
 export * from "./tree";
+export * from "./reduce";
