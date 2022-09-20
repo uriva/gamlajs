@@ -1,10 +1,13 @@
-export const any = (f) => (arr) => arr.some(f);
-export const all = (f) => (arr) => arr.every(f);
+const methodToFunction = (method) => (x) => (obj) => obj[method](x);
+
+export const any = methodToFunction("some");
+export const all = methodToFunction("all");
+export const join = methodToFunction("join");
+
 export const reverse = (array) => array.slice().reverse();
 export const tail = (x) => x.slice(1);
 export const head = (x) => x[0];
 export const empty = (x) => !x.length;
-export const join = (x) => (array) => array.join(x);
 export const wrapArray = (x) => [x];
 
 const isString = (x) => typeof x == "string";

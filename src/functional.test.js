@@ -6,7 +6,6 @@ import {
   asyncIfElse,
   asyncMapObjectTerminals,
   asyncPairRight,
-  asyncReduce,
   asyncTap,
   asyncTimeit,
   asyncUnless,
@@ -35,7 +34,7 @@ import { wrapPromise } from "./promise";
 test("asyncFirst", async () => {
   const result = await asyncFirst(
     () => Promise.resolve(null),
-    wrapPromise
+    wrapPromise,
   )([1, 2, 3]);
   expect.assertions(1);
   expect(result).toEqual([1, 2, 3]);
@@ -62,7 +61,7 @@ test.each([
 
 test("async juxt", async () => {
   expect(
-    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2])
+    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2]),
   ).toEqual([[2], [4]]);
 });
 
@@ -70,8 +69,8 @@ test("juxt non unary", () => {
   expect(
     juxt(
       (x, y) => x - y,
-      (x, y) => x + y
-    )(3, 2)
+      (x, y) => x + y,
+    )(3, 2),
   ).toEqual([1, 5]);
 });
 
@@ -87,28 +86,6 @@ test("async filter", async () => {
 test("key map", () => {
   const result = keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] });
   expect(result).toEqual({ a2: 1, b2: [1, 2, 3] });
-});
-
-test("async reduce", async () => {
-  const result = await asyncReduce(
-    (acc, item) => Promise.resolve(acc + item),
-    0,
-    [1, 2, 3, 4, 5, 6]
-  );
-
-  expect.assertions(1);
-  expect(result).toEqual(21);
-});
-
-test("async reduce no async input", async () => {
-  const result = await asyncReduce(
-    (acc, item) => acc + item,
-    0,
-    [1, 2, 3, 4, 5, 6]
-  );
-
-  expect.assertions(1);
-  expect(result).toEqual(21);
 });
 
 test("zip", () => {
@@ -158,7 +135,7 @@ test("asyncWhen", async () => {
 test("juxtCat", async () => {
   const testFunction = juxtCat(
     (x) => Promise.resolve([x, x + 1]),
-    (x) => Promise.resolve([x + 2, x + 3])
+    (x) => Promise.resolve([x + 2, x + 3]),
   );
 
   expect.assertions(1);
@@ -197,7 +174,7 @@ test.each([
   [{}, {}],
 ])("asyncValMap with input %s", async (obj, expected) => {
   expect(await asyncValMap((x) => Promise.resolve(x + 1))(obj)).toEqual(
-    expected
+    expected,
   );
 });
 
@@ -207,7 +184,7 @@ test("asyncMapObject", async () => {
       a: { a: 1, b: 2 },
       b: 3,
       c: [1, 2, 3],
-    })
+    }),
   ).toEqual({
     a: { a: 2, b: 3 },
     b: 4,
@@ -220,7 +197,7 @@ test("asyncApplySpec", async () => {
     await asyncApplySpec({
       a: (obj) => Promise.resolve(obj.x),
       b: { a: (obj) => Promise.resolve(obj.y) },
-    })({ x: 1, y: 2 })
+    })({ x: 1, y: 2 }),
   ).toEqual({ a: 1, b: { a: 2 } });
 });
 
@@ -231,7 +208,7 @@ test("product", () => {
     product([
       ["a", "b"],
       [1, 2],
-    ])
+    ]),
   ).toEqual([
     ["a", 1],
     ["a", 2],
@@ -258,7 +235,7 @@ test("timeit", () => {
   const logSpy = jest.spyOn(console, "log");
   timeit(
     (time, args) => console.log(`took some time to run ${args[0]}^${args[1]}`),
-    Math.pow
+    Math.pow,
   )(2, 1000);
   expect(logSpy).toHaveBeenCalledWith("took some time to run 2^1000");
 });
@@ -267,7 +244,7 @@ test("asyncTimeit", async () => {
   const logSpy = jest.spyOn(console, "log");
   await asyncTimeit(
     (_, args) => console.log(`slept for ${args[0]}ms`),
-    sleep
+    sleep,
   )(100);
   expect(logSpy).toHaveBeenCalledWith("slept for 100ms");
 
@@ -277,7 +254,7 @@ test("asyncTimeit", async () => {
   };
   await asyncTimeit(
     (_1, _2, result) => console.log(`slept and returned ${result}`),
-    f
+    f,
   )({ a: 1, b: 2, c: 3 });
   expect(logSpy).toHaveBeenCalledWith("slept and returned 6");
 });

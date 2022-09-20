@@ -11,13 +11,14 @@ import {
   last,
   nth,
   prop,
-  reduce,
   toPairs,
   uniq,
 } from "ramda";
 import { after, pipe } from "./composition";
 import { head, wrapArray } from "./array";
 import { isPromise, promiseAll, wrapPromise } from "./promise";
+
+import { reduce } from "./reduce";
 
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   const result = {};
@@ -36,7 +37,7 @@ export const groupByMany = (keys) =>
       s.push(x);
       return s;
     },
-    () => []
+    () => [],
   );
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
@@ -54,7 +55,7 @@ export const asyncFirst =
     const results = await pipe(
       map((f) => f(...args)),
       promiseAll,
-      filter(identity)
+      filter(identity),
     )(funcs);
 
     if (results.length) {
@@ -71,13 +72,10 @@ export const asyncFilter = (pred) =>
   pipe(
     map(async (arg) => [arg, await pred(arg)]),
     filter(last),
-    map(head)
+    map(head),
   );
 
 export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
-
-export const asyncReduce = (f, initial, seq) =>
-  reduce(async (acc, item) => f(await acc, item), initial, seq);
 
 // Zips arrays by the length of the first.
 export const zip = (...arrays) =>
@@ -123,13 +121,13 @@ export const asyncExcepts =
 export const stack = (functions) =>
   pipe(
     (values) => zip(functions, values),
-    map(([f, x]) => f(x))
+    map(([f, x]) => f(x)),
   );
 
 export const asyncStack = (functions) =>
   pipe(
     (values) => zip(functions, values),
-    map(([f, x]) => f(x))
+    map(([f, x]) => f(x)),
   );
 
 export const asyncIfElse =
@@ -146,8 +144,8 @@ export const asyncUnless = (predicate, fFalse) =>
 export const asyncWhen = (predicate, fTrue) =>
   asyncIfElse(predicate, fTrue, wrapPromise);
 
-export const juxtCat = pipe(juxt, after(reduce(concat, [])));
-export const mapCat = pipe(map, after(reduce(concat, [])));
+export const juxtCat = pipe(juxt, after(reduce(concat, () => [])));
+export const mapCat = pipe(map, after(reduce(concat, () => [])));
 export const contains = flip(includes);
 
 export const testRegExp = (regexp) => (x) => regexp.test(x);
@@ -192,7 +190,7 @@ export const asyncApplySpec =
 
 export const product = reduce(
   (a, b) => a.flatMap((x) => b.map((y) => [...x, y])),
-  [[]]
+  () => [[]],
 );
 
 export const sideEffect = (f) => (x) => {
@@ -211,13 +209,13 @@ export const remove = pipe(complement, (f) => (arr) => arr.filter(f));
 export const explode = (...positions) =>
   pipe(
     addIndex(map)((x, i) =>
-      complement(includedIn(positions))(i) ? wrapArray(x) : x
+      complement(includedIn(positions))(i) ? wrapArray(x) : x,
     ),
-    product
+    product,
   );
 
 export const count = prop("length");
-export const mapcat = (f) => pipe(map(f), reduce(concat, []));
+export const mapcat = pipe(map, after(reduce(concat, () => [])));
 export const rate = (f) =>
   pipe(juxt(pipe(filter(f), count), count), ([x, y]) => x / y);
 
