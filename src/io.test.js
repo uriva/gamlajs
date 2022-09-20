@@ -1,25 +1,30 @@
-import { always, concat, equals, length, prop, reduce, repeat } from "ramda";
+import { always, concat, equals, length, prop, repeat } from "ramda";
 import { batch, singleToMultiple } from "./io";
 
 import { map } from "./functional";
 import { pipe } from "./composition";
+import { reduce } from "./reduce";
 import { sleep } from "./time";
+import { wrapPromise } from "./promise";
 
 const sumOfThings = (numbers) =>
-  Promise.resolve(
+  wrapPromise(
     numbers.reduce((acc, current) => acc + current),
-    0
+    0,
   );
 
 const batchedSum = batch(
   prop("id"),
   100,
   singleToMultiple(
-    pipe(map(prop("numbers")), reduce(concat, [])),
+    pipe(
+      map(prop("numbers")),
+      reduce(concat, () => []),
+    ),
     (tasks, results) => repeat(results, tasks.length),
-    sumOfThings
+    sumOfThings,
   ),
-  always(true)
+  always(true),
 );
 
 test("batch", async () => {
@@ -52,7 +57,7 @@ test("batch condition", async (done) => {
       count++;
       return Promise.resolve(args);
     },
-    pipe(length, equals(5))
+    pipe(length, equals(5)),
   );
 
   const result = await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
@@ -69,7 +74,7 @@ test("batch with exceptions", async () => {
     () => "key",
     1,
     () => Promise.reject("error!"),
-    pipe(length, equals(5))
+    pipe(length, equals(5)),
   );
 
   expect.assertions(1);
@@ -90,7 +95,7 @@ test("batch condition max wait time", async () => {
       count++;
       return Promise.resolve(args);
     },
-    always(false)
+    always(false),
   );
 
   f(1);

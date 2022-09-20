@@ -1,30 +1,19 @@
 import { capitalize, trim, truncate } from "./string";
 
-test("test capitalize", () => {
-  const result = capitalize("test");
-  expect.assertions(1);
-  expect(result).toBe("Test");
+test("capitalize", () => {
+  expect(capitalize("test")).toBe("Test");
 });
 
 describe("test trim", () => {
   test("start char", () => {
-    const result = trim(["-"])("-Test");
-
-    expect.assertions(1);
-    expect(result).toEqual("Test");
+    expect(trim(["-"])("-Test")).toEqual("Test");
   });
 
   test("start end", () => {
-    const result = trim(["."])("OK.");
-
-    expect.assertions(1);
-    expect(result).toEqual("OK");
+    expect(trim(["."])("OK.")).toEqual("OK");
   });
 });
 
-test("test truncate", () => {
-  const result = truncate(3)("Test");
-
-  expect.assertions(1);
-  expect(result).toEqual("Tes...");
+test("truncate", () => {
+  expect(truncate(3)("Test")).toEqual("Tes...");
 });

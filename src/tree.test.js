@@ -2,10 +2,10 @@ import { prop, sum } from "ramda";
 
 import { reduceTree } from "./tree";
 
-test("test reduceTree", () => {
+test("reduceTree", () => {
   expect(
     reduceTree(prop("children"), (current, children) =>
-      sum([current.payload, ...children])
+      sum([current.payload, ...children]),
     )({
       payload: 7,
       children: [
@@ -13,6 +13,6 @@ test("test reduceTree", () => {
         { payload: 2, children: [] },
         { payload: 1, children: [] },
       ],
-    })
+    }),
   ).toEqual(24);
 });

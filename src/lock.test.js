@@ -15,7 +15,7 @@ const pushToArrayAfterMs = (arr) => async (key, ms) => {
   arr.push(ms);
 };
 
-test("test lock", async () => {
+test("lock", async () => {
   const lockObj = {};
 
   const [lock, unlock] = makeLockUnlockWithId(
@@ -31,7 +31,7 @@ test("test lock", async () => {
       await sleep(50);
       lockObj.locked = false;
       return true;
-    }
+    },
   );
 
   const results1 = [];
@@ -49,7 +49,7 @@ test("test lock", async () => {
   expect(results2).toStrictEqual([100, 300]);
 });
 
-test("test lock by input", async () => {
+test("lock by input", async () => {
   const lockObj = {};
 
   const [lock, unlock] = makeLockUnlockWithId(
@@ -64,7 +64,7 @@ test("test lock by input", async () => {
     async (id) => {
       await sleep(50);
       lockObj[id] = false;
-    }
+    },
   );
 
   expect.assertions(2);
@@ -73,14 +73,14 @@ test("test lock by input", async () => {
     identity,
     lock,
     unlock,
-    pushToArrayAfterMs(results1)
+    pushToArrayAfterMs(results1),
   );
   const results2 = [];
   const f2 = withLockByInput(
     identity,
     lock,
     unlock,
-    pushToArrayAfterMs(results2)
+    pushToArrayAfterMs(results2),
   );
   // Test locking on different inputs (Should not lock in this case).
   await Promise.all([f1("key1", 300), f1("key2", 100)]);
@@ -104,7 +104,7 @@ test("lock with exception", async () => {
     async () => {
       await sleep(0.01);
       locked = false;
-    }
+    },
   );
 
   const func = withLock(lock, unlock, (x) => {
