@@ -64,8 +64,8 @@ export const asyncFirst =
 export const spread = (f) => (x) => f(...x);
 export const juxt =
   (...fs) =>
-  (x) =>
-    map((f) => f(x))(fs);
+  (...x) =>
+    map((f) => f(...x))(fs);
 
 export const asyncFilter = (pred) =>
   pipe(

@@ -66,6 +66,15 @@ test("async juxt", async () => {
   ).toEqual([[2], [4]]);
 });
 
+test("juxt non unary", () => {
+  expect(
+    juxt(
+      (x, y) => x - y,
+      (x, y) => x + y
+    )(3, 2)
+  ).toEqual([1, 5]);
+});
+
 test("async filter", async () => {
   const result = await asyncFilter((arg) => Promise.resolve(arg % 2 === 0))([
     1, 2, 3, 4, 5, 6,
@@ -149,7 +158,7 @@ test("asyncWhen", async () => {
 test("juxtCat", async () => {
   const testFunction = juxtCat(
     (x) => Promise.resolve([x, x + 1]),
-    (x) => Promise.resolve([x + 2, x + 3]),
+    (x) => Promise.resolve([x + 2, x + 3])
   );
 
   expect.assertions(1);
