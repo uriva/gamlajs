@@ -13,8 +13,7 @@ test.each([
 });
 
 test("mapCat", async () => {
-  const testFunction = mapCat((x) => wrapPromise([x, x + 1]));
-
-  expect.assertions(1);
-  expect(await testFunction([1, 2])).toStrictEqual([1, 2, 2, 3]);
+  expect(await mapCat((x) => wrapPromise([x, x + 1]))([1, 2])).toStrictEqual([
+    1, 2, 2, 3,
+  ]);
 });
