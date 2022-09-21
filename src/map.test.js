@@ -1,6 +1,7 @@
 import { map, mapCat } from "./map";
 
 import { wrapPromise } from "./promise";
+
 test.each([
   [
     [1, 2, 3],
