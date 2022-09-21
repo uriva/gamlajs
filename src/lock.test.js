@@ -6,7 +6,6 @@ import {
   withLockByInput,
 } from "./lock";
 
-import { identity } from "ramda";
 import { map } from "./map";
 import { sleep } from "./time";
 
@@ -70,14 +69,14 @@ test("lock by input", async () => {
   expect.assertions(2);
   const results1 = [];
   const f1 = withLockByInput(
-    identity,
+    (x) => x,
     lock,
     unlock,
     pushToArrayAfterMs(results1),
   );
   const results2 = [];
   const f2 = withLockByInput(
-    identity,
+    (x) => x,
     lock,
     unlock,
     pushToArrayAfterMs(results2),

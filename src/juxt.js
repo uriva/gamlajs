@@ -1,6 +1,5 @@
 import { after, pipe } from "./composition";
 
-import { concat } from "ramda";
 import { map } from "./map";
 import { reduce } from "./reduce";
 import { zip } from "./array";
@@ -17,4 +16,12 @@ export const stack = (...functions) =>
     map(([f, x]) => f(x)),
   );
 
-export const juxtCat = pipe(juxt, after(reduce(concat, () => [])));
+export const juxtCat = pipe(
+  juxt,
+  after(
+    reduce(
+      (a, b) => a.concat(b),
+      () => [],
+    ),
+  ),
+);

@@ -4,9 +4,7 @@ import {
   complement,
   flip,
   fromPairs,
-  identity,
   includes,
-  nth,
   prop,
   toPairs,
   uniq,
@@ -41,7 +39,7 @@ export const groupByMany = (keys) =>
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
 
-export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
+export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), uniq)));
 
 export const spread = (f) => (x) => f(...x);
 
@@ -95,7 +93,7 @@ export const isValidRegExp = (str) => {
   }
 };
 
-export const valMap = (f) => pipe(toPairs, map(stack(identity, f)), fromPairs);
+export const valMap = (f) => pipe(toPairs, map(stack((x) => x, f)), fromPairs);
 
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);

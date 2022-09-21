@@ -1,6 +1,6 @@
-import { applySpec, prop, tap } from "ramda";
-import { asyncExcepts, spread } from "./functional";
+import { applySpec, asyncExcepts, spread } from "./functional";
 import { juxt, pairRight, stack } from "./juxt";
+import { prop, tap } from "ramda";
 
 import { map } from "./map";
 import { pipe } from "./composition";

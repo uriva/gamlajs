@@ -21,11 +21,12 @@ test("juxt non unary", () => {
 });
 
 test("juxtCat", async () => {
-  const testFunction = juxtCat(
-    (x) => wrapPromise([x, x + 1]),
-    (x) => wrapPromise([x + 2, x + 3]),
-  );
-  expect(await testFunction(1)).toStrictEqual([1, 2, 3, 4]);
+  expect(
+    await juxtCat(
+      (x) => wrapPromise([x, x + 1]),
+      (x) => wrapPromise([x + 2, x + 3]),
+    )(1),
+  ).toStrictEqual([1, 2, 3, 4]);
 });
 
 test("async pairRight", async () => {

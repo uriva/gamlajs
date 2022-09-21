@@ -1,4 +1,4 @@
-import { always, concat, equals, length, prop, repeat } from "ramda";
+import { always, equals, length, prop, repeat } from "ramda";
 import { batch, singleToMultiple } from "./io";
 
 import { map } from "./map";
@@ -19,7 +19,10 @@ const batchedSum = batch(
   singleToMultiple(
     pipe(
       map(prop("numbers")),
-      reduce(concat, () => []),
+      reduce(
+        (a, b) => a.concat(b),
+        () => [],
+      ),
     ),
     (tasks, results) => repeat(results, tasks.length),
     sumOfThings,

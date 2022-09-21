@@ -1,6 +1,6 @@
-import { prop, sum } from "ramda";
-
+import { prop } from "ramda";
 import { reduceTree } from "./tree";
+import { sum } from "./math";
 
 test("reduceTree", () => {
   expect(

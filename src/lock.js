@@ -1,5 +1,4 @@
-import { F, T, ifElse } from "ramda";
-
+import { ifElse } from "./conditional";
 import { pipe } from "./composition";
 import { sleep } from "./time";
 
@@ -33,7 +32,7 @@ export const withLockByInput =
     return withLock(
       () => lock(lockId),
       () => unlock(lockId),
-      f
+      f,
     )(...args);
   };
 
@@ -69,11 +68,14 @@ export const throttle = (maxParallelism, f) => {
     ...makeLockUnlockWithId(
       ifElse(
         () => lockObj.count < maxParallelism,
-        pipe(() => lockObj.count++, T),
-        F
+        pipe(
+          () => lockObj.count++,
+          () => true,
+        ),
+        () => false,
       ),
-      () => lockObj.count--
+      () => lockObj.count--,
     ),
-    f
+    f,
   );
 };

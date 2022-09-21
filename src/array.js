@@ -4,6 +4,16 @@ export const any = methodToFunction("some");
 export const all = methodToFunction("all");
 export const join = methodToFunction("join");
 
+export const concat = (array) => {
+  const result = [];
+  for (const xs of array) {
+    for (const x of xs) {
+      result.push(x);
+    }
+  }
+  return result;
+};
+
 export const reverse = (array) => array.slice().reverse();
 export const tail = (x) => x.slice(1);
 export const head = (x) => x[0];
