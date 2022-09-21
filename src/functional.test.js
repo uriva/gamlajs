@@ -1,25 +1,20 @@
-import { F, T, equals } from "ramda";
 import {
   asyncApplySpec,
-  asyncFilter,
-  asyncFirst,
-  asyncIfElse,
   asyncMapObjectTerminals,
-  asyncPairRight,
   asyncTap,
   asyncTimeit,
-  asyncUnless,
   asyncValMap,
-  asyncWhen,
   between,
   contains,
   explode,
+  filter,
   isValidRegExp,
   juxt,
   juxtCat,
   keyMap,
   map,
   mapCat,
+  pairRight,
   product,
   testRegExp,
   timeit,
@@ -31,22 +26,6 @@ import { pipe } from "./composition";
 import { sleep } from "./time";
 import { wrapPromise } from "./promise";
 
-test("asyncFirst", async () => {
-  const result = await asyncFirst(
-    () => Promise.resolve(null),
-    wrapPromise,
-  )([1, 2, 3]);
-  expect.assertions(1);
-  expect(result).toEqual([1, 2, 3]);
-});
-
-test("asyncFirst all fail", async () => {
-  const result = await asyncFirst(() => Promise.resolve(null))(1);
-
-  expect.assertions(1);
-  expect(result).toBeFalsy();
-});
-
 test.each([
   [
     [1, 2, 3],
@@ -54,9 +33,7 @@ test.each([
   ],
   [[], []],
 ])("async map with iterable %s", async (it, expected) => {
-  const result = await map((input) => Promise.resolve(input * 2))(it);
-  expect.assertions(1);
-  expect(result).toEqual(expected);
+  expect(await map((input) => wrapPromise(input * 2))(it)).toEqual(expected);
 });
 
 test("async juxt", async () => {
@@ -75,12 +52,9 @@ test("juxt non unary", () => {
 });
 
 test("async filter", async () => {
-  const result = await asyncFilter((arg) => Promise.resolve(arg % 2 === 0))([
-    1, 2, 3, 4, 5, 6,
-  ]);
-
-  expect.assertions(1);
-  expect(result).toEqual([2, 4, 6]);
+  expect(
+    await filter((arg) => wrapPromise(arg % 2 === 0))([1, 2, 3, 4, 5, 6]),
+  ).toEqual([2, 4, 6]);
 });
 
 test("key map", () => {
@@ -96,46 +70,20 @@ test("zip", () => {
   ]);
 });
 
-test("asyncPairRight", async () => {
-  const result = await asyncPairRight((x) => Promise.resolve(x * 2))(5);
-  expect.assertions(1);
-  expect(result).toStrictEqual([5, 10]);
+test("async pairRight", async () => {
+  expect(await pairRight((x) => wrapPromise(x * 2))(5)).toStrictEqual([5, 10]);
 });
 
 test("asyncTap", async () => {
-  const result = await asyncTap((x) => Promise.resolve(x * 2))(2);
+  const result = await asyncTap((x) => wrapPromise(x * 2))(2);
   expect.assertions(1);
   expect(result).toStrictEqual(2);
 });
 
-test("asyncIfElse", async () => {
-  const testFunction = asyncIfElse((x) => Promise.resolve(equals(x, 2)), T, F);
-
-  expect.assertions(2);
-  expect(await testFunction(2)).toStrictEqual(true);
-  expect(await testFunction(3)).toStrictEqual(false);
-});
-
-test("asyncUnless", async () => {
-  const testFunction = asyncUnless((x) => Promise.resolve(equals(x, 2)), T);
-
-  expect.assertions(2);
-  expect(await testFunction(2)).toStrictEqual(2);
-  expect(await testFunction(3)).toStrictEqual(true);
-});
-
-test("asyncWhen", async () => {
-  const testFunction = asyncWhen((x) => Promise.resolve(equals(x, 2)), T);
-
-  expect.assertions(2);
-  expect(await testFunction(2)).toStrictEqual(true);
-  expect(await testFunction(3)).toStrictEqual(3);
-});
-
 test("juxtCat", async () => {
   const testFunction = juxtCat(
-    (x) => Promise.resolve([x, x + 1]),
-    (x) => Promise.resolve([x + 2, x + 3]),
+    (x) => wrapPromise([x, x + 1]),
+    (x) => wrapPromise([x + 2, x + 3]),
   );
 
   expect.assertions(1);
@@ -143,7 +91,7 @@ test("juxtCat", async () => {
 });
 
 test("mapCat", async () => {
-  const testFunction = mapCat((x) => Promise.resolve([x, x + 1]));
+  const testFunction = mapCat((x) => wrapPromise([x, x + 1]));
 
   expect.assertions(1);
   expect(await testFunction([1, 2])).toStrictEqual([1, 2, 2, 3]);
@@ -173,14 +121,12 @@ test.each([
   ],
   [{}, {}],
 ])("asyncValMap with input %s", async (obj, expected) => {
-  expect(await asyncValMap((x) => Promise.resolve(x + 1))(obj)).toEqual(
-    expected,
-  );
+  expect(await asyncValMap((x) => wrapPromise(x + 1))(obj)).toEqual(expected);
 });
 
 test("asyncMapObject", async () => {
   expect(
-    await asyncMapObjectTerminals((x) => Promise.resolve(x + 1))({
+    await asyncMapObjectTerminals((x) => wrapPromise(x + 1))({
       a: { a: 1, b: 2 },
       b: 3,
       c: [1, 2, 3],
@@ -195,8 +141,8 @@ test("asyncMapObject", async () => {
 test("asyncApplySpec", async () => {
   expect(
     await asyncApplySpec({
-      a: (obj) => Promise.resolve(obj.x),
-      b: { a: (obj) => Promise.resolve(obj.y) },
+      a: (obj) => wrapPromise(obj.x),
+      b: { a: (obj) => wrapPromise(obj.y) },
     })({ x: 1, y: 2 }),
   ).toEqual({ a: 1, b: { a: 2 } });
 });

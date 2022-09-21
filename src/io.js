@@ -1,9 +1,9 @@
 import { applySpec, prop, tap } from "ramda";
 import {
   asyncExcepts,
-  asyncPairRight,
   juxt,
   map,
+  pairRight,
   spread,
   stack,
 } from "./functional";
@@ -40,7 +40,7 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
     clearAndExecuteTasks(clearTasks(key), execute)(keyToTasks[key]);
 
   return pipe(
-    asyncPairRight(keyFn),
+    pairRight(keyFn),
     ([input, key]) =>
       new Promise((resolve, reject) => {
         keyToTasks[key] = [

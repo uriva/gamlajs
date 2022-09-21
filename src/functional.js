@@ -3,23 +3,22 @@ import {
   adjust,
   complement,
   concat,
-  filter,
   flip,
   fromPairs,
   identity,
   includes,
-  last,
   nth,
   prop,
   toPairs,
   uniq,
 } from "ramda";
 import { after, pipe } from "./composition";
-import { head, wrapArray } from "./array";
-import { isPromise, promiseAll, wrapPromise } from "./promise";
+import { head, second, wrapArray } from "./array";
 
+import { isPromise } from "./promise";
 import { reduce } from "./reduce";
 
+export const always = (x) => () => x;
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   const result = {};
   for (const x of it) {
@@ -49,31 +48,11 @@ export const map = (f) => (seq) => {
 
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
-export const asyncFirst =
-  (...funcs) =>
-  async (...args) => {
-    const results = await pipe(
-      map((f) => f(...args)),
-      promiseAll,
-      filter(identity),
-    )(funcs);
-
-    if (results.length) {
-      return results[0];
-    }
-  };
 export const spread = (f) => (x) => f(...x);
 export const juxt =
   (...fs) =>
   (...x) =>
     map((f) => f(...x))(fs);
-
-export const asyncFilter = (pred) =>
-  pipe(
-    map(async (arg) => [arg, await pred(arg)]),
-    filter(last),
-    map(head),
-  );
 
 export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
 
@@ -106,7 +85,7 @@ export const asyncTap = (f) => async (x) => {
   return x;
 };
 
-export const asyncPairRight = (f) => juxt(identity, f);
+export const pairRight = (f) => juxt(identity, f);
 
 export const asyncExcepts =
   (func, handler) =>
@@ -129,20 +108,6 @@ export const asyncStack = (functions) =>
     (values) => zip(functions, values),
     map(([f, x]) => f(x)),
   );
-
-export const asyncIfElse =
-  (predicate, fTrue, fFalse) =>
-  async (...args) => {
-    if (await predicate(...args)) {
-      return fTrue(...args);
-    }
-    return fFalse(...args);
-  };
-
-export const asyncUnless = (predicate, fFalse) =>
-  asyncIfElse(predicate, wrapPromise, fFalse);
-export const asyncWhen = (predicate, fTrue) =>
-  asyncIfElse(predicate, fTrue, wrapPromise);
 
 export const juxtCat = pipe(juxt, after(reduce(concat, () => [])));
 export const mapCat = pipe(map, after(reduce(concat, () => [])));
@@ -204,7 +169,13 @@ export const includedIn = (stuff) => (x) => stuff.includes(x);
 export const logWith = (...x) => sideEffect((y) => console.log(...x, y));
 export const pack = (...stuff) => stuff;
 
-export const remove = pipe(complement, (f) => (arr) => arr.filter(f));
+export const filter = pipe(
+  pairRight,
+  map,
+  after(pipe((array) => array.filter(second), map(head))),
+);
+
+export const remove = pipe(complement, filter);
 
 export const explode = (...positions) =>
   pipe(
