@@ -100,28 +100,22 @@ export const valMap = (f) => pipe(toPairs, map(stack(identity, f)), fromPairs);
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);
 
-export const asyncMapObjectTerminals = (terminalMapper) => (obj) => {
-  if (Array.isArray(obj)) {
-    return map(asyncMapObjectTerminals(terminalMapper))(obj);
-  }
+export const mapTerminals = (terminalMapper) => (obj) =>
+  Array.isArray(obj)
+    ? map(mapTerminals(terminalMapper))(obj)
+    : isObject(obj) && !(obj instanceof Function)
+    ? valMap(mapTerminals(terminalMapper))(obj)
+    : terminalMapper(obj);
 
-  if (isObject(obj) && !(obj instanceof Function)) {
-    return valMap(asyncMapObjectTerminals(terminalMapper))(obj);
-  }
-
-  return terminalMapper(obj);
-};
-
-// This function differs from ramda's by the fact it supports variadic functions.
 export const applyTo =
   (...args) =>
   (f) =>
     f(...args);
 
-export const asyncApplySpec =
+export const applySpec =
   (spec) =>
   (...args) =>
-    asyncMapObjectTerminals(applyTo(...args))(spec);
+    mapTerminals(applyTo(...args))(spec);
 
 export const product = reduce(
   (a, b) => a.flatMap((x) => b.map((y) => [...x, y])),
@@ -164,8 +158,3 @@ export const countTo = (x) => {
   for (let i = 0; i < x; i++) result.push(i);
   return result;
 };
-
-export const between =
-  ([start, end]) =>
-  (x) =>
-    start <= x && x < end;

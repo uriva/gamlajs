@@ -1,14 +1,13 @@
 import {
-  asyncApplySpec,
-  asyncMapObjectTerminals,
+  applySpec,
   asyncTap,
   asyncTimeit,
-  between,
   contains,
   explode,
   filter,
   isValidRegExp,
   keyMap,
+  mapTerminals,
   product,
   testRegExp,
   timeit,
@@ -64,7 +63,7 @@ test.each([
 
 test("asyncMapObject", async () => {
   expect(
-    await asyncMapObjectTerminals((x) => wrapPromise(x + 1))({
+    await mapTerminals((x) => wrapPromise(x + 1))({
       a: { a: 1, b: 2 },
       b: 3,
       c: [1, 2, 3],
@@ -78,7 +77,7 @@ test("asyncMapObject", async () => {
 
 test("asyncApplySpec", async () => {
   expect(
-    await asyncApplySpec({
+    await applySpec({
       a: (obj) => wrapPromise(obj.x),
       b: { a: (obj) => wrapPromise(obj.y) },
     })({ x: 1, y: 2 }),
@@ -107,12 +106,6 @@ test("explode", () => {
     ["a", 2, "b"],
     ["a", 3, "b"],
   ]);
-});
-
-test("between", () => {
-  expect(between([1, 2])(1)).toBeTruthy();
-  expect(between([1, 2])(2)).toBeFalsy();
-  expect(between([1, 4])(2.5)).toBeTruthy();
 });
 
 test("timeit", () => {
