@@ -1,6 +1,6 @@
 import { head, join, tail } from "./array";
 
-import { juxt } from "./functional";
+import { juxt } from "./juxt";
 import { pipe } from "./composition";
 
 export const truncate = (maxLength) => (input) =>

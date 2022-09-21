@@ -1,7 +1,7 @@
 import { always, concat, equals, length, prop, repeat } from "ramda";
 import { batch, singleToMultiple } from "./io";
 
-import { map } from "./functional";
+import { map } from "./map";
 import { pipe } from "./composition";
 import { reduce } from "./reduce";
 import { sleep } from "./time";

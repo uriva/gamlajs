@@ -1,13 +1,8 @@
 import { applySpec, prop, tap } from "ramda";
-import {
-  asyncExcepts,
-  juxt,
-  map,
-  pairRight,
-  spread,
-  stack,
-} from "./functional";
+import { asyncExcepts, spread } from "./functional";
+import { juxt, pairRight, stack } from "./juxt";
 
+import { map } from "./map";
 import { pipe } from "./composition";
 
 const clearAndExecuteTasks = (clearTasks, execute) =>
@@ -16,7 +11,7 @@ const clearAndExecuteTasks = (clearTasks, execute) =>
     applySpec({
       input: map(prop("input")),
       reject: pipe(map(prop("reject")), spread(juxt)),
-      resolve: pipe(map(prop("resolve")), stack),
+      resolve: pipe(map(prop("resolve")), spread(stack)),
     }),
     ({ input, resolve, reject }) =>
       asyncExcepts(pipe(execute, resolve), reject)(input),

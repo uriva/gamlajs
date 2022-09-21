@@ -2,7 +2,6 @@ import {
   addIndex,
   adjust,
   complement,
-  concat,
   flip,
   fromPairs,
   identity,
@@ -14,8 +13,9 @@ import {
 } from "ramda";
 import { after, pipe } from "./composition";
 import { head, second, wrapArray } from "./array";
+import { juxt, pairRight, stack } from "./juxt";
 
-import { isPromise } from "./promise";
+import { map } from "./map";
 import { reduce } from "./reduce";
 
 export const always = (x) => () => x;
@@ -41,24 +41,11 @@ export const groupByMany = (keys) =>
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
 
-export const map = (f) => (seq) => {
-  const results = seq.map(f);
-  return results.some(isPromise) ? Promise.all(results) : results;
-};
-
 export const edgesToGraph = pipe(groupBy(nth(0)), map(pipe(map(nth(1)), uniq)));
 
 export const spread = (f) => (x) => f(...x);
-export const juxt =
-  (...fs) =>
-  (...x) =>
-    map((f) => f(...x))(fs);
 
 export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
-
-// Zips arrays by the length of the first.
-export const zip = (...arrays) =>
-  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
@@ -85,8 +72,6 @@ export const asyncTap = (f) => async (x) => {
   return x;
 };
 
-export const pairRight = (f) => juxt(identity, f);
-
 export const asyncExcepts =
   (func, handler) =>
   async (...args) => {
@@ -97,20 +82,6 @@ export const asyncExcepts =
     }
   };
 
-export const stack = (functions) =>
-  pipe(
-    (values) => zip(functions, values),
-    map(([f, x]) => f(x)),
-  );
-
-export const asyncStack = (functions) =>
-  pipe(
-    (values) => zip(functions, values),
-    map(([f, x]) => f(x)),
-  );
-
-export const juxtCat = pipe(juxt, after(reduce(concat, () => [])));
-export const mapCat = pipe(map, after(reduce(concat, () => [])));
 export const contains = flip(includes);
 
 export const testRegExp = (regexp) => (x) => regexp.test(x);
@@ -124,8 +95,7 @@ export const isValidRegExp = (str) => {
   }
 };
 
-export const asyncValMap = (f) =>
-  pipe(toPairs, map(asyncStack([identity, f])), fromPairs);
+export const valMap = (f) => pipe(toPairs, map(stack(identity, f)), fromPairs);
 
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);
@@ -136,7 +106,7 @@ export const asyncMapObjectTerminals = (terminalMapper) => (obj) => {
   }
 
   if (isObject(obj) && !(obj instanceof Function)) {
-    return asyncValMap(asyncMapObjectTerminals(terminalMapper))(obj);
+    return valMap(asyncMapObjectTerminals(terminalMapper))(obj);
   }
 
   return terminalMapper(obj);
@@ -186,7 +156,6 @@ export const explode = (...positions) =>
   );
 
 export const count = prop("length");
-export const mapcat = pipe(map, after(reduce(concat, () => [])));
 export const rate = (f) =>
   pipe(juxt(pipe(filter(f), count), count), ([x, y]) => x / y);
 
@@ -195,9 +164,6 @@ export const countTo = (x) => {
   for (let i = 0; i < x; i++) result.push(i);
   return result;
 };
-
-export const valmap = (f) => (o) =>
-  Object.fromEntries(Object.entries(o).map(([x, y]) => [x, f(y)]));
 
 export const between =
   ([start, end]) =>

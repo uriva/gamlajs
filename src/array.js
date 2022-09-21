@@ -17,3 +17,7 @@ export const sort = (x) =>
   x
     .slice()
     .sort((a, b) => (isString(a) && isString(b) ? a.localeCompare(b) : a - b));
+
+// Zips arrays by the length of the first.
+export const zip = (...arrays) =>
+  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));

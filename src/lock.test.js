@@ -7,7 +7,7 @@ import {
 } from "./lock";
 
 import { identity } from "ramda";
-import { map } from "./functional";
+import { map } from "./map";
 import { sleep } from "./time";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
