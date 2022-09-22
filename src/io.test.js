@@ -1,9 +1,10 @@
 import { equals, prop } from "./operator";
-import { length, repeat } from "./array";
 
 import { batch } from "./io";
+import { length } from "./array";
 import { mapCat } from "./map";
 import { pipe } from "./composition";
+import { repeat } from "./matrix";
 import { sleep } from "./time";
 import { wrapPromise } from "./promise";
 

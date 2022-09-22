@@ -1,9 +1,19 @@
-import { applySpec, asyncExcepts, spread } from "./functional";
 import { juxt, pairRight, stack } from "./juxt";
+import { prop, spread } from "./operator";
 
+import { applySpec } from "./mapping";
 import { map } from "./map";
 import { pipe } from "./composition";
-import { prop } from "./operator";
+
+export const asyncExcepts =
+  (func, handler) =>
+  async (...args) => {
+    try {
+      return await func(...args);
+    } catch (err) {
+      return handler(err);
+    }
+  };
 
 const executeTasks = (execute) =>
   pipe(

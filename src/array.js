@@ -42,13 +42,9 @@ export const sort = (x) =>
     .slice()
     .sort((a, b) => (isString(a) && isString(b) ? a.localeCompare(b) : a - b));
 
-// Zips arrays by the length of the first.
-export const zip = (...arrays) =>
-  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
-
-export const repeat = (element, times) => {
+export const range = (start, end) => {
   const result = [];
-  for (let i = 0; i < times; i++) result.push(element);
+  for (let i = start; i < end; i++) result.push(i);
   return result;
 };
 

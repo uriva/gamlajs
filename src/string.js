@@ -22,3 +22,14 @@ export const trim = (characters) => (str) => {
   }
   return str.substr(start, end - start + 1);
 };
+
+export const testRegExp = (regexp) => (x) => regexp.test(x);
+
+export const isValidRegExp = (str) => {
+  try {
+    new RegExp(str);
+    return true;
+  } catch (e) {
+    return false;
+  }
+};

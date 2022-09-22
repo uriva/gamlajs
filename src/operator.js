@@ -9,3 +9,5 @@ export const between =
   ([start, end]) =>
   (x) =>
     start <= x && x < end;
+export const unspread = (...stuff) => stuff;
+export const spread = (f) => (x) => f(...x);
