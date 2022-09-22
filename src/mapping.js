@@ -14,6 +14,9 @@ export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   return result;
 };
 
+export const groupByReduce = (key, ...rest) =>
+  groupByManyReduce(pipe(key, wrapArray), ...rest);
+
 export const groupByMany = (keys) =>
   groupByManyReduce(
     keys,
