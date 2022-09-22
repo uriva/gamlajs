@@ -1,4 +1,4 @@
-import { sort, zip } from "./array";
+import { contains, includedIn, sort, zip } from "./array";
 
 test("sort", () => {
   const x = [3, 2, 1];
@@ -17,4 +17,16 @@ test("zip", () => {
     [2, 0],
     [3, 0],
   ]);
+});
+
+test("includedIn", () => {
+  expect.assertions(2);
+  expect(includedIn([1, 2, 3])(1)).toBeTruthy();
+  expect(includedIn([1, 2, 3])(4)).toBeFalsy();
+});
+
+test("contains", () => {
+  expect.assertions(2);
+  expect(contains(1)([1, 2, 3])).toBeTruthy();
+  expect(contains(4)([1, 2, 3])).toBeFalsy();
 });

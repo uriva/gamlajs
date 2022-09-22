@@ -1,4 +1,4 @@
-import { prop } from "ramda";
+import { prop } from "./operator";
 import { reduceTree } from "./tree";
 import { sum } from "./math";
 

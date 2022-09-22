@@ -1,6 +1,5 @@
 import NodeCache from "node-cache";
 import hash from "object-hash";
-import { isNil } from "ramda";
 import { throttle } from "./lock";
 
 const getCacheKey = (args) => hash.sha1(args);
@@ -15,7 +14,7 @@ export const withCacheAsyncCustom =
   async (...args) => {
     const cacheKey = getCacheKey(args);
     const value = await get(cacheKey);
-    if (!isNil(value)) {
+    if (value !== undefined && value !== null) {
       return value;
     }
     const result = await f.apply(this, args);

@@ -1,13 +1,12 @@
 import { applySpec, asyncExcepts, spread } from "./functional";
 import { juxt, pairRight, stack } from "./juxt";
-import { prop, tap } from "ramda";
 
 import { map } from "./map";
 import { pipe } from "./composition";
+import { prop } from "./operator";
 
-const clearAndExecuteTasks = (clearTasks, execute) =>
+const executeTasks = (execute) =>
   pipe(
-    tap(clearTasks),
     applySpec({
       input: map(prop("input")),
       reject: pipe(map(prop("reject")), spread(juxt)),
@@ -23,16 +22,14 @@ const clearAndExecuteTasks = (clearTasks, execute) =>
  */
 export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
   const keyToTasks = {};
-  const keyToTimeoutObject = {};
+  const keyToTimeout = {};
 
-  const clearTasks = (key) => () => {
-    clearTimeout(keyToTimeoutObject[key]);
-    delete keyToTimeoutObject[key];
+  const clearAndExecute = (key) => {
+    executeTasks(execute)(keyToTasks[key]);
+    clearTimeout(keyToTimeout[key]);
+    delete keyToTimeout[key];
     delete keyToTasks[key];
   };
-
-  const clearAndExecute = (key) =>
-    clearAndExecuteTasks(clearTasks(key), execute)(keyToTasks[key]);
 
   return pipe(
     pairRight(keyFn),
@@ -42,12 +39,11 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
           ...(keyToTasks[key] || []),
           { resolve, reject, input },
         ];
-
         if (condition(map(prop("input"))(keyToTasks[key]))) {
           clearAndExecute(key);
         } else {
-          clearTimeout(keyToTimeoutObject[key]);
-          keyToTimeoutObject[key] = setTimeout(
+          clearTimeout(keyToTimeout[key]);
+          keyToTimeout[key] = setTimeout(
             () => clearAndExecute(key),
             maxWaitMilliseconds,
           );
@@ -55,6 +51,3 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
       }),
   );
 };
-
-export const singleToMultiple = (merge, split, f) => (tasks) =>
-  pipe(merge, f, (results) => split(tasks, results))(tasks);

@@ -2,7 +2,6 @@ import {
   applySpec,
   asyncTap,
   asyncTimeit,
-  contains,
   explode,
   filter,
   isValidRegExp,
@@ -32,12 +31,6 @@ test("asyncTap", async () => {
   const result = await asyncTap((x) => wrapPromise(x * 2))(2);
   expect.assertions(1);
   expect(result).toStrictEqual(2);
-});
-
-test("contains", () => {
-  expect.assertions(2);
-  expect(contains([1, 2, 3])(1)).toBeTruthy();
-  expect(contains([1, 2, 3])(4)).toBeFalsy();
 });
 
 test("testRegExp", () => {

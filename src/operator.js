@@ -1,3 +1,5 @@
+export const not = (x) => !x;
+export const prop = (key) => (x) => x[key];
 export const equals = (x) => (y) => x === y;
 export const greater = (x) => (y) => y > x;
 export const smaller = (x) => (y) => y < x;

@@ -1,19 +1,9 @@
-import {
-  addIndex,
-  adjust,
-  complement,
-  flip,
-  fromPairs,
-  includes,
-  prop,
-  toPairs,
-  uniq,
-} from "ramda";
-import { after, pipe } from "./composition";
-import { head, second, wrapArray } from "./array";
+import { after, complement, pipe } from "./composition";
+import { head, second, unique, wrapArray } from "./array";
 import { juxt, pairRight, stack } from "./juxt";
 
 import { map } from "./map";
+import { prop } from "./operator";
 import { reduce } from "./reduce";
 
 export const always = (x) => () => x;
@@ -39,11 +29,13 @@ export const groupByMany = (keys) =>
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
 
-export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), uniq)));
+export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), unique)));
 
 export const spread = (f) => (x) => f(...x);
 
-export const keyMap = (fn) => pipe(toPairs, map(adjust(0, fn)), fromPairs);
+export const entryMap = (f) => pipe(Object.entries, map(f), Object.fromEntries);
+export const valMap = (f) => entryMap(stack((x) => x, f));
+export const keyMap = (f) => entryMap(stack(f, (x) => x));
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
@@ -80,8 +72,6 @@ export const asyncExcepts =
     }
   };
 
-export const contains = flip(includes);
-
 export const testRegExp = (regexp) => (x) => regexp.test(x);
 
 export const isValidRegExp = (str) => {
@@ -92,8 +82,6 @@ export const isValidRegExp = (str) => {
     return false;
   }
 };
-
-export const valMap = (f) => pipe(toPairs, map(stack((x) => x, f)), fromPairs);
 
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);
@@ -127,7 +115,7 @@ export const sideEffect = (f) => (x) => {
 
 export const log = sideEffect(console.log);
 export const logTable = sideEffect(console.table);
-export const includedIn = (stuff) => (x) => stuff.includes(x);
+
 export const logWith = (...x) => sideEffect((y) => console.log(...x, y));
 export const pack = (...stuff) => stuff;
 
@@ -141,9 +129,14 @@ export const remove = pipe(complement, filter);
 
 export const explode = (...positions) =>
   pipe(
-    addIndex(map)((x, i) =>
-      complement(includedIn(positions))(i) ? wrapArray(x) : x,
+    reduce(
+      ({ index, result }, current) => {
+        result.push(positions.includes(index) ? current : wrapArray(current));
+        return { index: index + 1, result };
+      },
+      () => ({ index: 0, result: [] }),
     ),
+    prop("result"),
     product,
   );
 
