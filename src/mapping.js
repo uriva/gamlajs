@@ -1,5 +1,5 @@
 import { after, applyTo, pipe } from "./composition.js";
-import { head, second, unique, wrapArray } from "./array.js";
+import { head, last, second, unique, wrapArray } from "./array.js";
 
 import { map } from "./map.js";
 import { stack } from "./juxt.js";
@@ -49,3 +49,24 @@ export const applySpec =
   (spec) =>
   (...args) =>
     mapTerminals(applyTo(...args))(spec);
+
+const objToGetter = (obj) => (key) => obj[key];
+
+const returnNullAfterNCalls = (n) =>
+  n ? () => returnNullAfterNCalls(n - 1) : null;
+
+export const index =
+  (key, ...keys) =>
+  (xs) => {
+    if (!keys.length) {
+      return key(last(xs));
+    }
+    const result = {};
+    for (const x of xs) {
+      result[key(x)] = result[key(x)] || [];
+      result[key(x)].push(x);
+    }
+    const resultAfterRecursion = valMap(index(...keys))(result);
+    resultAfterRecursion[null] = returnNullAfterNCalls(keys.length - 1);
+    return objToGetter(resultAfterRecursion);
+  };

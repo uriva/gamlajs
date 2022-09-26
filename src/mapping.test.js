@@ -1,4 +1,5 @@
-import { applySpec, keyMap, mapTerminals, valMap } from "./mapping.js";
+import { applySpec, index, keyMap, mapTerminals, valMap } from "./mapping.js";
+import { head, second } from "./array.js";
 
 import { wrapPromise } from "./promise.js";
 
@@ -40,4 +41,18 @@ test("applySpec async", async () => {
       b: { a: (obj) => wrapPromise(obj.y) },
     })({ x: 1, y: 2 }),
   ).toEqual({ a: 1, b: { a: 2 } });
+});
+
+test("index", () => {
+  const builtIndex = index(
+    head,
+    second,
+  )([
+    [1, 2],
+    [3, 4],
+    [1, 5],
+  ]);
+  expect(builtIndex(3)).toBe(4);
+  expect(builtIndex(1)).toBe(5);
+  expect(builtIndex(null)).toBe(null);
 });
