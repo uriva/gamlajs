@@ -67,8 +67,7 @@ export const index =
       result[key(x)] = result[key(x)] || [];
       result[key(x)].push(x);
     }
-    const resultAfterRecursion = valMap(index(...keys))(result);
     return objToGetterWithDefault(returnNullAfterNCalls(keys.length - 1))(
-      resultAfterRecursion,
+      valMap(index(...keys))(result),
     );
   };
