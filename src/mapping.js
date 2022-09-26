@@ -50,7 +50,8 @@ export const applySpec =
   (...args) =>
     mapTerminals(applyTo(...args))(spec);
 
-const objToGetter = (obj) => (key) => obj[key];
+const objToGetterWithDefault = (d) => (obj) => (key) =>
+  key in obj ? obj[key] : d;
 
 const returnNullAfterNCalls = (n) =>
   n ? () => returnNullAfterNCalls(n - 1) : null;
@@ -67,6 +68,7 @@ export const index =
       result[key(x)].push(x);
     }
     const resultAfterRecursion = valMap(index(...keys))(result);
-    resultAfterRecursion[null] = returnNullAfterNCalls(keys.length - 1);
-    return objToGetter(resultAfterRecursion);
+    return objToGetterWithDefault(returnNullAfterNCalls(keys.length - 1))(
+      resultAfterRecursion,
+    );
   };

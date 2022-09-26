@@ -1,5 +1,5 @@
 import { applySpec, index, keyMap, mapTerminals, valMap } from "./mapping.js";
-import { head, second } from "./array.js";
+import { head, second, third } from "./array.js";
 
 import { wrapPromise } from "./promise.js";
 
@@ -47,12 +47,13 @@ test("index", () => {
   const builtIndex = index(
     head,
     second,
+    third,
   )([
-    [1, 2],
-    [3, 4],
-    [1, 5],
+    [1, 2, 8],
+    [3, 4, 7],
+    [1, 2, 5],
   ]);
-  expect(builtIndex(3)).toBe(4);
-  expect(builtIndex(1)).toBe(5);
-  expect(builtIndex(null)).toBe(null);
+  expect(builtIndex(3)(4)).toBe(7);
+  expect(builtIndex(1)(2)).toBe(5);
+  expect(builtIndex(9)(15)).toBe(null);
 });
