@@ -1,12 +1,12 @@
-import { equals, prop } from "./operator";
+import { equals, prop } from "./operator.js";
 
-import { batch } from "./io";
-import { length } from "./array";
-import { mapCat } from "./map";
-import { pipe } from "./composition";
-import { repeat } from "./matrix";
-import { sleep } from "./time";
-import { wrapPromise } from "./promise";
+import { batch } from "./io.js";
+import { length } from "./array.js";
+import { mapCat } from "./map.js";
+import { pipe } from "./composition.js";
+import { repeat } from "./matrix.js";
+import { sleep } from "./time.js";
+import { wrapPromise } from "./promise.js";
 
 const sumOfThings = (numbers) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));

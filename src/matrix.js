@@ -1,7 +1,7 @@
-import { pipe } from "./composition";
-import { prop } from "./operator";
-import { reduce } from "./reduce";
-import { wrapArray } from "./array";
+import { pipe } from "./composition.js";
+import { prop } from "./operator.js";
+import { reduce } from "./reduce.js";
+import { wrapArray } from "./array.js";
 
 // Zips arrays by the length of the first.
 export const zip = (...arrays) =>

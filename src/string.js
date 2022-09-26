@@ -1,7 +1,7 @@
-import { head, join, tail } from "./array";
+import { head, join, tail } from "./array.js";
 
-import { juxt } from "./juxt";
-import { pipe } from "./composition";
+import { juxt } from "./juxt.js";
+import { pipe } from "./composition.js";
 
 export const truncate = (maxLength) => (input) =>
   input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;

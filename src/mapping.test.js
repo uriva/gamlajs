@@ -1,6 +1,6 @@
-import { applySpec, keyMap, mapTerminals, valMap } from "./mapping";
+import { applySpec, keyMap, mapTerminals, valMap } from "./mapping.js";
 
-import { wrapPromise } from "./promise";
+import { wrapPromise } from "./promise.js";
 
 test("keyMap", () => {
   expect(keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] })).toEqual({

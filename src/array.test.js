@@ -1,4 +1,4 @@
-import { contains, includedIn, sort } from "./array";
+import { contains, includedIn, sort } from "./array.js";
 
 test("sort", () => {
   const x = [3, 2, 1];

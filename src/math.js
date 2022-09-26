@@ -1,8 +1,8 @@
-import { filter } from "./filter";
-import { juxt } from "./juxt";
-import { length } from "./array";
-import { pipe } from "./composition";
-import { reduce } from "./reduce";
+import { filter } from "./filter.js";
+import { juxt } from "./juxt.js";
+import { length } from "./array.js";
+import { pipe } from "./composition.js";
+import { reduce } from "./reduce.js";
 
 export const sum = reduce((a, b) => a + b, 0);
 export const divide = (x) => (y) => y / x;

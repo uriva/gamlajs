@@ -1,6 +1,6 @@
-import { ifElse, unless, when } from "./conditional";
+import { ifElse, unless, when } from "./conditional.js";
 
-import { wrapPromise } from "./promise";
+import { wrapPromise } from "./promise.js";
 
 test("ifElse async", async () => {
   const testFunction = ifElse(

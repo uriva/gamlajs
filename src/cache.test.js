@@ -1,4 +1,4 @@
-import { withCacheAsync } from "./cache";
+import { withCacheAsync } from "./cache.js";
 
 test("async cache", async () => {
   const foo = withCacheAsync(() => Math.random());
@@ -10,7 +10,7 @@ test("async cache", async () => {
 test("async cache parallel", async () => {
   const foo = withCacheAsync(
     () =>
-      new Promise((resolve) => setTimeout(() => resolve(Math.random()), 1000))
+      new Promise((resolve) => setTimeout(() => resolve(Math.random()), 1000)),
   );
   const [random, cache] = await Promise.all([foo(5), foo(5)]);
   expect(random).toEqual(cache);

@@ -1,7 +1,7 @@
-import { after, pipe } from "./composition";
+import { after, pipe } from "./composition.js";
 
-import { isPromise } from "./promise";
-import { reduce } from "./reduce";
+import { isPromise } from "./promise.js";
+import { reduce } from "./reduce.js";
 
 export const map = (f) => (seq) => {
   const results = seq.map(f);

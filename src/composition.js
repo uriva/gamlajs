@@ -1,6 +1,6 @@
-import { not } from "./operator";
-import { reduce } from "./reduce";
-import { reverse } from "./array";
+import { not } from "./operator.js";
+import { reduce } from "./reduce.js";
+import { reverse } from "./array.js";
 export const pipe =
   (...fs) =>
   (...x) =>

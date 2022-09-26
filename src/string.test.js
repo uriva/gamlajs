@@ -4,7 +4,7 @@ import {
   testRegExp,
   trim,
   truncate,
-} from "./string";
+} from "./string.js";
 
 test("capitalize", () => {
   expect(capitalize("test")).toBe("Test");

@@ -1,8 +1,8 @@
-import { after, pipe } from "./composition";
+import { after, pipe } from "./composition.js";
 
-import { map } from "./map";
-import { reduce } from "./reduce";
-import { zip } from "./matrix";
+import { map } from "./map.js";
+import { reduce } from "./reduce.js";
+import { zip } from "./matrix.js";
 
 export const juxt =
   (...fs) =>

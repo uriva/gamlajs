@@ -1,6 +1,6 @@
-import { map, mapCat } from "./map";
+import { map, mapCat } from "./map.js";
 
-import { wrapPromise } from "./promise";
+import { wrapPromise } from "./promise.js";
 
 test.each([
   [

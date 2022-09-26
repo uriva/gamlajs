@@ -1,6 +1,6 @@
-import { max, min, reduce } from "./reduce";
+import { max, min, reduce } from "./reduce.js";
 
-import { wrapPromise } from "./promise";
+import { wrapPromise } from "./promise.js";
 
 test("reduce", () => {
   expect(

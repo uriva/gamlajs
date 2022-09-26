@@ -1,5 +1,5 @@
-import { filter } from "./filter";
-import { wrapPromise } from "./promise";
+import { filter } from "./filter.js";
+import { wrapPromise } from "./promise.js";
 
 test("async filter", async () => {
   expect(

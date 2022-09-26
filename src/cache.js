@@ -1,6 +1,6 @@
 import NodeCache from "node-cache";
 import hash from "object-hash";
-import { throttle } from "./lock";
+import { throttle } from "./lock.js";
 
 const getCacheKey = (args) => hash.sha1(args);
 

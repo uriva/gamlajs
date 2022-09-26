@@ -1,9 +1,9 @@
-import { juxt, pairRight, stack } from "./juxt";
-import { prop, spread } from "./operator";
+import { juxt, pairRight, stack } from "./juxt.js";
+import { prop, spread } from "./operator.js";
 
-import { applySpec } from "./mapping";
-import { map } from "./map";
-import { pipe } from "./composition";
+import { applySpec } from "./mapping.js";
+import { map } from "./map.js";
+import { pipe } from "./composition.js";
 
 export const asyncExcepts =
   (func, handler) =>

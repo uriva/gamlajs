@@ -1,8 +1,8 @@
-import { after, complement, pipe } from "./composition";
-import { head, second } from "./array";
+import { after, complement, pipe } from "./composition.js";
+import { head, second } from "./array.js";
 
-import { map } from "./map";
-import { pairRight } from "./juxt";
+import { map } from "./map.js";
+import { pairRight } from "./juxt.js";
 
 export const filter = pipe(
   pairRight,

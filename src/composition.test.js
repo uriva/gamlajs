@@ -1,7 +1,7 @@
-import { compose, pipe } from "./composition";
+import { compose, pipe } from "./composition.js";
 
-import { multiply } from "./math";
-import { wrapPromise } from "./promise";
+import { multiply } from "./math.js";
+import { wrapPromise } from "./promise.js";
 
 test("pipe with async functions", async () => {
   expect(await pipe(wrapPromise, (input) => wrapPromise(input * 2))(2)).toBe(4);

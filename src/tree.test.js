@@ -1,6 +1,6 @@
-import { prop } from "./operator";
-import { reduceTree } from "./tree";
-import { sum } from "./math";
+import { prop } from "./operator.js";
+import { reduceTree } from "./tree.js";
+import { sum } from "./math.js";
 
 test("reduceTree", () => {
   expect(

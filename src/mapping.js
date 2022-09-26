@@ -1,8 +1,8 @@
-import { after, applyTo, pipe } from "./composition";
-import { head, second, unique, wrapArray } from "./array";
+import { after, applyTo, pipe } from "./composition.js";
+import { head, second, unique, wrapArray } from "./array.js";
 
-import { map } from "./map";
-import { stack } from "./juxt";
+import { map } from "./map.js";
+import { stack } from "./juxt.js";
 
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   const result = {};

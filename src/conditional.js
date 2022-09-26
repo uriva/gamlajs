@@ -1,4 +1,4 @@
-import { isPromise } from "./promise";
+import { isPromise } from "./promise.js";
 
 export const ifElse =
   (predicate, fTrue, fFalse) =>

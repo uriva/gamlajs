@@ -4,10 +4,10 @@ import {
   throttle,
   withLock,
   withLockByInput,
-} from "./lock";
+} from "./lock.js";
 
-import { map } from "./map";
-import { sleep } from "./time";
+import { map } from "./map.js";
+import { sleep } from "./time.js";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
   await sleep(ms);

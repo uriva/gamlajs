@@ -1,9 +1,9 @@
-import { juxt, juxtCat, pairRight } from "./juxt";
+import { juxt, juxtCat, pairRight } from "./juxt.js";
 
-import { map } from "./map";
-import { multiply } from "./math";
-import { pipe } from "./composition";
-import { wrapPromise } from "./promise";
+import { map } from "./map.js";
+import { multiply } from "./math.js";
+import { pipe } from "./composition.js";
+import { wrapPromise } from "./promise.js";
 
 test("async juxt", async () => {
   expect(
