@@ -11,3 +11,13 @@ export const filter = pipe(
 );
 
 export const remove = pipe(complement, filter);
+
+const toContainmentCheck = (xs) => {
+  const set = new Set(xs);
+  return (k) => set.has(k);
+};
+
+export const intersectBy = (f) => (arrays) =>
+  arrays.reduce((current, next) =>
+    current.filter(pipe(f, toContainmentCheck(next.map(f)))),
+  );

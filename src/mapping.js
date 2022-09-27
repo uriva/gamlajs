@@ -1,5 +1,5 @@
 import { after, applyTo, pipe } from "./composition.js";
-import { head, last, second, unique, wrapArray } from "./array.js";
+import { head, second, unique, wrapArray } from "./array.js";
 
 import { map } from "./map.js";
 import { stack } from "./juxt.js";
@@ -53,21 +53,19 @@ export const applySpec =
 const objToGetterWithDefault = (d) => (obj) => (key) =>
   key in obj ? obj[key] : d;
 
-const returnNullAfterNCalls = (n) =>
-  n ? () => returnNullAfterNCalls(n - 1) : null;
+const returnValueAfterNCalls = (n, constructor) =>
+  n ? () => returnValueAfterNCalls(n - 1, constructor) : constructor();
 
 export const index =
   (key, ...keys) =>
   (xs) => {
-    if (!keys.length) {
-      return key(last(xs));
-    }
+    if (!key) return xs;
     const result = {};
     for (const x of xs) {
       result[key(x)] = result[key(x)] || [];
       result[key(x)].push(x);
     }
-    return objToGetterWithDefault(returnNullAfterNCalls(keys.length - 1))(
-      valMap(index(...keys))(result),
-    );
+    return objToGetterWithDefault(
+      returnValueAfterNCalls(keys.length, () => []),
+    )(valMap(index(...keys))(result));
   };
