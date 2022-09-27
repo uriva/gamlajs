@@ -1,4 +1,4 @@
-import { compose, pipe } from "./composition.js";
+import { compose, pipe, uncurry } from "./composition.js";
 
 import { multiply } from "./math.js";
 import { wrapPromise } from "./promise.js";
@@ -19,4 +19,9 @@ test("pipe is able to mix sync and async functions", async () => {
       (x) => x + 2,
     )(1),
   ).toBe(4);
+});
+
+test("uncurry", () => {
+  const f = (x) => (y) => (z) => x + y + z;
+  expect(uncurry(f)(1, 2, 3)).toEqual(6);
 });

@@ -26,3 +26,8 @@ export const applyTo =
     f(...args);
 
 export const always = (x) => () => x;
+
+export const uncurry =
+  (f) =>
+  (param, ...rest) =>
+    rest.length ? uncurry(f(param))(...rest) : f(param);
