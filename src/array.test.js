@@ -1,4 +1,8 @@
-import { contains, includedIn, sort } from "./array.js";
+import { contains, includedIn, init, sort } from "./array.js";
+
+test("init", () => {
+  expect(init([3, 2, 1])).toEqual([3, 2]);
+});
 
 test("sort", () => {
   const x = [3, 2, 1];

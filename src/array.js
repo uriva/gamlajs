@@ -31,6 +31,7 @@ export const concat = (array) => {
 export const reverse = (array) => array.slice().reverse();
 export const tail = (x) => x.slice(1);
 export const head = (x) => x[0];
+export const init = (x) => x.slice(0, -1);
 export const second = (x) => x[1];
 export const third = (x) => x[2];
 export const last = (x) => x[x.length - 1];
