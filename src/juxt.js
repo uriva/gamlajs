@@ -1,4 +1,5 @@
 import { after, pipe } from "./composition.js";
+import { all, any } from "./array.js";
 
 import { map } from "./map.js";
 import { reduce } from "./reduce.js";
@@ -25,3 +26,6 @@ export const juxtCat = pipe(
     ),
   ),
 );
+
+export const alljuxt = pipe(juxt, after(all));
+export const anyjuxt = pipe(juxt, after(any));

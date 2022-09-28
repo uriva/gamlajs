@@ -1,7 +1,9 @@
 const methodToFunction = (method) => (x) => (obj) => obj[method](x);
 
-export const any = methodToFunction("some");
-export const all = methodToFunction("all");
+export const anymap = methodToFunction("some");
+export const any = anymap((x) => x);
+export const allmap = methodToFunction("every");
+export const all = allmap((x) => x);
 export const join = methodToFunction("join");
 
 export const length = (array) => array.length;
@@ -36,6 +38,7 @@ export const second = (x) => x[1];
 export const third = (x) => x[2];
 export const last = (x) => x[x.length - 1];
 export const empty = (x) => !x.length;
+export const nonempty = (x) => !!x.length;
 export const wrapArray = (x) => [x];
 
 const isString = (x) => typeof x == "string";
