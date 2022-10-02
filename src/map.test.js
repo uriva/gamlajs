@@ -12,6 +12,10 @@ test.each([
   expect(await map((input) => wrapPromise(input * 2))(it)).toEqual(expected);
 });
 
+test("map doesn't include indices", () => {
+  expect(map(parseInt)(["4", "3", "7"])).toEqual([4, 3, 7]);
+});
+
 test("mapCat", async () => {
   expect(await mapCat((x) => wrapPromise([x, x + 1]))([1, 2])).toStrictEqual([
     1, 2, 2, 3,
