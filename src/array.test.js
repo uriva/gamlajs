@@ -1,4 +1,14 @@
-import { all, any, anymap, contains, includedIn, init, sort } from "./array.js";
+import {
+  all,
+  any,
+  anymap,
+  contains,
+  drop,
+  includedIn,
+  init,
+  sort,
+  take,
+} from "./array.js";
 
 test("init", () => {
   expect(init([3, 2, 1])).toEqual([3, 2]);
@@ -41,4 +51,12 @@ test("all", () => {
 test("allmap", () => {
   expect(anymap((x) => x > 7)([(1, 2, 3)])).toBeFalsy();
   expect(anymap((x) => x > 0)([(1, 2, 3)])).toBeTruthy();
+});
+
+test("take", () => {
+  expect(take(3)([1, 2, 3, 5])).toEqual([1, 2, 3]);
+});
+
+test("drop", () => {
+  expect(drop(3)([1, 2, 3, 5])).toEqual([5]);
 });

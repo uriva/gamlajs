@@ -56,3 +56,6 @@ export const range = (start, end) => {
 
 export const contains = (x) => (array) => array.includes(x);
 export const includedIn = (array) => (x) => array.includes(x);
+
+export const take = (n) => (xs) => xs.slice(0, n);
+export const drop = (n) => (xs) => xs.slice(n);
