@@ -8,6 +8,8 @@ export const truncate = (maxLength) => (input) =>
 
 export const uppercase = (s) => s.toLocaleUpperCase();
 export const lowercase = (s) => s.toLocaleLowerCase();
+export const replace = (target, replacement) => (s) =>
+  s.replace(target, replacement);
 
 export const capitalize = pipe(juxt(pipe(head, uppercase), tail), join(""));
 
