@@ -4,6 +4,7 @@ import {
   anymap,
   contains,
   drop,
+  enumerate,
   includedIn,
   init,
   sort,
@@ -59,4 +60,13 @@ test("take", () => {
 
 test("drop", () => {
   expect(drop(3)([1, 2, 3, 5])).toEqual([5]);
+});
+
+test("enumerate", () => {
+  expect(enumerate([1, 2, 3, 5])).toEqual([
+    [0, 1],
+    [1, 2],
+    [2, 3],
+    [3, 5],
+  ]);
 });

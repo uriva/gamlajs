@@ -59,3 +59,5 @@ export const includedIn = (array) => (x) => array.includes(x);
 
 export const take = (n) => (xs) => xs.slice(0, n);
 export const drop = (n) => (xs) => xs.slice(n);
+
+export const enumerate = (xs) => xs.map((x, i) => [i, x]);
