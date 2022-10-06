@@ -1,4 +1,4 @@
-import { asyncTimeit, timeit } from "./debug.js";
+import { assert, asyncTimeit, timeit } from "./debug.js";
 
 import { sleep } from "./time.js";
 
@@ -28,4 +28,12 @@ test("asyncTimeit", async () => {
     f,
   )({ a: 1, b: 2, c: 3 });
   expect(logSpy).toHaveBeenCalledWith("slept and returned 6");
+});
+
+test("assert", () => {
+  const err = "not greater than 7";
+  expect(() => {
+    assert((x) => x > 7, err)(3);
+  }).toThrow(err);
+  assert((x) => x > 7, err)(10);
 });

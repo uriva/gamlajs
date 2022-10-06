@@ -25,8 +25,6 @@ export const timeit =
   };
 
 export const assert = (condition, errorMessage) =>
-  sideEffect(
-    ...(x) => {
-      if (!condition(...x)) throw errorMessage;
-    },
-  );
+  sideEffect((...x) => {
+    if (!condition(...x)) throw errorMessage;
+  });
