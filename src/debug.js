@@ -23,3 +23,10 @@ export const timeit =
     handler(getTimestampMilliseconds() - started, args, result);
     return result;
   };
+
+export const assert = (condition, errorMessage) =>
+  sideEffect(
+    ...(x) => {
+      if (!condition(...x)) throw errorMessage;
+    },
+  );
