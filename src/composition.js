@@ -26,6 +26,7 @@ export const applyTo =
     f(...args);
 
 export const always = (x) => () => x;
+export const identity = (x) => x;
 
 export const uncurry =
   (f) =>
