@@ -5,4 +5,9 @@ export const promiseAll = (promises) => Promise.all(promises);
 export const wrapPromise = (x) => Promise.resolve(x);
 
 export const isPromise = (x) =>
-  !!(typeof x === "object" && x !== null && x.then);
+  !!(
+    typeof x === "object" &&
+    x !== null &&
+    x.then &&
+    typeof x.then === "function"
+  );
