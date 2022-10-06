@@ -1,4 +1,11 @@
-import { applySpec, index, keyMap, mapTerminals, valMap } from "./mapping.js";
+import {
+  applySpec,
+  groupBy,
+  index,
+  keyMap,
+  mapTerminals,
+  valMap,
+} from "./mapping.js";
 import { head, second } from "./array.js";
 
 import { wrapPromise } from "./promise.js";
@@ -58,4 +65,11 @@ test("index", () => {
     [1, 2, 5],
   ]);
   expect(builtIndex(9)(15)).toEqual([]);
+});
+
+test("groupBy", () => {
+  expect(groupBy(head)(["cow", "cat", "dog"])).toEqual({
+    c: ["cow", "cat"],
+    d: ["dog"],
+  });
 });
