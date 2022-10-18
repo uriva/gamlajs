@@ -1,12 +1,4 @@
-import { explode, product, zip } from "./matrix.js";
-
-test("zip", () => {
-  expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
-    [1, 0],
-    [2, 0],
-    [3, 0],
-  ]);
-});
+import { explode, product } from "./matrix.js";
 
 test("product", () => {
   expect(product([])).toEqual([[]]);

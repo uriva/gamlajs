@@ -43,10 +43,29 @@ export const wrapArray = (x) => [x];
 
 const isString = (x) => typeof x == "string";
 
-export const sort = (x) =>
-  x
-    .slice()
-    .sort((a, b) => (isString(a) && isString(b) ? a.localeCompare(b) : a - b));
+// Zips arrays by the length of the first.
+export const zip = (...arrays) =>
+  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
+
+const compareArrays = (a, b) => {
+  for (const [x, y] of zip(a, b)) {
+    const result = comparator(x, y);
+    if (result) return result;
+  }
+  return 0;
+};
+
+const comparator = (a, b) =>
+  isString(a) && isString(b)
+    ? a.localeCompare(b)
+    : Array.isArray(a) && Array.isArray(b)
+    ? compareArrays(a, b)
+    : a - b;
+
+export const sortCompare = (comparator) => (x) => x.slice().sort(comparator);
+export const sort = sortCompare(comparator);
+export const sortKey = (key) =>
+  sortCompare((a, b) => comparator(key(a), key(b)));
 
 export const range = (start, end) => {
   const result = [];

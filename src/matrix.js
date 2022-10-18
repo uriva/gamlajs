@@ -3,10 +3,6 @@ import { prop } from "./operator.js";
 import { reduce } from "./reduce.js";
 import { wrapArray } from "./array.js";
 
-// Zips arrays by the length of the first.
-export const zip = (...arrays) =>
-  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
-
 export const repeat = (element, times) => {
   const result = [];
   for (let i = 0; i < times; i++) result.push(element);

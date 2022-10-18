@@ -8,8 +8,18 @@ import {
   includedIn,
   init,
   sort,
+  sortKey,
   take,
+  zip,
 } from "./array.js";
+
+test("zip", () => {
+  expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
+    [1, 0],
+    [2, 0],
+    [3, 0],
+  ]);
+});
 
 test("init", () => {
   expect(init([3, 2, 1])).toEqual([3, 2]);
@@ -24,6 +34,20 @@ test("sort", () => {
 test("sort strings", () => {
   const x = ["b", "bb", "a", "ab"];
   expect(sort(x)).toEqual(["a", "ab", "b", "bb"]);
+});
+
+test("sortKey", () => {
+  expect(
+    sortKey(({ a, b }) => [a, b])([
+      { a: 1, b: 5 },
+      { a: 1, b: 4 },
+      { a: 0, b: 0 },
+    ]),
+  ).toEqual([
+    { a: 0, b: 0 },
+    { a: 1, b: 4 },
+    { a: 1, b: 5 },
+  ]);
 });
 
 test("includedIn", () => {
