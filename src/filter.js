@@ -10,6 +10,8 @@ export const filter = pipe(
   after(pipe((array) => array.filter(second), map(head))),
 );
 
+export const find = (predicate) => pipe(filter(predicate), head);
+
 export const remove = pipe(complement, filter);
 
 const toContainmentCheck = (xs) => {

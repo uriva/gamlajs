@@ -1,13 +1,13 @@
 import { isPromise } from "./promise.js";
 
-const reduceHelper = (reducer) => (s, xs, firstIndex) => {
-  if (firstIndex === xs.length) return s;
-  return isPromise(s)
+const reduceHelper = (reducer) => (s, xs, firstIndex) =>
+  firstIndex === xs.length
+    ? s
+    : isPromise(s)
     ? s.then((s) =>
         reduceHelper(reducer)(reducer(s, xs[firstIndex]), xs, firstIndex + 1),
       )
     : reduceHelper(reducer)(reducer(s, xs[firstIndex]), xs, firstIndex + 1);
-};
 
 export const reduce = (reducer, initial) => (xs) =>
   initial

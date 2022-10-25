@@ -1,3 +1,4 @@
+export const letIn = (value, constructor) => constructor(value);
 export const not = (x) => !x;
 export const prop = (key) => (x) => x[key];
 export const equals = (x) => (y) => x === y;

@@ -11,3 +11,6 @@ export const isPromise = (x) =>
     x.then &&
     typeof x.then === "function"
   );
+
+export const doInSequence = (head, ...rest) =>
+  wrapPromise(head()).then((x) => (rest.length ? doInSequence(...rest) : x));
