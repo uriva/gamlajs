@@ -7,6 +7,7 @@ import {
   enumerate,
   includedIn,
   init,
+  slidingWindow,
   sort,
   sortKey,
   take,
@@ -92,5 +93,12 @@ test("enumerate", () => {
     [1, 2],
     [2, 3],
     [3, 5],
+  ]);
+});
+
+test("slidingWindow", () => {
+  expect(slidingWindow(3)([1, 2, 3, 4])).toEqual([
+    [1, 2, 3],
+    [2, 3, 4],
   ]);
 });
