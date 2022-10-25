@@ -1,6 +1,7 @@
 import {
   capitalize,
   isValidRegExp,
+  split,
   testRegExp,
   trim,
   truncate,
@@ -33,4 +34,8 @@ test("isValidRegExp", () => {
   expect(isValidRegExp("\bhello\b")).toBeTruthy();
   expect(isValidRegExp("?")).toBeFalsy();
   expect(isValidRegExp("a?")).toBeTruthy();
+});
+
+test("split", () => {
+  expect(split("\n")("hello\nthere")).toEqual(["hello", "there"]);
 });

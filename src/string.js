@@ -6,6 +6,8 @@ import { pipe } from "./composition.js";
 export const truncate = (maxLength) => (input) =>
   input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;
 
+export const split = (x) => (s) => s.split(x);
+
 export const uppercase = (s) => s.toLocaleUpperCase();
 export const lowercase = (s) => s.toLocaleLowerCase();
 export const replace = (target, replacement) => (s) =>
