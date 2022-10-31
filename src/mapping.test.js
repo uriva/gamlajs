@@ -1,9 +1,9 @@
 import {
   applySpec,
   groupBy,
+  index,
   keyMap,
   mapTerminals,
-  mutableIndex,
   valMap,
 } from "./mapping.js";
 import { head, second } from "./array.js";
@@ -51,7 +51,7 @@ test("applySpec async", async () => {
 });
 
 test("index", () => {
-  const { build, query, insert } = mutableIndex({
+  const { build, query, insert } = index({
     keys: [head, second],
     reducer: (x, y) => {
       x.push(y);
@@ -59,17 +59,19 @@ test("index", () => {
     },
     leafConstructor: () => [],
   });
-  const builtIndex = insert(build(), [
+  const queryDb = query(
+    insert(build(), [
+      [1, 2, 8],
+      [3, 4, 7],
+      [1, 2, 5],
+    ]),
+  );
+  expect(queryDb([3, 4])).toEqual([[3, 4, 7]]);
+  expect(queryDb([1, 2])).toEqual([
     [1, 2, 8],
-    [3, 4, 7],
     [1, 2, 5],
   ]);
-  expect(query(builtIndex, [3, 4])).toEqual([[3, 4, 7]]);
-  expect(query(builtIndex, [1, 2])).toEqual([
-    [1, 2, 8],
-    [1, 2, 5],
-  ]);
-  expect(query(builtIndex, [9, 15])).toEqual([]);
+  expect(queryDb([9, 15])).toEqual([]);
 });
 
 test("groupBy", () => {

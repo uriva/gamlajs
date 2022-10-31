@@ -1,6 +1,7 @@
 import { after, applyTo, pipe } from "./composition.js";
 import { head, second, unique, wrapArray } from "./array.js";
 
+import { Map } from "immutable";
 import { map } from "./map.js";
 import { reduce } from "./reduce.js";
 import { stack } from "./juxt.js";
@@ -51,15 +52,12 @@ export const applySpec =
   (...args) =>
     mapTerminals(applyTo(...args))(spec);
 
-const setter = (obj, key, value) => {
-  obj[key] = value;
-  return obj;
-};
+const setter = (obj, key, value) => obj.set(key, value);
 
 const getter = (constructor) => (obj, key) =>
-  replaceIfUndefined(obj[key], constructor());
+  replaceIfUndefined(obj.get(key), constructor());
 
-const nonterminalGetter = getter(() => ({}));
+const nonterminalGetter = getter(() => Map());
 
 const dbReducer =
   ({
@@ -89,13 +87,14 @@ const replaceIfUndefined = (value, replacement) =>
 
 const query =
   (leafConstructor) =>
-  (index, [key, ...keys]) =>
+  (index) =>
+  ([key, ...keys]) =>
     keys.length
-      ? query(leafConstructor)(nonterminalGetter(index, key), keys)
+      ? query(leafConstructor)(nonterminalGetter(index, key))(keys)
       : getter(leafConstructor)(index, key);
 
-export const mutableIndex = ({ keys, reducer, leafConstructor }) => ({
-  build: () => ({}),
+export const index = ({ keys, reducer, leafConstructor }) => ({
+  build: () => Map(),
   query: query(leafConstructor),
   insert: (index, xs) =>
     reduce(
