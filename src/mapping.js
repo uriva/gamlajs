@@ -2,6 +2,7 @@ import { after, applyTo, pipe } from "./composition.js";
 import { head, second, unique, wrapArray } from "./array.js";
 
 import { map } from "./map.js";
+import { reduce } from "./reduce.js";
 import { stack } from "./juxt.js";
 
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
@@ -50,22 +51,61 @@ export const applySpec =
   (...args) =>
     mapTerminals(applyTo(...args))(spec);
 
-const objToGetterWithDefault = (d) => (obj) => (key) =>
-  key in obj ? obj[key] : d;
+const setter = (obj, key, value) => {
+  obj[key] = value;
+  return obj;
+};
 
-const returnValueAfterNCalls = (n, constructor) =>
-  n ? () => returnValueAfterNCalls(n - 1, constructor) : constructor();
+const getter = (constructor) => (obj, key) =>
+  replaceIfUndefined(obj[key], constructor());
 
-export const index =
-  (key, ...keys) =>
-  (xs) => {
-    if (!key) return xs;
-    const result = {};
-    for (const x of xs) {
-      result[key(x)] = result[key(x)] || [];
-      result[key(x)].push(x);
-    }
-    return objToGetterWithDefault(
-      returnValueAfterNCalls(keys.length, () => []),
-    )(valMap(index(...keys))(result));
-  };
+const nonterminalGetter = getter(() => ({}));
+
+const dbReducer =
+  ({
+    keys: [key, ...keys],
+    reducer,
+    terminalGetter,
+    setter,
+    nonterminalGetter,
+  }) =>
+  (state, current) =>
+    setter(
+      state,
+      key(current),
+      keys.length
+        ? dbReducer({
+            keys,
+            reducer,
+            terminalGetter,
+            setter,
+            nonterminalGetter,
+          })(nonterminalGetter(state, key(current)), current)
+        : reducer(terminalGetter(state, key(current)), current),
+    );
+
+const replaceIfUndefined = (value, replacement) =>
+  value === undefined ? replacement : value;
+
+const query =
+  (leafConstructor) =>
+  (index, [key, ...keys]) =>
+    keys.length
+      ? query(leafConstructor)(nonterminalGetter(index, key), keys)
+      : getter(leafConstructor)(index, key);
+
+export const mutableIndex = ({ keys, reducer, leafConstructor }) => ({
+  build: () => ({}),
+  query: query(leafConstructor),
+  insert: (index, xs) =>
+    reduce(
+      dbReducer({
+        keys,
+        reducer,
+        nonterminalGetter,
+        terminalGetter: getter(leafConstructor),
+        setter,
+      }),
+      () => index,
+    )(xs),
+});
