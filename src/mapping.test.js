@@ -2,13 +2,28 @@ import {
   applySpec,
   groupBy,
   index,
+  keyFilter,
   keyMap,
   mapTerminals,
+  valFilter,
   valMap,
 } from "./mapping.js";
 import { head, second } from "./array.js";
 
 import { wrapPromise } from "./promise.js";
+
+test("keyFilter", () => {
+  expect(keyFilter((key) => key === "b")({ a: 1, b: [1, 2, 3] })).toEqual({
+    b: [1, 2, 3],
+  });
+});
+
+test.each([
+  [{ a: 1, b: 3 }, { b: 3 }],
+  [{}, {}],
+])("valFilter async with input %s", async (obj, expected) => {
+  expect(await valFilter((x) => wrapPromise(x > 2))(obj)).toEqual(expected);
+});
 
 test("keyMap", () => {
   expect(keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] })).toEqual({

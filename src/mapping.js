@@ -1,7 +1,8 @@
-import { after, applyTo, pipe } from "./composition.js";
+import { after, applyTo, before, identity, pipe } from "./composition.js";
 import { head, second, unique, wrapArray } from "./array.js";
 
 import { Map } from "immutable";
+import { filter } from "./filter.js";
 import { map } from "./map.js";
 import { reduce } from "./reduce.js";
 import { stack } from "./juxt.js";
@@ -33,9 +34,17 @@ export const groupBy = pipe(after(wrapArray), groupByMany);
 
 export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), unique)));
 
-export const entryMap = (f) => pipe(Object.entries, map(f), Object.fromEntries);
-export const valMap = (f) => entryMap(stack((x) => x, f));
-export const keyMap = (f) => entryMap(stack(f, (x) => x));
+const onEntries = (transformation) =>
+  pipe(Object.entries, transformation, Object.fromEntries);
+
+export const entryMap = pipe(map, onEntries);
+export const entryFilter = pipe(filter, onEntries);
+
+export const valFilter = pipe(before(second), entryFilter);
+export const keyFilter = pipe(before(head), entryFilter);
+
+export const valMap = (f) => entryMap(stack(identity, f));
+export const keyMap = (f) => entryMap(stack(f, identity));
 
 // See MDN Object constructor.
 const isObject = (obj) => obj === Object(obj);
