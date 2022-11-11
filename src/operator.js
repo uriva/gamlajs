@@ -6,9 +6,7 @@ export const greater = (x) => (y) => y > x;
 export const smaller = (x) => (y) => y < x;
 export const greaterEquals = (x) => (y) => y >= x;
 export const smallerEquals = (x) => (y) => y <= x;
-export const between =
-  ([start, end]) =>
-  (x) =>
-    start <= x && x < end;
+export const between = (start, end) => (x) => start <= x && x < end;
 export const unspread = (...stuff) => stuff;
 export const spread = (f) => (x) => f(...x);
+export const modulo = (y) => (x) => x % y;
