@@ -7,6 +7,7 @@ import {
   mapTerminals,
   valFilter,
   valMap,
+  wrapObject,
 } from "./mapping.js";
 import { head, second } from "./array.js";
 
@@ -94,4 +95,8 @@ test("groupBy", () => {
     c: ["cow", "cat"],
     d: ["dog"],
   });
+});
+
+test("wrapObject", () => {
+  expect(wrapObject("a")(1)).toEqual({ a: 1 });
 });

@@ -7,6 +7,8 @@ import { map } from "./map.js";
 import { reduce } from "./reduce.js";
 import { stack } from "./juxt.js";
 
+export const wrapObject = (key) => (value) => ({ [key]: value });
+
 export const groupByManyReduce = (keys, reducer, initial) => (it) => {
   const result = {};
   for (const x of it) {
