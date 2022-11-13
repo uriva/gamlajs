@@ -38,3 +38,6 @@ export const isValidRegExp = (str) => {
     return false;
   }
 };
+
+export const wrapString = (wrapping) => (inner) =>
+  wrapping.replace("{}", inner);

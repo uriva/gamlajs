@@ -5,6 +5,7 @@ import {
   testRegExp,
   trim,
   truncate,
+  wrapString,
 } from "./string.js";
 
 test("capitalize", () => {
@@ -38,4 +39,8 @@ test("isValidRegExp", () => {
 
 test("split", () => {
   expect(split("\n")("hello\nthere")).toEqual(["hello", "there"]);
+});
+
+test("wrapString", () => {
+  expect(wrapString("hello {}")("world")).toEqual("hello world");
 });
