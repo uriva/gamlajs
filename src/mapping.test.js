@@ -1,4 +1,5 @@
 import {
+  addEntry,
   applySpec,
   groupBy,
   index,
@@ -99,4 +100,8 @@ test("groupBy", () => {
 
 test("wrapObject", () => {
   expect(wrapObject("a")(1)).toEqual({ a: 1 });
+});
+
+test("addEntry", () => {
+  expect(addEntry("a", "b")({})).toEqual({ a: "b" });
 });

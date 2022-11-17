@@ -32,6 +32,11 @@ export const groupByMany = (keys) =>
     () => [],
   );
 
+export const addEntry = (key, value) => (obj) => {
+  obj[key] = value;
+  return obj;
+};
+
 export const groupBy = pipe(after(wrapArray), groupByMany);
 
 export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), unique)));
