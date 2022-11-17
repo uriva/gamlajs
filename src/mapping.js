@@ -32,10 +32,10 @@ export const groupByMany = (keys) =>
     () => [],
   );
 
-export const addEntry = (key, value) => (obj) => {
-  obj[key] = value;
-  return obj;
-};
+export const addEntry = (key, value) => (obj) => ({
+  ...obj,
+  [key]: value,
+});
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
 

@@ -103,5 +103,5 @@ test("wrapObject", () => {
 });
 
 test("addEntry", () => {
-  expect(addEntry("a", "b")({})).toEqual({ a: "b" });
+  expect(addEntry("a", "b")({ c: "d" })).toEqual({ a: "b", c: "d" });
 });
