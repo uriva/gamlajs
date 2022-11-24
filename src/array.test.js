@@ -9,6 +9,7 @@ import {
   init,
   slidingWindow,
   sort,
+  sortCompare,
   sortKey,
   take,
   zip,
@@ -30,6 +31,15 @@ test("sort", () => {
   const x = [3, 2, 1];
   expect(sort(x)).toEqual([1, 2, 3]);
   expect(x).toEqual([3, 2, 1]);
+});
+
+test("sort", () => {
+  const x = [{ age: 2 }, { age: 12 }, { age: 1 }];
+  expect(sortCompare((x, y) => x.age > y.age)(x)).toEqual([
+    { age: 1 },
+    { age: 2 },
+    { age: 12 },
+  ]);
 });
 
 test("sort strings", () => {

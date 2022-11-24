@@ -62,7 +62,10 @@ const comparator = (a, b) =>
     ? compareArrays(a, b)
     : a - b;
 
-export const sortCompare = (comparator) => (x) => x.slice().sort(comparator);
+const castToInt = (x) => (x === true ? 1 : x === false ? -1 : x);
+
+export const sortCompare = (comparator) => (x) =>
+  x.slice().sort((x, y) => castToInt(comparator(x, y)));
 export const sort = sortCompare(comparator);
 export const sortKey = (key) =>
   sortCompare((a, b) => comparator(key(a), key(b)));
