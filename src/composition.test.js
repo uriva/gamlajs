@@ -1,6 +1,7 @@
-import { compose, pipe, uncurry } from "./composition.js";
+import { complement, compose, identity, pipe, uncurry } from "./composition.js";
 
 import { multiply } from "./math.js";
+import { not } from "./operator.js";
 import { wrapPromise } from "./promise.js";
 
 test("pipe with async functions", async () => {
@@ -9,6 +10,11 @@ test("pipe with async functions", async () => {
 
 test("compose applies functions in correct order", () => {
   expect(compose((x) => x + 1, multiply(10))(1)).toBe(11);
+});
+
+test("complement", () => {
+  expect(complement(identity)(true)).toBeFalsy();
+  expect(complement(not)(true)).toBeTruthy();
 });
 
 test("pipe is able to mix sync and async functions", async () => {
