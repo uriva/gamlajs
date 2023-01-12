@@ -34,3 +34,12 @@ test("min", () => {
 test("max async", () => {
   expect(max((x) => wrapPromise(x))([4, 1, 2, 3])).toBe(4);
 });
+
+test("max call stack is not a limit on array size", () => {
+  const bigArray = [];
+  const size = 1000000;
+  for (let i = 0; i < size; i++) {
+    bigArray.push(i);
+  }
+  expect(max((x) => x)(bigArray)).toBe(size - 1);
+});
