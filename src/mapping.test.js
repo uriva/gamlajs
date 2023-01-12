@@ -1,6 +1,7 @@
 import {
   addEntry,
   applySpec,
+  edgesToGraph,
   groupBy,
   index,
   keyFilter,
@@ -104,4 +105,15 @@ test("wrapObject", () => {
 
 test("addEntry", () => {
   expect(addEntry("a", "b")({ c: "d" })).toEqual({ a: "b", c: "d" });
+});
+
+test("edgesToGraph", () => {
+  expect(
+    edgesToGraph([
+      [1, 2],
+      [1, 3],
+      [4, 4],
+      [2, 3],
+    ]),
+  ).toEqual({ 1: new Set([2, 3]), 2: new Set([3]), 4: new Set([4]) });
 });

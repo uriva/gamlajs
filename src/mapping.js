@@ -1,5 +1,5 @@
 import { after, applyTo, before, identity, pipe } from "./composition.js";
-import { head, second, unique, wrapArray } from "./array.js";
+import { head, second, wrapArray } from "./array.js";
 
 import { Map } from "immutable";
 import { filter } from "./filter.js";
@@ -39,7 +39,16 @@ export const addEntry = (key, value) => (obj) => ({
 
 export const groupBy = pipe(after(wrapArray), groupByMany);
 
-export const edgesToGraph = pipe(groupBy(head), map(pipe(map(second), unique)));
+export const edgesToGraph = pipe(
+  groupByReduce(
+    head,
+    (s, edge) => {
+      s.add(edge[1]);
+      return s;
+    },
+    () => new Set(),
+  ),
+);
 
 const onEntries = (transformation) =>
   pipe(Object.entries, transformation, Object.fromEntries);
