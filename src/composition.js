@@ -1,6 +1,8 @@
+import { isPromise } from "./promise.js";
 import { not } from "./operator.js";
 import { reduce } from "./reduce.js";
 import { reverse } from "./array.js";
+
 export const pipe =
   (...fs) =>
   (...x) =>
@@ -19,6 +21,26 @@ export const sideEffect = (f) => (x) => {
   f(x);
   return x;
 };
+
+export const wrapSideEffect =
+  (cleanup) =>
+  (f) =>
+  (...args) => {
+    const result = f(...args);
+    if (isPromise(result)) {
+      return result.then((result) => {
+        const cleanUpResult = cleanup(...args);
+        return isPromise(cleanUpResult)
+          ? cleanUpResult.then(() => result)
+          : result;
+      });
+    } else {
+      const cleanUpResult = cleanup(...args);
+      return isPromise(cleanUpResult)
+        ? cleanUpResult.then(() => result)
+        : result;
+    }
+  };
 
 export const applyTo =
   (...args) =>

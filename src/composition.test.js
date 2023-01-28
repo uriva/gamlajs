@@ -1,4 +1,11 @@
-import { complement, compose, identity, pipe, uncurry } from "./composition.js";
+import {
+  complement,
+  compose,
+  identity,
+  pipe,
+  uncurry,
+  wrapSideEffect,
+} from "./composition.js";
 
 import { multiply } from "./math.js";
 import { not } from "./operator.js";
@@ -30,4 +37,21 @@ test("pipe is able to mix sync and async functions", async () => {
 test("uncurry", () => {
   const f = (x) => (y) => (z) => x + y + z;
   expect(uncurry(f)(1, 2, 3)).toEqual(6);
+});
+
+test("wrapSideEffect", async () => {
+  const isCleaned = [false];
+  const input = "some args";
+  const cleanup = () => {
+    isCleaned[0] = true;
+  };
+  const innerLogic = (x) => x + "some result";
+  const f = (x) =>
+    new Promise((resolve) => {
+      // Do something with resource.
+      if (isCleaned[0]) throw "cannot use closed resource";
+      resolve(innerLogic(x));
+    });
+  expect(await wrapSideEffect(cleanup)(f)(input)).toEqual(innerLogic(input));
+  expect(isCleaned[0]).toBeTruthy();
 });
