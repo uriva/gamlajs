@@ -2,6 +2,7 @@ import { juxt, pairRight, stack } from "./juxt.js";
 import { prop, spread } from "./operator.js";
 
 import { applySpec } from "./mapping.js";
+import { isPromise } from "./promise.js";
 import { map } from "./map.js";
 import { pipe } from "./composition.js";
 
@@ -61,3 +62,23 @@ export const batch = (keyFn, maxWaitMilliseconds, execute, condition) => {
       }),
   );
 };
+
+export const timeout =
+  (ms, fallback, f) =>
+  (...args) =>
+    new Promise((resolve) => {
+      let wasResolved = false;
+      setTimeout(() => {
+        if (wasResolved) return;
+        const result = fallback(...args);
+        if (isPromise(result)) result.then(resolve);
+        else resolve(result);
+      }, ms);
+      const result = f(...args);
+      if (isPromise(result))
+        result.then((x) => {
+          wasResolved = true;
+          resolve(x);
+        });
+      else resolve(result);
+    });

@@ -1,6 +1,6 @@
+import { batch, timeout } from "./io.js";
 import { equals, prop } from "./operator.js";
 
-import { batch } from "./io.js";
 import { length } from "./array.js";
 import { mapCat } from "./map.js";
 import { pipe } from "./composition.js";
@@ -92,4 +92,33 @@ test("batch condition max wait time", async () => {
   expect.assertions(2);
   expect(result).toEqual(4);
   expect(count).toEqual(1);
+});
+
+test("timeout doesn't trigger if ended in time", async () => {
+  const failed = "failed";
+  const success = "success";
+  expect(
+    await timeout(
+      500,
+      () => failed,
+      () =>
+        new Promise((resolve) => {
+          resolve(success);
+        }),
+    )(),
+  ).toEqual(success);
+});
+
+test("timeout triggers if not ended in time", async () => {
+  const failed = "failed";
+  expect(
+    await timeout(
+      10,
+      () => failed,
+      () =>
+        new Promise((resolve) => {
+          setTimeout(() => resolve(), 300);
+        }),
+    )(),
+  ).toEqual(failed);
 });
