@@ -1,5 +1,5 @@
 import { batch, timeout } from "./io.js";
-import { equals, prop } from "./operator.js";
+import { equals, prop } from "./operator.ts";
 
 import { length } from "./array.js";
 import { mapCat } from "./map.js";

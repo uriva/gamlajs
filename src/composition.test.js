@@ -8,7 +8,7 @@ import {
 } from "./composition.js";
 
 import { multiply } from "./math.js";
-import { not } from "./operator.js";
+import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.js";
 
 test("pipe with async functions", async () => {

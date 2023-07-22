@@ -1,4 +1,4 @@
-import { between, modulo } from "./operator.js";
+import { between, modulo } from "./operator.ts";
 
 test("between", () => {
   expect(between(1, 2)(1)).toBeTruthy();

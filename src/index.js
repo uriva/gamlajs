@@ -11,7 +11,7 @@ export * from "./map.js";
 export * from "./mapping.js";
 export * from "./math.js";
 export * from "./matrix.js";
-export * from "./operator.js";
+export * from "./operator.ts";
 export * from "./promise.js";
 export * from "./reduce.js";
 export * from "./string.js";

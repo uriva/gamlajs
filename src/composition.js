@@ -1,5 +1,5 @@
 import { isPromise } from "./promise.js";
-import { not } from "./operator.js";
+import { not } from "./operator.ts";
 import { reduce } from "./reduce.js";
 import { reverse } from "./array.js";
 

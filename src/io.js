@@ -1,5 +1,5 @@
 import { juxt, pairRight, stack } from "./juxt.js";
-import { prop, spread } from "./operator.js";
+import { prop, spread } from "./operator.ts";
 
 import { applySpec } from "./mapping.js";
 import { isPromise } from "./promise.js";

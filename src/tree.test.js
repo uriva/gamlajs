@@ -1,4 +1,4 @@
-import { prop } from "./operator.js";
+import { prop } from "./operator.ts";
 import { reduceTree } from "./tree.js";
 import { sum } from "./math.js";
 

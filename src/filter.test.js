@@ -1,6 +1,6 @@
 import { filter, find, intersectBy } from "./filter.js";
 
-import { prop } from "./operator.js";
+import { prop } from "./operator.ts";
 import { wrapPromise } from "./promise.js";
 
 test("async filter", async () => {

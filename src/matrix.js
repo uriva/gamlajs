@@ -1,5 +1,5 @@
 import { pipe } from "./composition.js";
-import { prop } from "./operator.js";
+import { prop } from "./operator.ts";
 import { reduce } from "./reduce.js";
 import { wrapArray } from "./array.js";
 
