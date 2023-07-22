@@ -1,6 +1,6 @@
 import { pipe } from "./composition.js";
 import { prop } from "./operator.ts";
-import { reduce } from "./reduce.js";
+import { reduce } from "./reduce.ts";
 import { wrapArray } from "./array.ts";
 
 export const repeat = (element, times) => {

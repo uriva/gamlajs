@@ -4,7 +4,7 @@ import { head, second, wrapArray } from "./array.ts";
 import { Map } from "immutable";
 import { filter } from "./filter.js";
 import { map } from "./map.js";
-import { reduce } from "./reduce.js";
+import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.js";
 
 export const wrapObject = (key) => (value) => ({ [key]: value });

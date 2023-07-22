@@ -2,7 +2,7 @@ import { after, pipe } from "./composition.js";
 import { all, any, zip } from "./array.ts";
 
 import { map } from "./map.js";
-import { reduce } from "./reduce.js";
+import { reduce } from "./reduce.ts";
 
 export const juxt =
   (...fs) =>

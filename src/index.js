@@ -13,7 +13,7 @@ export * from "./math.js";
 export * from "./matrix.js";
 export * from "./operator.ts";
 export * from "./promise.ts";
-export * from "./reduce.js";
+export * from "./reduce.ts";
 export * from "./string.ts";
 export * from "./time.js";
 export * from "./tree.js";

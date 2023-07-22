@@ -2,9 +2,12 @@ import { filter } from "./filter.js";
 import { juxt } from "./juxt.js";
 import { length } from "./array.ts";
 import { pipe } from "./composition.js";
-import { reduce } from "./reduce.js";
+import { reduce } from "./reduce.ts";
 
-export const sum = reduce((a, b) => a + b, 0);
+export const sum = reduce(
+  (a, b) => a + b,
+  () => 0,
+);
 export const divide = (x) => (y) => y / x;
 export const times = (x) => (y) => y * x;
 export const average = (arr) => sum(arr) / arr.length;

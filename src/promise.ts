@@ -5,13 +5,8 @@ export const promiseAll = (promises: Promise<unknown>[]) =>
 // Cannot be made point free.
 export const wrapPromise = <T>(x: T): Promise<T> => Promise.resolve(x);
 
-export const isPromise = (x: any) =>
-  !!(
-    typeof x === "object" &&
-    x !== null &&
-    x.then &&
-    typeof x.then === "function"
-  );
+export const isPromise = (x: any) => x instanceof Promise;
+
 type NullaryFunction = () => void | Promise<void>;
 
 export const doInSequence = (
