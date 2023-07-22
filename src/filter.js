@@ -1,5 +1,5 @@
 import { after, complement, pipe } from "./composition.js";
-import { head, second } from "./array.js";
+import { head, second } from "./array.ts";
 
 import { map } from "./map.js";
 import { pairRight } from "./juxt.js";

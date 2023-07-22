@@ -1,7 +1,7 @@
 import { isPromise } from "./promise.ts";
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.js";
-import { reverse } from "./array.js";
+import { reverse } from "./array.ts";
 
 export const pipe =
   (...fs) =>

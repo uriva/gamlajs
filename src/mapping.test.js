@@ -11,7 +11,7 @@ import {
   valMap,
   wrapObject,
 } from "./mapping.js";
-import { head, second } from "./array.js";
+import { head, second } from "./array.ts";
 
 import { wrapPromise } from "./promise.ts";
 

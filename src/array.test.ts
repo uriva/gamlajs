@@ -13,7 +13,7 @@ import {
   sortKey,
   take,
   zip,
-} from "./array.js";
+} from "./array.ts";
 
 test("zip", () => {
   expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
@@ -35,7 +35,7 @@ test("sort", () => {
 
 test("sort", () => {
   const x = [{ age: 2 }, { age: 12 }, { age: 1 }];
-  expect(sortCompare((x, y) => x.age > y.age)(x)).toEqual([
+  expect(sortCompare<{ age: number }>((x, y) => x.age > y.age)(x)).toEqual([
     { age: 1 },
     { age: 2 },
     { age: 12 },
@@ -49,7 +49,7 @@ test("sort strings", () => {
 
 test("sortKey", () => {
   expect(
-    sortKey(({ a, b }) => [a, b])([
+    sortKey<{ a: number; b: number }>(({ a, b }) => [a, b])([
       { a: 1, b: 5 },
       { a: 1, b: 4 },
       { a: 0, b: 0 },
@@ -72,8 +72,8 @@ test("contains", () => {
 });
 
 test("anymap", () => {
-  expect(anymap((x) => x > 7)([(1, 2, 3)])).toBeFalsy();
-  expect(anymap((x) => x > 2)([(1, 2, 3)])).toBeTruthy();
+  expect(anymap((x: number) => x > 7)([1, 2, 3])).toBeFalsy();
+  expect(anymap((x: number) => x > 2)([1, 2, 3])).toBeTruthy();
 });
 
 test("any", () => {
@@ -85,8 +85,8 @@ test("all", () => {
 });
 
 test("allmap", () => {
-  expect(anymap((x) => x > 7)([(1, 2, 3)])).toBeFalsy();
-  expect(anymap((x) => x > 0)([(1, 2, 3)])).toBeTruthy();
+  expect(anymap((x: number) => x > 7)([1, 2, 3])).toBeFalsy();
+  expect(anymap((x: number) => x > 0)([1, 2, 3])).toBeTruthy();
 });
 
 test("take", () => {

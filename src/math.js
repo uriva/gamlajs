@@ -1,6 +1,6 @@
 import { filter } from "./filter.js";
 import { juxt } from "./juxt.js";
-import { length } from "./array.js";
+import { length } from "./array.ts";
 import { pipe } from "./composition.js";
 import { reduce } from "./reduce.js";
 

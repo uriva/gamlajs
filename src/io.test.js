@@ -1,7 +1,7 @@
 import { batch, timeout } from "./io.js";
 import { equals, prop } from "./operator.ts";
 
-import { length } from "./array.js";
+import { length } from "./array.ts";
 import { mapCat } from "./map.js";
 import { pipe } from "./composition.js";
 import { repeat } from "./matrix.js";

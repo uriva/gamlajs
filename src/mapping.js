@@ -1,5 +1,5 @@
 import { after, applyTo, before, identity, pipe } from "./composition.js";
-import { head, second, wrapArray } from "./array.js";
+import { head, second, wrapArray } from "./array.ts";
 
 import { Map } from "immutable";
 import { filter } from "./filter.js";

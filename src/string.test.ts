@@ -6,7 +6,7 @@ import {
   trim,
   truncate,
   wrapString,
-} from "./string.js";
+} from "./string.ts";
 
 test("capitalize", () => {
   expect(capitalize("test")).toBe("Test");

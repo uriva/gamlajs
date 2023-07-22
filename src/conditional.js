@@ -1,4 +1,4 @@
-import { head, second } from "./array.js";
+import { head, second } from "./array.ts";
 
 import { filter } from "./filter.js";
 import { isPromise } from "./promise.ts";

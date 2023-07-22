@@ -1,4 +1,4 @@
-export * from "./array.js";
+export * from "./array.ts";
 export * from "./cache.js";
 export * from "./composition.js";
 export * from "./conditional.js";
@@ -14,6 +14,6 @@ export * from "./matrix.js";
 export * from "./operator.ts";
 export * from "./promise.ts";
 export * from "./reduce.js";
-export * from "./string.js";
+export * from "./string.ts";
 export * from "./time.js";
 export * from "./tree.js";
