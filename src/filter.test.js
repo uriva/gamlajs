@@ -1,7 +1,7 @@
 import { filter, find, intersectBy } from "./filter.js";
 
 import { prop } from "./operator.ts";
-import { wrapPromise } from "./promise.js";
+import { wrapPromise } from "./promise.ts";
 
 test("async filter", async () => {
   expect(

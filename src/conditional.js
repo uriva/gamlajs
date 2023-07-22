@@ -1,7 +1,7 @@
 import { head, second } from "./array.js";
 
 import { filter } from "./filter.js";
-import { isPromise } from "./promise.js";
+import { isPromise } from "./promise.ts";
 import { pipe } from "./composition.js";
 
 export const ifElse =

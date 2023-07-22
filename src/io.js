@@ -2,7 +2,7 @@ import { juxt, pairRight, stack } from "./juxt.js";
 import { prop, spread } from "./operator.ts";
 
 import { applySpec } from "./mapping.js";
-import { isPromise } from "./promise.js";
+import { isPromise } from "./promise.ts";
 import { map } from "./map.js";
 import { pipe } from "./composition.js";
 

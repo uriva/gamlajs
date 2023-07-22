@@ -1,4 +1,4 @@
-import { isPromise } from "./promise.js";
+import { isPromise } from "./promise.ts";
 
 test("isPromise", () => {
   expect(isPromise({ then: "hello" })).toBeFalsy();

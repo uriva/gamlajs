@@ -1,4 +1,4 @@
-import { isPromise } from "./promise.js";
+import { isPromise } from "./promise.ts";
 
 const reduceHelper = (reducer) => (s, xs, firstIndex) => {
   for (let i = firstIndex; i < xs.length; i++) {

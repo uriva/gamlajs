@@ -9,7 +9,7 @@ import {
 
 import { multiply } from "./math.js";
 import { not } from "./operator.ts";
-import { wrapPromise } from "./promise.js";
+import { wrapPromise } from "./promise.ts";
 
 test("pipe with async functions", async () => {
   expect(await pipe(wrapPromise, (input) => wrapPromise(input * 2))(2)).toBe(4);

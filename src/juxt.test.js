@@ -3,7 +3,7 @@ import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.js";
 import { map } from "./map.js";
 import { multiply } from "./math.js";
 import { pipe } from "./composition.js";
-import { wrapPromise } from "./promise.js";
+import { wrapPromise } from "./promise.ts";
 
 test("async juxt", async () => {
   expect(

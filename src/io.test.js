@@ -6,7 +6,7 @@ import { mapCat } from "./map.js";
 import { pipe } from "./composition.js";
 import { repeat } from "./matrix.js";
 import { sleep } from "./time.js";
-import { wrapPromise } from "./promise.js";
+import { wrapPromise } from "./promise.ts";
 
 const sumOfThings = (numbers) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));

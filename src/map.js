@@ -1,6 +1,6 @@
 import { after, pipe } from "./composition.js";
 
-import { isPromise } from "./promise.js";
+import { isPromise } from "./promise.ts";
 import { reduce } from "./reduce.js";
 
 export const map = (f) => (xs) => {

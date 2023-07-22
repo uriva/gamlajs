@@ -12,7 +12,7 @@ export * from "./mapping.js";
 export * from "./math.js";
 export * from "./matrix.js";
 export * from "./operator.ts";
-export * from "./promise.js";
+export * from "./promise.ts";
 export * from "./reduce.js";
 export * from "./string.js";
 export * from "./time.js";

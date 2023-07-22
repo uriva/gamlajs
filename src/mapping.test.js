@@ -13,7 +13,7 @@ import {
 } from "./mapping.js";
 import { head, second } from "./array.js";
 
-import { wrapPromise } from "./promise.js";
+import { wrapPromise } from "./promise.ts";
 
 test("keyFilter", () => {
   expect(keyFilter((key) => key === "b")({ a: 1, b: [1, 2, 3] })).toEqual({
