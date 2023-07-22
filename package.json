@@ -11,9 +11,7 @@
   "keywords": [],
   "license": "MIT",
   "dependencies": {
-    "immutable": "^4.1.0",
-    "node-cache": "^5.1.2",
-    "object-hash": "^2.0.1"
+    "immutable": "^4.1.0"
   },
   "devDependencies": {
     "eslint": "^8.24.0",
