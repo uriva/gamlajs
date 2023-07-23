@@ -15,5 +15,5 @@ export * from "./operator.ts";
 export * from "./promise.ts";
 export * from "./reduce.ts";
 export * from "./string.ts";
-export * from "./time.js";
+export * from "./time.ts";
 export * from "./tree.js";

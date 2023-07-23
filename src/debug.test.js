@@ -1,7 +1,7 @@
 import { assert, asyncTimeit, timeit } from "./debug.js";
 
 import { jest } from "@jest/globals";
-import { sleep } from "./time.js";
+import { sleep } from "./time.ts";
 
 test("timeit", () => {
   const logSpy = jest.spyOn(console, "log");

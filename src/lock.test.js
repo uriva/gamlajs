@@ -7,7 +7,7 @@ import {
 } from "./lock.js";
 
 import { map } from "./map.ts";
-import { sleep } from "./time.js";
+import { sleep } from "./time.ts";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {
   await sleep(ms);
