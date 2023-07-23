@@ -1,11 +1,14 @@
 import { prop } from "./operator.ts";
-import { reduceTree } from "./tree.js";
+import { reduceTree } from "./tree.ts";
 import { sum } from "./math.ts";
 
 test("reduceTree", () => {
+  type Tree = { payload: number; children: Tree[] };
   expect(
-    reduceTree(prop("children"), (current, children) =>
-      sum([current.payload, ...children]),
+    reduceTree(
+      prop<Tree, "children">("children"),
+      (current: Tree, children: number[]) =>
+        sum([current.payload, ...children]),
     )({
       payload: 7,
       children: [

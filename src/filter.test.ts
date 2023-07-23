@@ -20,7 +20,7 @@ test("find", async () => {
 
 test("intersectBy", () => {
   expect(
-    intersectBy(prop<{ id: number }>("id"))([
+    intersectBy(prop<{ id: number }, "id">("id"))([
       [{ id: 1 }, { id: 2 }],
       [{ id: 3 }, { id: 1 }],
       [{ id: 3 }, { id: 1 }, { id: 4 }],

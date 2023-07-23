@@ -2,7 +2,7 @@ export const letIn = <T>(value: T, constructor: (input: T) => unknown) =>
   constructor(value);
 export const not = (x: boolean) => !x;
 export const prop =
-  <T>(key: keyof T) =>
+  <T, K extends keyof T>(key: K) =>
   (x: T) =>
     x[key];
 
