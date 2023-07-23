@@ -1,24 +1,40 @@
-const reduceHelper = <T, S>(
-  reducer: (s: Awaited<S>, x: T) => S,
-  s: Awaited<S>,
-  xs: T[],
+const reduceHelper = <
+  State,
+  Element,
+  Reducer extends
+    | ((_1: State, _2: Element) => State)
+    | ((_1: State, _2: Element) => Promise<State>),
+>(
+  reducer: Reducer,
+  s: State,
+  xs: Element[],
   firstIndex: number,
-): S => {
+): ReturnType<Reducer> => {
   let current = s;
   for (let i = firstIndex; i < xs.length; i++) {
     if (current instanceof Promise)
-      return current.then((s: Awaited<S>) =>
+      return current.then((s: State) =>
         reduceHelper(reducer, s, xs, i),
-      ) as S;
-    current = reducer(current, xs[i]) as Awaited<S>;
+      ) as ReturnType<Reducer>;
+    current = reducer(current, xs[i]) as State;
   }
-  return current;
+  return current as ReturnType<Reducer>;
 };
 
 export const reduce =
-  <T, A>(reducer: (s: A, x: T) => A, initial: () => A) =>
-  (xs: T[]) =>
-    reduceHelper(reducer, initial() as Awaited<A>, xs, 0);
+  <
+    State,
+    Element,
+    Reducer extends
+      | ((_1: State, _2: Element) => State)
+      | ((_1: State, _2: Element) => Promise<State>),
+  >(
+    reducer: Reducer,
+
+    initial: () => State,
+  ) =>
+  (xs: Element[]) =>
+    reduceHelper(reducer, initial(), xs, 0);
 
 export const min =
   <T>(key: (x: T) => number | Promise<number>) =>

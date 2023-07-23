@@ -1,9 +1,9 @@
-import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.js";
+import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 
-import { map } from "./map.js";
-import { multiply } from "./math.js";
-import { pipe } from "./composition.js";
-import { wrapPromise } from "./promise.js";
+import { map } from "./map.ts";
+import { multiply } from "./math.ts";
+import { pipe } from "./composition.ts";
+import { wrapPromise } from "./promise.ts";
 
 test("async juxt", async () => {
   expect(
@@ -23,8 +23,8 @@ test("juxt non unary", () => {
 test("juxtCat", async () => {
   expect(
     await juxtCat(
-      (x) => wrapPromise([x, x + 1]),
-      (x) => wrapPromise([x + 2, x + 3]),
+      (x: number) => wrapPromise([x, x + 1]),
+      (x: number) => wrapPromise([x + 2, x + 3]),
     )(1),
   ).toStrictEqual([1, 2, 3, 4]);
 });
@@ -36,14 +36,14 @@ test("async pairRight", async () => {
 test("anyjuxt", () => {
   expect(
     anyjuxt(
-      (x) => x > 7,
-      (x) => x > 1,
+      (x: number) => x > 7,
+      (x: number) => x > 1,
     )(3),
   ).toBeTruthy();
   expect(
     anyjuxt(
-      (x) => x > 7,
-      (x) => x > 1,
+      (x: number) => x > 7,
+      (x: number) => x > 1,
     )(0),
   ).toBeFalsy();
 });
@@ -51,14 +51,14 @@ test("anyjuxt", () => {
 test("alljuxt", () => {
   expect(
     alljuxt(
-      (x) => x > 7,
-      (x) => x > 1,
+      (x: number) => x > 7,
+      (x: number) => x > 1,
     )(10),
   ).toBeTruthy();
   expect(
     alljuxt(
-      (x) => x > 7,
-      (x) => x > 1,
+      (x: number) => x > 7,
+      (x: number) => x > 1,
     )(3),
   ).toBeFalsy();
 });

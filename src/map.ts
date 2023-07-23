@@ -13,12 +13,9 @@ export const map =
       ? (Promise.all(results) as Promise<G[]>)
       : (results as G[]);
   };
-
-export const mapCat = <T, G>(f: (x: T) => G[]) =>
+const concatReducer = <T>(a: T[], b: T[]) => a.concat(b);
+export const mapCat = <T, G>(f: (x: T) => G[] | Promise<G[]>) =>
   pipe(
     map(f),
-    reduce(
-      (a: G[], b: G[]) => a.concat(b),
-      () => [],
-    ),
+    reduce<G[], G[], typeof concatReducer>(concatReducer, () => []),
   );

@@ -50,13 +50,11 @@ export const empty = (x: any[]) => !x.length;
 export const nonempty = (x: any[]) => !!x.length;
 export const wrapArray = (x: any) => [x];
 
-export function zip<T extends unknown[][]>(
+export const zip = <T extends unknown[][]>(
   ...args: T
-): { [K in keyof T]: T[K] extends (infer V)[] ? V : never }[] {
-  const minLength = Math.min(...args.map((arr) => arr.length));
+): { [K in keyof T]: T[K] extends (infer V)[] ? V : never }[] =>
   // @ts-expect-error This is too much for ts
-  return range(minLength).map((i) => args.map((arr) => arr[i]));
-}
+  range(0, Math.min(...args.map(length))).map((i) => args.map((arr) => arr[i]));
 
 const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
   for (const [x, y] of zip(a, b)) {
@@ -87,7 +85,7 @@ export const sortCompare =
 
 export const sort = sortCompare(comparator);
 
-export const sortKey = <X>(key: (x: X) => Comparable) =>
+export const sortKey = <X>(key: (_: X) => Comparable) =>
   sortCompare<X>((a, b) => comparator(key(a), key(b)));
 
 export const range = (start: number, end: number) => {

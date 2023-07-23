@@ -5,9 +5,9 @@ import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 
 export const juxt =
-  <Args extends any[]>(...fs: ((...args: Args) => any)[]) =>
+  <Args extends any[], Output>(...fs: ((..._: Args) => unknown)[]) =>
   (...x: Args) =>
-    map((f: (...args: Args) => any) => f(...x))(fs);
+    map((f: (..._: Args) => unknown) => f(...x))(fs) as Output;
 
 export const pairRight = (f: (...args: any[]) => any) => juxt((x) => x, f);
 export const stack = (...functions: ((x: any) => any)[]) =>
@@ -15,15 +15,10 @@ export const stack = (...functions: ((x: any) => any)[]) =>
     (values: any[]) => zip(functions, values),
     map(([f, x]: [(x: any) => any, any]) => f(x)),
   );
-
+const concatReducer = (a: any[], b: any[]) => a.concat(b);
 export const juxtCat = pipe(
   juxt,
-  after(
-    reduce(
-      (a, b) => a.concat(b),
-      () => [],
-    ),
-  ),
+  after(reduce<any[], any[], typeof concatReducer>(concatReducer, () => [])),
 );
 
 export const alljuxt = pipe(juxt, after(all));

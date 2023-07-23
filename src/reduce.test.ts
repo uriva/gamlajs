@@ -3,9 +3,10 @@ import { max, min, reduce } from "./reduce.ts";
 import { wrapPromise } from "./promise.ts";
 
 test("reduce", () => {
+  const additionReducer = (acc: number, item: number) => acc + item;
   expect(
-    reduce<number, number>(
-      (acc, item) => acc + item,
+    reduce<number, number, typeof additionReducer>(
+      additionReducer,
       () => 0,
     )([1, 2, 3, 4, 5, 6]),
   ).toEqual(21);
@@ -19,9 +20,11 @@ test("max async", () => {
 });
 
 test("reduce async", async () => {
+  const delayedAddition = (acc: number, item: number): Promise<number> =>
+    wrapPromise(acc + item);
   expect(
-    await reduce<number, number>(
-      (acc: number, item: number) => wrapPromise(acc + item),
+    await reduce<number, number, typeof delayedAddition>(
+      delayedAddition,
       () => 0,
     )([1, 2, 3, 4, 5, 6]),
   ).toEqual(21);

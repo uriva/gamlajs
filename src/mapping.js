@@ -5,7 +5,7 @@ import { Map } from "immutable";
 import { filter } from "./filter.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
-import { stack } from "./juxt.js";
+import { stack } from "./juxt.ts";
 
 export const wrapObject = (key) => (value) => ({ [key]: value });
 

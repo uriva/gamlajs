@@ -5,7 +5,7 @@ export * from "./conditional.js";
 export * from "./debug.js";
 export * from "./filter.ts";
 export * from "./io.js";
-export * from "./juxt.js";
+export * from "./juxt.ts";
 export * from "./lock.js";
 export * from "./map.ts";
 export * from "./mapping.js";

@@ -1,4 +1,4 @@
-import { not, spread } from "./operator.ts";
+import { not, spread, unspread } from "./operator.ts";
 
 import { reduce } from "./reduce.ts";
 import { reverse } from "./array.ts";
@@ -23,10 +23,10 @@ export const pipe =
   (...x: A) =>
     reduce(
       (v, f) => (f as Function)(v),
-      () => (fs[0] as Function)(...x),
-    )(fs);
+      () => fs[0](...x),
+    )(fs.slice(1));
 
-export const compose = pipe(reverse, spread(pipe));
+export const compose = pipe(unspread, reverse, spread(pipe));
 
 export const after =
   <T>(f: UnaryFn<T, any>) =>

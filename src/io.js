@@ -1,4 +1,4 @@
-import { juxt, pairRight, stack } from "./juxt.js";
+import { juxt, pairRight, stack } from "./juxt.ts";
 import { prop, spread } from "./operator.ts";
 
 import { applySpec } from "./mapping.js";
