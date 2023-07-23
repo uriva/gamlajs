@@ -2,8 +2,8 @@ import { batch, timeout } from "./io.js";
 import { equals, prop } from "./operator.ts";
 
 import { length } from "./array.ts";
-import { mapCat } from "./map.js";
-import { pipe } from "./composition.js";
+import { mapCat } from "./map.ts";
+import { pipe } from "./composition.ts";
 import { repeat } from "./matrix.js";
 import { sleep } from "./time.js";
 import { wrapPromise } from "./promise.ts";

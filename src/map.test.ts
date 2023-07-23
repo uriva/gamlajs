@@ -1,4 +1,4 @@
-import { map, mapCat } from "./map.js";
+import { map, mapCat } from "./map.ts";
 
 import { wrapPromise } from "./promise.ts";
 
@@ -9,7 +9,9 @@ test.each([
   ],
   [[], []],
 ])("async map with iterable %s", async (it, expected) => {
-  expect(await map((input) => wrapPromise(input * 2))(it)).toEqual(expected);
+  expect(await map((input: number) => wrapPromise(input * 2))(it)).toEqual(
+    expected,
+  );
 });
 
 test("map doesn't include indices", () => {
@@ -17,7 +19,7 @@ test("map doesn't include indices", () => {
 });
 
 test("mapCat", async () => {
-  expect(await mapCat((x) => wrapPromise([x, x + 1]))([1, 2])).toStrictEqual([
-    1, 2, 2, 3,
-  ]);
+  expect(
+    await mapCat((x: number) => wrapPromise([x, x + 1]))([1, 2]),
+  ).toStrictEqual([1, 2, 2, 3]);
 });

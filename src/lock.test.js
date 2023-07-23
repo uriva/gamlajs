@@ -6,7 +6,7 @@ import {
   withLockByInput,
 } from "./lock.js";
 
-import { map } from "./map.js";
+import { map } from "./map.ts";
 import { sleep } from "./time.js";
 
 const pushToArrayAfterMs = (arr) => async (key, ms) => {

@@ -1,4 +1,4 @@
-import { pipe } from "./composition.js";
+import { pipe } from "./composition.ts";
 import { prop } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 import { wrapArray } from "./array.ts";

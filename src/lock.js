@@ -1,5 +1,5 @@
 import { ifElse } from "./conditional.js";
-import { pipe } from "./composition.js";
+import { pipe } from "./composition.ts";
 import { sleep } from "./time.js";
 
 export const withLock =

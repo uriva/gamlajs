@@ -3,8 +3,8 @@ import { prop, spread } from "./operator.ts";
 
 import { applySpec } from "./mapping.js";
 import { isPromise } from "./promise.ts";
-import { map } from "./map.js";
-import { pipe } from "./composition.js";
+import { map } from "./map.ts";
+import { pipe } from "./composition.ts";
 
 export const asyncExcepts =
   (func, handler) =>

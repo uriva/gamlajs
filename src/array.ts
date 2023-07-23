@@ -50,9 +50,13 @@ export const empty = (x: any[]) => !x.length;
 export const nonempty = (x: any[]) => !!x.length;
 export const wrapArray = (x: any) => [x];
 
-// Zips arrays by the length of the first.
-export const zip = (...arrays: any[][]) =>
-  arrays[0].map((_, i) => arrays.map((arr) => arr[i]));
+export function zip<T extends unknown[][]>(
+  ...args: T
+): { [K in keyof T]: T[K] extends (infer V)[] ? V : never }[] {
+  const minLength = Math.min(...args.map((arr) => arr.length));
+  // @ts-expect-error This is too much for ts
+  return range(minLength).map((i) => args.map((arr) => arr[i]));
+}
 
 const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
   for (const [x, y] of zip(a, b)) {

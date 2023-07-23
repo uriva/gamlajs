@@ -1,4 +1,4 @@
-import { sideEffect } from "./composition.js";
+import { sideEffect } from "./composition.ts";
 
 export const log = sideEffect(console.log);
 export const logTable = sideEffect(console.table);

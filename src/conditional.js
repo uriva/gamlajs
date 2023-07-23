@@ -1,8 +1,8 @@
 import { head, second } from "./array.ts";
 
-import { filter } from "./filter.js";
+import { filter } from "./filter.ts";
 import { isPromise } from "./promise.ts";
-import { pipe } from "./composition.js";
+import { pipe } from "./composition.ts";
 
 export const ifElse =
   (predicate, fTrue, fFalse) =>

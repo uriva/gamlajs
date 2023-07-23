@@ -1,9 +1,9 @@
-import { after, applyTo, before, identity, pipe } from "./composition.js";
+import { after, applyTo, before, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
 import { Map } from "immutable";
-import { filter } from "./filter.js";
-import { map } from "./map.js";
+import { filter } from "./filter.ts";
+import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.js";
 
