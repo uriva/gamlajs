@@ -1,4 +1,4 @@
-import { ifElse } from "./conditional.js";
+import { ifElse } from "./conditional.ts";
 import { pipe } from "./composition.ts";
 import { sleep } from "./time.ts";
 

@@ -1,12 +1,12 @@
-import { cond, ifElse, unless, when } from "./conditional.js";
+import { cond, ifElse, unless, when } from "./conditional.ts";
 
 import { wrapPromise } from "./promise.ts";
 
 test("ifElse async", async () => {
   const testFunction = ifElse(
     (x) => wrapPromise(x === 2),
-    () => true,
-    () => false,
+    (_) => true,
+    (_) => false,
   );
   expect(await testFunction(2)).toStrictEqual(true);
   expect(await testFunction(3)).toStrictEqual(false);
