@@ -2,13 +2,16 @@ import { sideEffect } from "./composition.ts";
 
 export const log = sideEffect(console.log);
 export const logTable = sideEffect(console.table);
-export const logWith = (...x) => sideEffect((y) => console.log(...x, y));
+export const logWith = (...x: any[]) => sideEffect((y) => console.log(...x, y));
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
 export const asyncTimeit =
-  (handler, f) =>
-  async (...args) => {
+  <Args extends any[], R>(
+    handler: (time: number, args: Args, result: R) => void,
+    f: (..._: Args) => R,
+  ) =>
+  async (...args: Args) => {
     const started = getTimestampMilliseconds();
     const result = await f(...args);
     handler(getTimestampMilliseconds() - started, args, result);
@@ -16,15 +19,21 @@ export const asyncTimeit =
   };
 
 export const timeit =
-  (handler, f) =>
-  (...args) => {
+  <Args extends any[], R>(
+    handler: (time: number, args: Args, result: R) => void,
+    f: (..._: Args) => R,
+  ) =>
+  (...args: Args) => {
     const started = getTimestampMilliseconds();
     const result = f(...args);
     handler(getTimestampMilliseconds() - started, args, result);
     return result;
   };
 
-export const assert = (condition, errorMessage) =>
-  sideEffect((...x) => {
+export const assert = <Args extends any[]>(
+  condition: (..._: Args) => boolean,
+  errorMessage: string,
+) =>
+  sideEffect((...x: Args) => {
     if (!condition(...x)) throw errorMessage;
   });

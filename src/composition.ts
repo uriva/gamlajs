@@ -41,9 +41,9 @@ export const before =
 export const complement = after<boolean>(not);
 
 export const sideEffect =
-  <T>(f: (x: T) => void) =>
-  (x: T) => {
-    f(x);
+  <T extends any[]>(f: (...x: T) => void) =>
+  (...x: T) => {
+    f(...x);
     return x;
   };
 

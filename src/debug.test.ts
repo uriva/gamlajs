@@ -1,4 +1,4 @@
-import { assert, asyncTimeit, timeit } from "./debug.js";
+import { assert, asyncTimeit, timeit } from "./debug.ts";
 
 import { jest } from "@jest/globals";
 import { sleep } from "./time.ts";
@@ -6,7 +6,7 @@ import { sleep } from "./time.ts";
 test("timeit", () => {
   const logSpy = jest.spyOn(console, "log");
   timeit(
-    (time, args) => console.log(`took some time to run ${args[0]}^${args[1]}`),
+    (_, args) => console.log(`took some time to run ${args[0]}^${args[1]}`),
     Math.pow,
   )(2, 1000);
   expect(logSpy).toHaveBeenCalledWith("took some time to run 2^1000");
@@ -20,7 +20,7 @@ test("asyncTimeit", async () => {
   )(100);
   expect(logSpy).toHaveBeenCalledWith("slept for 100ms");
 
-  const f = async ({ a, b, c }) => {
+  const f = async ({ a, b, c }: any) => {
     await sleep(100);
     return a + b + c;
   };
