@@ -22,14 +22,10 @@ const reduceHelper = <
 };
 
 export const reduce =
-  <
-    State,
-    Element,
-    Reducer extends
-      | ((_1: State, _2: Element) => State)
-      | ((_1: State, _2: Element) => Promise<State>),
-  >(
-    reducer: Reducer,
+  <State, Element, IsAsync extends boolean>(
+    reducer: IsAsync extends true
+      ? (_1: State, _2: Element) => Promise<State>
+      : (_1: State, _2: Element) => State,
 
     initial: () => State,
   ) =>

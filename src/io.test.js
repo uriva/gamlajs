@@ -4,7 +4,7 @@ import { equals, prop } from "./operator.ts";
 import { length } from "./array.ts";
 import { mapCat } from "./map.ts";
 import { pipe } from "./composition.ts";
-import { repeat } from "./matrix.js";
+import { repeat } from "./matrix.ts";
 import { sleep } from "./time.ts";
 import { wrapPromise } from "./promise.ts";
 

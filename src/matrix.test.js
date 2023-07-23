@@ -1,4 +1,4 @@
-import { explode, product } from "./matrix.js";
+import { explode, product } from "./matrix.ts";
 
 test("product", () => {
   expect(product([])).toEqual([[]]);

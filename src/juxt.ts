@@ -15,10 +15,14 @@ export const stack = (...functions: ((x: any) => any)[]) =>
     (values: any[]) => zip(functions, values),
     map(([f, x]: [(x: any) => any, any]) => f(x)),
   );
-const concatReducer = (a: any[], b: any[]) => a.concat(b);
 export const juxtCat = pipe(
   juxt,
-  after(reduce<any[], any[], typeof concatReducer>(concatReducer, () => [])),
+  after(
+    reduce<any[], any[], false>(
+      (a: any[], b: any[]) => a.concat(b),
+      () => [],
+    ),
+  ),
 );
 
 export const alljuxt = pipe(juxt, after(all));
