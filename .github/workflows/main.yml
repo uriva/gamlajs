@@ -1,0 +1,18 @@
+name: hooks
+on: [push]
+jobs:
+  npm:
+    if: "contains(github.event.head_commit.message, 'deploy-npm')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Deno Version
+        uses: denolib/setup-deno@v2
+      - run: deno task build
+      - uses: actions/setup-node@v3
+        with:
+          registry-url: "https://registry.npmjs.org"
+      - run: npm publish
+        working-directory: dist
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
