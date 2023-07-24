@@ -4,13 +4,13 @@ import { reduce } from "./reduce.ts";
 type Async<T, G> = (_: T) => Promise<G>;
 type Sync<T, G> = (_: T) => G;
 
-type UnaryMaybeAsync<IsAsync, T, G> = IsAsync extends true
-  ? Async<T, G>
+type UnaryMaybeAsync<IsAsync, T, G> = IsAsync extends true ? Async<T, G>
   : Sync<T, G>;
 
 export const map =
   <T, G, IsAsync extends boolean>(f: UnaryMaybeAsync<IsAsync, T, G>) =>
-  (xs: T[]): IsAsync extends true ? Promise<G[]> : G[] => {
+  (xs: T[]): IsAsync extends true ? Promise<G[]>
+    : G[] => {
     const results = [];
     for (const x of xs) {
       results.push(f(x));
@@ -24,7 +24,6 @@ export const mapCat = <T, G, IsAsync extends boolean>(
   f: UnaryMaybeAsync<IsAsync, T, G>,
 ) =>
   pipe(
-    // @ts-ignore
     map<T, G, IsAsync>(f),
     reduce<G[], G[], false>(
       <T>(a: T[], b: T[]) => a.concat(b),

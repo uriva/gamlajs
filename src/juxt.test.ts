@@ -8,7 +8,13 @@ import { wrapPromise } from "./promise.ts";
 
 Deno.test("async juxt", async () => {
   assertEquals(
-    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2]),
+    await juxt(
+      wrapPromise,
+      pipe(
+        map<number, number, false>(multiply(2)),
+        wrapPromise<number[]>,
+      ),
+    )([2]),
     [[2], [4]],
   );
 });
@@ -35,7 +41,7 @@ Deno.test("juxtCat", async () => {
 
 Deno.test("async pairRight", async () => {
   assertEquals(
-    await pairRight<number, number>((x) => wrapPromise(x * 2))(5),
+    await pairRight((x: number) => wrapPromise(x * 2))(5),
     [5, 10],
   );
 });

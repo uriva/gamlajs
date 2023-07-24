@@ -13,6 +13,6 @@ export const multiply = (x: number) => (y: number) => x * y;
 
 export const rate = <T>(f: (x: T) => boolean) =>
   pipe(
-    juxt<[T[]], [number, number]>(pipe(filter(f), length), length),
+    juxt(pipe(filter(f), length), length),
     ([x, y]: [number, number]) => x / y,
   );

@@ -15,11 +15,14 @@ Deno.test("pipe with async functions", async () => {
 });
 
 Deno.test("compose applies functions in correct order", () => {
-  assertEquals(compose((x: number) => x + 1, multiply(10))(1), 11);
+  assertEquals(
+    compose((x: number) => x + 1, multiply(10))(1),
+    11,
+  );
 });
 
 Deno.test("complement", () => {
-  assertEquals(complement(identity)(true), false);
+  assertEquals(complement(identity<boolean>)(true), false);
   assertEquals(complement(not)(true), true);
 });
 

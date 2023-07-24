@@ -4,14 +4,41 @@ import { all, any, zip } from "./array.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 
-export const juxt =
-  <Args extends any[], Output>(...fs: ((..._: Args) => unknown)[]) =>
-  (...x: Args) =>
-    map((f: (..._: Args) => unknown) => f(...x))(fs) as Output;
+type Func = (..._: any[]) => unknown;
+type AwaitedResults<Functions extends Func[]> = Promise<
+  { [i in keyof Functions]: Awaited<ReturnType<Functions[i]>> }
+>;
+type Results<Functions extends Func[]> = {
+  [i in keyof Functions]: ReturnType<Functions[i]>;
+};
 
-export const pairRight = <T, Output>(
-  f: (_: T) => any,
-): ((_: T) => [T, Output]) => juxt((x) => x, f);
+type AsyncFunction = (..._: any[]) => Promise<unknown>;
+
+type AnyAsync<Functions> = Functions extends [] ? never
+  : Functions extends [infer _1 extends AsyncFunction, ...infer _2] ? any
+  : Functions extends [infer _, ...infer rest] ? AnyAsync<rest>
+  : never;
+
+type JuxtOutput<Functions extends Func[]> = Functions extends
+  AnyAsync<Functions> ? AwaitedResults<Functions>
+  : Results<Functions>;
+
+export const juxt =
+  <Functions extends Func[]>(...fs: Functions) =>
+  (...x: Parameters<Functions[0]>): JuxtOutput<Functions> => {
+    const result = [];
+    let anyAsync = false;
+    for (const f of fs) {
+      result.push(f(...x));
+      anyAsync = anyAsync || result[result.length - 1] instanceof Promise;
+    }
+    // @ts-ignore reason=ts does not understand me :_(
+    return anyAsync ? Promise.all(result) : result;
+  };
+
+export const pairRight = <Input, Output>(f: (_: Input) => Output) =>
+  juxt((x) => x, f);
+
 export const stack = (...functions: ((x: any) => any)[]) =>
   pipe(
     (values: any[]) => zip(functions, values),
