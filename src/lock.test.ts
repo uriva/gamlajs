@@ -7,6 +7,7 @@ import {
   withLockByInput,
 } from "./lock.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { map } from "./map.ts";
 import { sleep } from "./time.ts";
 
@@ -15,7 +16,7 @@ const pushToArrayAfterMs = (arr: number[]) => async (ms: number) => {
   arr.push(ms);
 };
 
-test("lock", async () => {
+Deno.test("lock", async () => {
   const lockObj = { locked: false };
   const results1: number[] = [];
   const f = withLock(
@@ -40,11 +41,11 @@ test("lock", async () => {
     pushToArrayAfterMs(results2)(300),
     pushToArrayAfterMs(results2)(100),
   ]);
-  expect(results1).toStrictEqual([300, 100]);
-  expect(results2).toStrictEqual([100, 300]);
+  assertEquals(results1, [300, 100]);
+  assertEquals(results2, [100, 300]);
 });
 
-test("lock by input", async () => {
+Deno.test("lock by input", async () => {
   const lockObj: Record<string, boolean> = {};
 
   const unlock = async (id: string) => {
@@ -75,11 +76,11 @@ test("lock by input", async () => {
   await Promise.all([f1("key1", 300), f1("key2", 100)]);
   // Test locking on same input.
   await Promise.all([f2("key1", 300), f2("key1", 100)]);
-  expect(results1).toStrictEqual([100, 300]);
-  expect(results2).toStrictEqual([300, 100]);
+  assertEquals(results1, [100, 300]);
+  assertEquals(results2, [300, 100]);
 });
 
-test("lock with exception", async () => {
+Deno.test("lock with exception", async () => {
   let locked = false;
   let shouldThrow = false;
   const unlock = async () => {
@@ -107,15 +108,15 @@ test("lock with exception", async () => {
   const result = await map(async (x) => {
     try {
       return await func(x);
-    } catch (e) {
+    } catch (_) {
       return 0;
     }
   })([1, 1, 1, 1]);
 
-  expect(result).toEqual([1, 0, 1, 0]);
+  assertEquals(result, [1, 0, 1, 0]);
 });
 
-test("sequentialized", async () => {
+Deno.test("sequentialized", async () => {
   const arr: number[] = [];
   const f = async (a: number) => {
     await sleep(a);
@@ -124,10 +125,10 @@ test("sequentialized", async () => {
   const f_sec = sequentialized(f);
   await Promise.all([f_sec(100), f_sec(10)]);
 
-  expect(arr).toStrictEqual([100, 10]);
+  assertEquals(arr, [100, 10]);
 });
 
-test("throttle", async () => {
+Deno.test("throttle", async () => {
   let maxConcurrent = 0;
   let insideNow = 0;
   const enter = () => {
@@ -146,5 +147,5 @@ test("throttle", async () => {
   };
 
   await map(throttle(1, mapFn))([1, 2, 3]);
-  expect(maxConcurrent).toEqual(1);
+  assertEquals(maxConcurrent, 1);
 });

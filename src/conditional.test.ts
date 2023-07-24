@@ -1,40 +1,41 @@
 import { cond, ifElse, unless, when } from "./conditional.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { wrapPromise } from "./promise.ts";
 
-test("ifElse async", async () => {
+Deno.test("ifElse async", async () => {
   const testFunction = ifElse(
     (x) => wrapPromise(x === 2),
     (_) => true,
     (_) => false,
   );
-  expect(await testFunction(2)).toStrictEqual(true);
-  expect(await testFunction(3)).toStrictEqual(false);
+  assertEquals(await testFunction(2), true);
+  assertEquals(await testFunction(3), false);
 });
 
-test("unless async", async () => {
+Deno.test("unless async", async () => {
   const testFunction = unless(
     (x) => wrapPromise(x === 2),
     () => true,
   );
-  expect(await testFunction(2)).toStrictEqual(2);
-  expect(await testFunction(3)).toStrictEqual(true);
+  assertEquals(await testFunction(2), 2);
+  assertEquals(await testFunction(3), true);
 });
 
-test("when async", async () => {
+Deno.test("when async", async () => {
   const testFunction = when(
     (x) => wrapPromise(x === 2),
     () => true,
   );
-  expect(await testFunction(2)).toStrictEqual(true);
-  expect(await testFunction(3)).toStrictEqual(3);
+  assertEquals(await testFunction(2), true);
+  assertEquals(await testFunction(3), 3);
 });
 
-test("cond", () => {
+Deno.test("cond", () => {
   const testFunction = cond([
     [(x) => x > 3, (x) => x + 1],
     [(x) => x < 3, (x) => x - 1],
   ]);
-  expect(testFunction(2)).toStrictEqual(1);
-  expect(testFunction(4)).toStrictEqual(5);
+  assertEquals(testFunction(2), 1);
+  assertEquals(testFunction(4), 5);
 });

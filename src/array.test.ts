@@ -15,90 +15,93 @@ import {
   zip,
 } from "./array.ts";
 
-test("zip", () => {
-  expect(zip([1, 2, 3], [0, 0, 0])).toEqual([
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+
+Deno.test("zip", () => {
+  assertEquals(zip([1, 2, 3], [0, 0, 0]), [
     [1, 0],
     [2, 0],
     [3, 0],
   ]);
 });
 
-test("init", () => {
-  expect(init([3, 2, 1])).toEqual([3, 2]);
+Deno.test("init", () => {
+  assertEquals(init([3, 2, 1]), [3, 2]);
 });
 
-test("sort", () => {
+Deno.test("sort", () => {
   const x = [3, 2, 1];
-  expect(sort(x)).toEqual([1, 2, 3]);
-  expect(x).toEqual([3, 2, 1]);
+  assertEquals(sort(x), [1, 2, 3]);
+  assertEquals(x, [3, 2, 1]);
 });
 
-test("sort", () => {
+Deno.test("sort", () => {
   const x = [{ age: 2 }, { age: 12 }, { age: 1 }];
-  expect(sortCompare<{ age: number }>((x, y) => x.age > y.age)(x)).toEqual([
+  assertEquals(sortCompare<{ age: number }>((x, y) => x.age > y.age)(x), [
     { age: 1 },
     { age: 2 },
     { age: 12 },
   ]);
 });
 
-test("sort strings", () => {
+Deno.test("sort strings", () => {
   const x = ["b", "bb", "a", "ab"];
-  expect(sort(x)).toEqual(["a", "ab", "b", "bb"]);
+  assertEquals(sort(x), ["a", "ab", "b", "bb"]);
 });
 
-test("sortKey", () => {
-  expect(
+Deno.test("sortKey", () => {
+  assertEquals(
     sortKey<{ a: number; b: number }>(({ a, b }) => [a, b])([
       { a: 1, b: 5 },
       { a: 1, b: 4 },
       { a: 0, b: 0 },
     ]),
-  ).toEqual([
-    { a: 0, b: 0 },
-    { a: 1, b: 4 },
-    { a: 1, b: 5 },
-  ]);
+    [
+      { a: 0, b: 0 },
+      { a: 1, b: 4 },
+      { a: 1, b: 5 },
+    ],
+  );
 });
 
-test("includedIn", () => {
-  expect(includedIn([1, 2, 3])(1)).toBeTruthy();
-  expect(includedIn([1, 2, 3])(4)).toBeFalsy();
+Deno.test("includedIn", () => {
+  assertEquals(includedIn([1, 2, 3])(1), true);
+  assertEquals(includedIn([1, 2, 3])(4), false);
 });
 
-test("contains", () => {
-  expect(contains(1)([1, 2, 3])).toBeTruthy();
-  expect(contains(4)([1, 2, 3])).toBeFalsy();
+Deno.test("contains", () => {
+  assertEquals(contains(1)([1, 2, 3]), true);
+  assertEquals(contains(4)([1, 2, 3]), false);
 });
 
-test("anymap", () => {
-  expect(anymap((x: number) => x > 7)([1, 2, 3])).toBeFalsy();
-  expect(anymap((x: number) => x > 2)([1, 2, 3])).toBeTruthy();
+Deno.test("anymap", () => {
+  assertEquals(anymap((x: number) => x > 7)([1, 2, 3]), false);
+  assertEquals(anymap((x: number) => x > 2)([1, 2, 3]), true);
 });
 
-test("any", () => {
-  expect(any([true, true, false])).toBeTruthy();
+Deno.test("any", () => {
+  assertEquals(any([true, true, false]), true);
 });
 
-test("all", () => {
-  expect(all([true, true, false])).toBeFalsy();
+Deno.test("all", () => {
+  assertEquals(all([true, true, false]), false);
 });
 
-test("allmap", () => {
-  expect(anymap((x: number) => x > 7)([1, 2, 3])).toBeFalsy();
-  expect(anymap((x: number) => x > 0)([1, 2, 3])).toBeTruthy();
+Deno.test("allmap", () => {
+  assertEquals(anymap((x: number) => x > 7)([1, 2, 3]), false);
+  assertEquals(anymap((x: number) => x > 0)([1, 2, 3]), true);
 });
 
-test("take", () => {
-  expect(take(3)([1, 2, 3, 5])).toEqual([1, 2, 3]);
+Deno.test("take", () => {
+  assertEquals(take(3)([1, 2, 3, 5]), [1, 2, 3]);
 });
 
-test("drop", () => {
-  expect(drop(3)([1, 2, 3, 5])).toEqual([5]);
+Deno.test("drop", () => {
+  assertEquals(drop(3)([1, 2, 3, 5]), [5]);
 });
 
-test("enumerate", () => {
-  expect(enumerate([1, 2, 3, 5])).toEqual([
+Deno.test("enumerate", () => {
+  assertEquals(enumerate([1, 2, 3, 5]), [
     [0, 1],
     [1, 2],
     [2, 3],
@@ -106,8 +109,8 @@ test("enumerate", () => {
   ]);
 });
 
-test("slidingWindow", () => {
-  expect(slidingWindow(3)([1, 2, 3, 4])).toEqual([
+Deno.test("slidingWindow", () => {
+  assertEquals(slidingWindow(3)([1, 2, 3, 4]), [
     [1, 2, 3],
     [2, 3, 4],
   ]);

@@ -1,66 +1,75 @@
 import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { map } from "./map.ts";
 import { multiply } from "./math.ts";
 import { pipe } from "./composition.ts";
 import { wrapPromise } from "./promise.ts";
 
-test("async juxt", async () => {
-  expect(
+Deno.test("async juxt", async () => {
+  assertEquals(
     await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2]),
-  ).toEqual([[2], [4]]);
+    [[2], [4]],
+  );
 });
 
-test("juxt non unary", () => {
-  expect(
+Deno.test("juxt non unary", () => {
+  assertEquals(
     juxt(
       (x, y) => x - y,
       (x, y) => x + y,
     )(3, 2),
-  ).toEqual([1, 5]);
+    [1, 5],
+  );
 });
 
-test("juxtCat", async () => {
-  expect(
+Deno.test("juxtCat", async () => {
+  assertEquals(
     await juxtCat(
       (x: number) => wrapPromise([x, x + 1]),
       (x: number) => wrapPromise([x + 2, x + 3]),
     )(1),
-  ).toStrictEqual([1, 2, 3, 4]);
+    [1, 2, 3, 4],
+  );
 });
 
-test("async pairRight", async () => {
-  expect(
+Deno.test("async pairRight", async () => {
+  assertEquals(
     await pairRight<number, number>((x) => wrapPromise(x * 2))(5),
-  ).toStrictEqual([5, 10]);
+    [5, 10],
+  );
 });
 
-test("anyjuxt", () => {
-  expect(
+Deno.test("anyjuxt", () => {
+  assertEquals(
     anyjuxt(
       (x: number) => x > 7,
       (x: number) => x > 1,
     )(3),
-  ).toBeTruthy();
-  expect(
+    true,
+  );
+  assertEquals(
     anyjuxt(
       (x: number) => x > 7,
       (x: number) => x > 1,
     )(0),
-  ).toBeFalsy();
+    false,
+  );
 });
 
-test("alljuxt", () => {
-  expect(
+Deno.test("alljuxt", () => {
+  assertEquals(
     alljuxt(
       (x: number) => x > 7,
       (x: number) => x > 1,
     )(10),
-  ).toBeTruthy();
-  expect(
+    true,
+  );
+  assertEquals(
     alljuxt(
       (x: number) => x > 7,
       (x: number) => x > 1,
     )(3),
-  ).toBeFalsy();
+    false,
+  );
 });

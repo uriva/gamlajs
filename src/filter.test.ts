@@ -1,29 +1,38 @@
 import { filter, find, intersectBy } from "./filter.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { prop } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
 
-test("async filter", async () => {
-  expect(
+Deno.test("async filter", async () => {
+  assertEquals(
     await filter((arg: number) => wrapPromise(arg % 2 === 0))([
-      1, 2, 3, 4, 5, 6,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
     ]),
-  ).toEqual([2, 4, 6]);
+    [2, 4, 6],
+  );
 });
 
-test("find", async () => {
-  expect(
+Deno.test("find", async () => {
+  assertEquals(
     await find((arg: number) => wrapPromise(arg % 2 === 0))([1, 2, 3, 4, 5, 6]),
-  ).toEqual(2);
-  expect(find((arg: number) => arg > 7)([1, 2, 3, 4, 5, 6])).toEqual(undefined);
+    2,
+  );
+  assertEquals(find((arg: number) => arg > 7)([1, 2, 3, 4, 5, 6]), undefined);
 });
 
-test("intersectBy", () => {
-  expect(
+Deno.test("intersectBy", () => {
+  assertEquals(
     intersectBy(prop<{ id: number }, "id">("id"))([
       [{ id: 1 }, { id: 2 }],
       [{ id: 3 }, { id: 1 }],
       [{ id: 3 }, { id: 1 }, { id: 4 }],
     ]),
-  ).toEqual([{ id: 1 }]);
+    [{ id: 1 }],
+  );
 });

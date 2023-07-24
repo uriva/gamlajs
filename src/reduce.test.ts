@@ -1,45 +1,49 @@
 import { max, min, reduce } from "./reduce.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { wrapPromise } from "./promise.ts";
 
-test("reduce", () => {
+Deno.test("reduce", () => {
   const additionReducer = (acc: number, item: number) => acc + item;
-  expect(
+  assertEquals(
     reduce<number, number, false>(additionReducer, () => 0)([1, 2, 3, 4, 5, 6]),
-  ).toEqual(21);
-});
-test("min", () => {
-  expect(min<number>((x) => x)([4, 1, 2, 3])).toBe(1);
+    21,
+  );
 });
 
-test("max async", () => {
-  expect(max<number>((x) => wrapPromise(x))([4, 1, 2, 3])).toBe(4);
+Deno.test("min", () => {
+  assertEquals(min<number>((x) => x)([4, 1, 2, 3]), 1);
 });
 
-test("reduce async", async () => {
+Deno.test("max async", () => {
+  assertEquals(max<number>((x) => wrapPromise(x))([4, 1, 2, 3]), 4);
+});
+
+Deno.test("reduce async", async () => {
   const delayedAddition = (acc: number, item: number): Promise<number> =>
     wrapPromise(acc + item);
-  expect(
+  assertEquals(
     await reduce<number, number, true>(
       delayedAddition,
       () => 0,
     )([1, 2, 3, 4, 5, 6]),
-  ).toEqual(21);
+    21,
+  );
 });
 
-test("min", () => {
-  expect(min<number>((x) => x)([4, 1, 2, 3])).toBe(1);
+Deno.test("min", () => {
+  assertEquals(min<number>((x) => x)([4, 1, 2, 3]), 1);
 });
 
-test("max async", () => {
-  expect(max<number>((x) => wrapPromise(x))([4, 1, 2, 3])).toBe(4);
+Deno.test("max async", () => {
+  assertEquals(max<number>((x) => wrapPromise(x))([4, 1, 2, 3]), 4);
 });
 
-test("max call stack is not a limit on array size", () => {
+Deno.test("max call stack is not a limit on array size", () => {
   const bigArray = [];
   const size = 1000000;
   for (let i = 0; i < size; i++) {
     bigArray.push(i);
   }
-  expect(max<number>((x) => x)(bigArray)).toBe(size - 1);
+  assertEquals(max<number>((x) => x)(bigArray), size - 1);
 });

@@ -1,6 +1,7 @@
 import { batch, timeout } from "./io.ts";
 import { equals, prop } from "./operator.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { length } from "./array.ts";
 import { mapCat } from "./map.ts";
 import { pipe } from "./composition.ts";
@@ -12,7 +13,7 @@ const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));
 
 type MyTask = { id: string; numbers: number[] };
-const batchedSum = batch<string, MyTask>(
+const batchedSum = batch<string, MyTask, number[]>(
   prop<MyTask, "id">("id"),
   100,
   (tasks: MyTask[]) =>
@@ -23,25 +24,26 @@ const batchedSum = batch<string, MyTask>(
   () => true,
 );
 
-test("batch", async () => {
+Deno.test("batch", async () => {
   const [r1, r2] = await Promise.all([
     batchedSum({ id: "id1", numbers: [5, 5] }),
     batchedSum({ id: "id1", numbers: [6, 6] }),
   ]);
-  expect(r1).toEqual(10);
-  expect(r2).toEqual(12);
+  assertEquals(r1, 10);
+  assertEquals(r2, 12);
 });
 
-test("batch key", async () => {
-  expect(
+Deno.test("batch key", async () => {
+  assertEquals(
     await Promise.all([
       batchedSum({ id: "id1", numbers: [5, 5] }),
       batchedSum({ id: "id2", numbers: [6, 6] }),
     ]),
-  ).toEqual([10, 12]);
+    [10, 12],
+  );
 });
 
-test("batch condition", async () => {
+Deno.test("batch condition", async () => {
   let count = 0;
   const f = batch(
     () => "key",
@@ -52,13 +54,14 @@ test("batch condition", async () => {
     },
     pipe(length, equals(5)),
   );
-  expect(await Promise.all([f(1), f(2), f(3), f(4), f(5)])).toEqual([
-    1, 2, 3, 4, 5,
-  ]);
-  expect(count).toEqual(1);
+  assertEquals(
+    await Promise.all([f(1), f(2), f(3), f(4), f(5)]),
+    [1, 2, 3, 4, 5],
+  );
+  assertEquals(count, 1);
 });
 
-test("batch with exceptions", async () => {
+Deno.test("batch with exceptions", async () => {
   const f = batch(
     () => "key",
     1,
@@ -66,16 +69,17 @@ test("batch with exceptions", async () => {
     pipe(length, equals(5)),
   );
 
-  expect.assertions(1);
-
+  let hadError = false;
   try {
     await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
   } catch (err) {
-    expect(err).toEqual("error!");
+    hadError = true;
+    assertEquals(err, "error!");
   }
+  assertEquals(hadError, true);
 });
 
-test("batch condition max wait time", async () => {
+Deno.test("batch condition max wait time", async () => {
   let count = 0;
   const f = batch(
     () => "key",
@@ -93,36 +97,38 @@ test("batch condition max wait time", async () => {
   await sleep(10);
   f(3);
   const result = await f(4);
-  expect.assertions(2);
-  expect(result).toEqual(4);
-  expect(count).toEqual(1);
+  assertEquals(result, 4);
+  assertEquals(count, 1);
 });
 
-test("timeout doesn't trigger if ended in time", async () => {
-  const failed = "failed";
-  const success = "success";
-  expect(
+const failed = "failed";
+const success = "success";
+Deno.test("timeout doesn't trigger if ended in time", async () => {
+  assertEquals(
     await timeout(
-      500,
+      10,
       () => failed,
       () =>
         new Promise((resolve) => {
           resolve(success);
         }),
     )(),
-  ).toEqual(success);
+    success,
+  );
+  await sleep(100); // Wait for the interval to finish.
 });
 
-test("timeout triggers if not ended in time", async () => {
-  const failed = "failed";
-  expect(
+Deno.test("timeout triggers if not ended in time", async () => {
+  assertEquals(
     await timeout(
       10,
       () => failed,
       () =>
         new Promise<string>((resolve) => {
-          setTimeout(() => resolve("success"), 300);
+          setTimeout(() => resolve(success), 50);
         }),
     )(),
-  ).toEqual(failed);
+    failed,
+  );
+  await sleep(100); // Wait for the interval to finish.
 });

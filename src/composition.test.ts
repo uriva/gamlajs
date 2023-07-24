@@ -3,30 +3,33 @@ import { complement, compose, identity, pipe } from "./composition.ts";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 
-test("pipe with async functions", async () => {
-  expect(
+Deno.test("pipe with async functions", async () => {
+  assertEquals(
     await pipe(wrapPromise<number>, (input: number) => wrapPromise(input * 2))(
       2,
     ),
-  ).toBe(4);
+    4,
+  );
 });
 
-test("compose applies functions in correct order", () => {
-  expect(compose((x: number) => x + 1, multiply(10))(1)).toBe(11);
+Deno.test("compose applies functions in correct order", () => {
+  assertEquals(compose((x: number) => x + 1, multiply(10))(1), 11);
 });
 
-test("complement", () => {
-  expect(complement(identity)(true)).toBeFalsy();
-  expect(complement(not)(true)).toBeTruthy();
+Deno.test("complement", () => {
+  assertEquals(complement(identity)(true), false);
+  assertEquals(complement(not)(true), true);
 });
 
-test("pipe is able to mix sync and async functions", async () => {
-  expect(
+Deno.test("pipe is able to mix sync and async functions", async () => {
+  assertEquals(
     await pipe(
       (x: number) => x + 1,
       (x: number) => wrapPromise(x),
       (x: number) => x + 2,
     )(1),
-  ).toBe(4);
+    4,
+  );
 });

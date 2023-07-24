@@ -8,39 +8,39 @@ import {
   wrapString,
 } from "./string.ts";
 
-test("capitalize", () => {
-  expect(capitalize("test")).toBe("Test");
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+
+Deno.test("capitalize", () => {
+  assertEquals(capitalize("test"), "Test");
 });
 
-describe("test trim", () => {
-  test("start char", () => {
-    expect(trim(["-"])("-Test")).toEqual("Test");
-  });
-
-  test("start end", () => {
-    expect(trim(["."])("OK.")).toEqual("OK");
-  });
+Deno.test("start char", () => {
+  assertEquals(trim(["-"])("-Test"), "Test");
 });
 
-test("truncate", () => {
-  expect(truncate(3)("Test")).toEqual("Tes...");
+Deno.test("start end", () => {
+  assertEquals(trim(["."])("OK."), "OK");
 });
 
-test("testRegExp", () => {
-  expect(testRegExp(/asd/)("asd")).toBeTruthy();
-  expect(testRegExp(/asd/)("ooo")).toBeFalsy();
+Deno.test("truncate", () => {
+  assertEquals(truncate(3)("Test"), "Tes...");
 });
 
-test("isValidRegExp", () => {
-  expect(isValidRegExp("\bhello\b")).toBeTruthy();
-  expect(isValidRegExp("?")).toBeFalsy();
-  expect(isValidRegExp("a?")).toBeTruthy();
+Deno.test("testRegExp", () => {
+  assertEquals(testRegExp(/asd/)("asd"), true);
+  assertEquals(testRegExp(/asd/)("ooo"), false);
 });
 
-test("split", () => {
-  expect(split("\n")("hello\nthere")).toEqual(["hello", "there"]);
+Deno.test("isValidRegExp", () => {
+  assertEquals(isValidRegExp("\bhello\b"), true);
+  assertEquals(isValidRegExp("?"), false);
+  assertEquals(isValidRegExp("a?"), true);
 });
 
-test("wrapString", () => {
-  expect(wrapString("hello {}")("world")).toEqual("hello world");
+Deno.test("split", () => {
+  assertEquals(split("\n")("hello\nthere"), ["hello", "there"]);
+});
+
+Deno.test("wrapString", () => {
+  assertEquals(wrapString("hello {}")("world"), "hello world");
 });

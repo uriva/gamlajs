@@ -13,69 +13,79 @@ import {
 } from "./mapping.ts";
 import { head, second } from "./array.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { wrapPromise } from "./promise.ts";
 
-test("keyFilter", () => {
-  expect(
+Deno.test("keyFilter", () => {
+  assertEquals(
     keyFilter((key: string) => key === "b")({ a: 1, b: [1, 2, 3] }),
-  ).toEqual({
-    b: [1, 2, 3],
-  });
-});
-
-test.each([
-  [{ a: 1, b: 3 }, { b: 3 }],
-  [{}, {}],
-])("valFilter async with input %s", async (obj, expected) => {
-  expect(await valFilter((x: number) => wrapPromise(x > 2))(obj)).toEqual(
-    expected,
+    {
+      b: [1, 2, 3],
+    },
   );
 });
 
-test("keyMap", () => {
-  expect(keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] })).toEqual({
+[
+  [{ a: 1, b: 3 }, { b: 3 }],
+  [{}, {}],
+].forEach(([obj, expected], i) =>
+  Deno.test(`valFilter async with input ${i}`, async () => {
+    assertEquals(
+      await valFilter((x: number) => wrapPromise(x > 2))(obj),
+      expected,
+    );
+  })
+);
+
+Deno.test("keyMap", () => {
+  assertEquals(keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] }), {
     a2: 1,
     b2: [1, 2, 3],
   });
 });
 
-test.each([
+[
   [
     { a: 1, b: 3 },
     { a: 2, b: 4 },
   ],
   [{}, {}],
-])("valMap async with input %s", async (obj, expected) => {
-  expect(await valMap((x: number) => wrapPromise(x + 1))(obj)).toEqual(
-    expected,
-  );
-});
+].forEach(([obj, expected]) =>
+  Deno.test("valMap async with input %s", async () => {
+    assertEquals(
+      await valMap((x: number) => wrapPromise(x + 1))(obj),
+      expected,
+    );
+  })
+);
 
-test("mapTerminals async", async () => {
-  expect(
+Deno.test("mapTerminals async", async () => {
+  assertEquals(
     await mapTerminals((x: number) => wrapPromise(x + 1))({
       a: { a: 1, b: 2 },
       b: 3,
       c: [1, 2, 3],
     }),
-  ).toEqual({
-    a: { a: 2, b: 3 },
-    b: 4,
-    c: [2, 3, 4],
-  });
+    {
+      a: { a: 2, b: 3 },
+      b: 4,
+      c: [2, 3, 4],
+    },
+  );
 });
 
-test("applySpec async", async () => {
+Deno.test("applySpec async", async () => {
   type Obj = { x: number; y: number };
-  expect(
+  assertEquals(
     await applySpec({
       a: (obj: Obj) => wrapPromise(obj.x),
       b: { a: (obj: Obj) => wrapPromise(obj.y) },
     })({ x: 1, y: 2 }),
-  ).toEqual({ a: 1, b: { a: 2 } });
+    { a: 1, b: { a: 2 } },
+  );
 });
 
-test("index", () => {
+Deno.test("index", () => {
   type Element = [number, number, number];
   const { build, query, insert } = index<Element, number, Element[]>(
     [head, second],
@@ -92,36 +102,37 @@ test("index", () => {
       [1, 2, 5],
     ]),
   );
-  expect(queryDb([3, 4])).toEqual([[3, 4, 7]]);
-  expect(queryDb([1, 2])).toEqual([
+  assertEquals(queryDb([3, 4]), [[3, 4, 7]]);
+  assertEquals(queryDb([1, 2]), [
     [1, 2, 8],
     [1, 2, 5],
   ]);
-  expect(queryDb([9, 15])).toEqual([]);
+  assertEquals(queryDb([9, 15]), []);
 });
 
-test("groupBy", () => {
-  expect(groupBy(head)(["cow", "cat", "dog"])).toEqual({
+Deno.test("groupBy", () => {
+  assertEquals(groupBy(head)(["cow", "cat", "dog"]), {
     c: ["cow", "cat"],
     d: ["dog"],
   });
 });
 
-test("wrapObject", () => {
-  expect(wrapObject("a")(1)).toEqual({ a: 1 });
+Deno.test("wrapObject", () => {
+  assertEquals(wrapObject("a")(1), { a: 1 });
 });
 
-test("addEntry", () => {
-  expect(addEntry("a", "b")({ c: "d" })).toEqual({ a: "b", c: "d" });
+Deno.test("addEntry", () => {
+  assertEquals(addEntry("a", "b")({ c: "d" }), { a: "b", c: "d" });
 });
 
-test("edgesToGraph", () => {
-  expect(
+Deno.test("edgesToGraph", () => {
+  assertEquals(
     edgesToGraph([
       [1, 2],
       [1, 3],
       [4, 4],
       [2, 3],
     ]),
-  ).toEqual({ 1: new Set([2, 3]), 2: new Set([3]), 4: new Set([4]) });
+    { 1: new Set([2, 3]), 2: new Set([3]), 4: new Set([4]) },
+  );
 });

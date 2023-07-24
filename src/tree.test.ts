@@ -1,10 +1,11 @@
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { prop } from "./operator.ts";
 import { reduceTree } from "./tree.ts";
 import { sum } from "./math.ts";
 
-test("reduceTree", () => {
+Deno.test("reduceTree", () => {
   type Tree = { payload: number; children: Tree[] };
-  expect(
+  assertEquals(
     reduceTree(
       prop<Tree, "children">("children"),
       (current: Tree, children: number[]) =>
@@ -17,5 +18,6 @@ test("reduceTree", () => {
         { payload: 1, children: [] },
       ],
     }),
-  ).toEqual(24);
+    24,
+  );
 });
