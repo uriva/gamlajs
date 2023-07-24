@@ -56,7 +56,10 @@ export const batch = <
     TaskKey,
     Task<TaskInput, Output>[]
   >;
-  const keyToTimeout: Record<TaskKey, number> = {} as Record<TaskKey, number>;
+
+  type Timeout = ReturnType<typeof setTimeout>;
+
+  const keyToTimeout: Record<TaskKey, Timeout> = {} as Record<TaskKey, Timeout>;
 
   const clearAndExecute = (key: TaskKey) => {
     executeTasks(execute)(keyToTasks[key]);
