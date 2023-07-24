@@ -24,7 +24,10 @@ Deno.test("map doesn't include indices", () => {
 
 Deno.test("mapCat", async () => {
   assertEquals(
-    await mapCat((x: number) => wrapPromise([x, x + 1]))([1, 2]),
+    await mapCat((x: number) => wrapPromise([x, x + 1]))([
+      1,
+      2,
+    ]),
     [1, 2, 2, 3],
   );
 });

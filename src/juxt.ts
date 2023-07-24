@@ -1,6 +1,7 @@
 import { after, pipe } from "./composition.ts";
 import { all, any, zip } from "./array.ts";
 
+import { AnyAsync } from "./typing.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 
@@ -11,13 +12,6 @@ type AwaitedResults<Functions extends Func[]> = Promise<
 type Results<Functions extends Func[]> = {
   [i in keyof Functions]: ReturnType<Functions[i]>;
 };
-
-type AsyncFunction = (..._: any[]) => Promise<unknown>;
-
-type AnyAsync<Functions> = Functions extends [] ? never
-  : Functions extends [infer _1 extends AsyncFunction, ...infer _2] ? any
-  : Functions extends [infer _, ...infer rest] ? AnyAsync<rest>
-  : never;
 
 type JuxtOutput<Functions extends Func[]> = Functions extends
   AnyAsync<Functions> ? AwaitedResults<Functions>

@@ -78,9 +78,9 @@ export const batch = <
         ] as Task<TaskInput, Output>[];
         if (
           condition(
-            map<Task<TaskInput, Output>, TaskInput, false>(
-              prop<Task<TaskInput, Output>, "input">("input"),
-            )(keyToTasks[key]),
+            map(prop<Task<TaskInput, Output>, "input">("input"))(
+              keyToTasks[key],
+            ),
           )
         ) {
           clearAndExecute(key);

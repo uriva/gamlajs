@@ -1,5 +1,6 @@
 import { reverse, Reversed } from "./array.ts";
 
+import { AnyAsync } from "./typing.ts";
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 
@@ -26,9 +27,13 @@ type Last<L extends any[]> = L[Length<Tail<L>>];
 
 type Func = (..._: any[]) => unknown;
 
-type Pipeline<Functions extends Func[]> = (
-  ...x: Parameters<Functions[0]>
-) => ReturnType<Last<Functions>>;
+type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
+  ? (
+    ...x: Parameters<Functions[0]>
+  ) => Promise<Awaited<ReturnType<Last<Functions>>>>
+  : (
+    ...x: Parameters<Functions[0]>
+  ) => ReturnType<Last<Functions>>;
 
 export const pipe = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>

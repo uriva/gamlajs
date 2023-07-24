@@ -1,6 +1,7 @@
 import { explode, product } from "./matrix.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+
 Deno.test("product", () => {
   assertEquals(product([]), [[]]);
   assertEquals(product([[], [1, 2, 3]]), []);
@@ -19,7 +20,8 @@ Deno.test("product", () => {
 });
 
 Deno.test("explode", () => {
-  assertEquals(explode(1)(["a", [1, 2, 3], "b"]), [
+  const explode1 = explode(1);
+  assertEquals(explode1(["a", [1, 2, 3], "b"]), [
     ["a", 1, "b"],
     ["a", 2, "b"],
     ["a", 3, "b"],

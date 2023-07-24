@@ -1,14 +1,18 @@
-import { after, complement, pipe } from "./composition.ts";
+import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 
+import { Unary } from "./typing.ts";
 import { map } from "./map.ts";
 import { pairRight } from "./juxt.ts";
 
-export const filter = pipe(
-  pairRight,
-  map,
-  after(pipe((array: any[]) => array.filter(second), map(head))),
-);
+export const filter = <Input, Output>(
+  f: Unary<Input, Output>,
+) =>
+  pipe(
+    map(pairRight(f)),
+    (array: [Input, Awaited<Output>][]) => array.filter(second),
+    map(head),
+  );
 
 export const find = <T>(predicate: (x: T) => boolean | Promise<boolean>) =>
   pipe(filter(predicate), head);
@@ -22,9 +26,7 @@ const toContainmentCheck = <T>(xs: T[]) => {
   return (k: T) => set.has(k);
 };
 
-export const intersectBy =
-  <T>(f: (x: T) => Primitive) =>
-  (arrays: T[][]) =>
-    arrays.reduce((current, next) =>
-      current.filter(pipe(f, toContainmentCheck(next.map(f)))),
-    );
+export const intersectBy = <T>(f: (x: T) => Primitive) => (arrays: T[][]) =>
+  arrays.reduce((current, next) =>
+    current.filter(pipe(f, toContainmentCheck(next.map(f))))
+  );
