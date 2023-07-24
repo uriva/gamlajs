@@ -10,13 +10,15 @@ import {
   valFilter,
   valMap,
   wrapObject,
-} from "./mapping.js";
+} from "./mapping.ts";
 import { head, second } from "./array.ts";
 
 import { wrapPromise } from "./promise.ts";
 
 test("keyFilter", () => {
-  expect(keyFilter((key) => key === "b")({ a: 1, b: [1, 2, 3] })).toEqual({
+  expect(
+    keyFilter((key: string) => key === "b")({ a: 1, b: [1, 2, 3] }),
+  ).toEqual({
     b: [1, 2, 3],
   });
 });
@@ -25,7 +27,9 @@ test.each([
   [{ a: 1, b: 3 }, { b: 3 }],
   [{}, {}],
 ])("valFilter async with input %s", async (obj, expected) => {
-  expect(await valFilter((x) => wrapPromise(x > 2))(obj)).toEqual(expected);
+  expect(await valFilter((x: number) => wrapPromise(x > 2))(obj)).toEqual(
+    expected,
+  );
 });
 
 test("keyMap", () => {
@@ -42,12 +46,14 @@ test.each([
   ],
   [{}, {}],
 ])("valMap async with input %s", async (obj, expected) => {
-  expect(await valMap((x) => wrapPromise(x + 1))(obj)).toEqual(expected);
+  expect(await valMap((x: number) => wrapPromise(x + 1))(obj)).toEqual(
+    expected,
+  );
 });
 
 test("mapTerminals async", async () => {
   expect(
-    await mapTerminals((x) => wrapPromise(x + 1))({
+    await mapTerminals((x: number) => wrapPromise(x + 1))({
       a: { a: 1, b: 2 },
       b: 3,
       c: [1, 2, 3],
@@ -60,23 +66,25 @@ test("mapTerminals async", async () => {
 });
 
 test("applySpec async", async () => {
+  type Obj = { x: number; y: number };
   expect(
     await applySpec({
-      a: (obj) => wrapPromise(obj.x),
-      b: { a: (obj) => wrapPromise(obj.y) },
+      a: (obj: Obj) => wrapPromise(obj.x),
+      b: { a: (obj: Obj) => wrapPromise(obj.y) },
     })({ x: 1, y: 2 }),
   ).toEqual({ a: 1, b: { a: 2 } });
 });
 
 test("index", () => {
-  const { build, query, insert } = index({
-    keys: [head, second],
-    reducer: (x, y) => {
+  type Element = [number, number, number];
+  const { build, query, insert } = index<Element, number, Element[]>(
+    [head, second],
+    (x, y) => {
       x.push(y);
       return x;
     },
-    leafConstructor: () => [],
-  });
+    () => [],
+  );
   const queryDb = query(
     insert(build(), [
       [1, 2, 8],

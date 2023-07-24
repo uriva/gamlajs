@@ -1,4 +1,4 @@
-import { batch, timeout } from "./io.js";
+import { batch, timeout } from "./io.ts";
 import { equals, prop } from "./operator.ts";
 
 import { length } from "./array.ts";
@@ -8,14 +8,18 @@ import { repeat } from "./matrix.ts";
 import { sleep } from "./time.ts";
 import { wrapPromise } from "./promise.ts";
 
-const sumOfThings = (numbers) =>
+const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));
 
-const batchedSum = batch(
-  prop("id"),
+type MyTask = { id: string; numbers: number[] };
+const batchedSum = batch<string, MyTask>(
+  prop<MyTask, "id">("id"),
   100,
-  (tasks) =>
-    repeat(pipe(mapCat(prop("numbers")), sumOfThings)(tasks), tasks.length),
+  (tasks: MyTask[]) =>
+    repeat(
+      pipe(mapCat(prop<MyTask, "numbers">("numbers")), sumOfThings)(tasks),
+      tasks.length,
+    ),
   () => true,
 );
 
@@ -42,7 +46,7 @@ test("batch condition", async () => {
   const f = batch(
     () => "key",
     1,
-    (x) => {
+    (x: number[]) => {
       count++;
       return wrapPromise(x);
     },
@@ -76,9 +80,9 @@ test("batch condition max wait time", async () => {
   const f = batch(
     () => "key",
     100,
-    (args) => {
+    (x: number[]) => {
       count++;
-      return Promise.resolve(args);
+      return Promise.resolve(x);
     },
     () => false,
   );
@@ -116,8 +120,8 @@ test("timeout triggers if not ended in time", async () => {
       10,
       () => failed,
       () =>
-        new Promise((resolve) => {
-          setTimeout(() => resolve(), 300);
+        new Promise<string>((resolve) => {
+          setTimeout(() => resolve("success"), 300);
         }),
     )(),
   ).toEqual(failed);

@@ -30,7 +30,9 @@ test("juxtCat", async () => {
 });
 
 test("async pairRight", async () => {
-  expect(await pairRight((x) => wrapPromise(x * 2))(5)).toStrictEqual([5, 10]);
+  expect(
+    await pairRight<number, number>((x) => wrapPromise(x * 2))(5),
+  ).toStrictEqual([5, 10]);
 });
 
 test("anyjuxt", () => {

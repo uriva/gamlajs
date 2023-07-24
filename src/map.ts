@@ -1,4 +1,3 @@
-import { isPromise } from "./promise.ts";
 import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 
@@ -17,7 +16,7 @@ export const map =
       results.push(f(x));
     }
     return (
-      results.some(isPromise) ? Promise.all(results) : results
+      results.some((x) => x instanceof Promise) ? Promise.all(results) : results
     ) as IsAsync extends true ? Promise<G[]> : G[];
   };
 
