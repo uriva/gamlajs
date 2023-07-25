@@ -58,11 +58,10 @@ export const before =
 
 export const complement = after<boolean>(not);
 
-export const sideEffect =
-  <T extends unknown[]>(f: (...x: T) => void) => (...x: T) => {
-    f(...x);
-    return x;
-  };
+export const sideEffect = <T>(f: (_: T) => void) => (x: T) => {
+  f(x);
+  return x;
+};
 
 export const wrapSideEffect = <Args extends unknown[], Result>(
   cleanup: (...args: Args) => void | Promise<void>,

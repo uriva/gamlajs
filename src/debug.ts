@@ -29,10 +29,7 @@ export const timeit = <Args extends unknown[], R>(
   return result;
 };
 
-export const assert = <Args extends unknown[]>(
-  condition: (..._: Args) => boolean,
-  errorMessage: string,
-) =>
-  sideEffect((...x: Args) => {
-    if (!condition(...x)) throw errorMessage;
+export const assert = <T>(condition: (_: T) => boolean, errorMessage: string) =>
+  sideEffect((x: T) => {
+    if (!condition(x)) throw errorMessage;
   });
