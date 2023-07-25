@@ -1,7 +1,7 @@
 export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
   constructor(value);
 export const not = (x: boolean) => !x;
-export const prop = <T>(key: keyof T) => (x: T): T[typeof key] => x[key];
+export const prop = <T, K extends keyof T>(key: K) => (x: T): T[K] => x[key];
 
 type Primitive = number | string | null | undefined | boolean;
 export const equals = (x: Primitive) => (y: Primitive) => x === y;
