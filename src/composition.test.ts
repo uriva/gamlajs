@@ -36,3 +36,30 @@ Deno.test("pipe is able to mix sync and async functions", async () => {
     4,
   );
 });
+
+pipe(
+  // @ts-expect-error: first function returns a number, second expects a string
+  (x: number) => x + 1,
+  (x: string) => x.length,
+);
+
+pipe(
+  (x: string) => x + "a",
+  (x: string) => x.length,
+);
+
+pipe((x: number) => x + 1)(1);
+
+// @ts-expect-error: string given to a number expecting function
+pipe((x: number) => x + 1)("asd");
+
+pipe(
+  (x: string) => Promise.resolve(x + "a"),
+  (x: string) => x.length,
+);
+
+pipe(
+  // @ts-expect-error: keeps type check even within a promise
+  (x: string) => Promise.resolve(x + "a"),
+  (x: number) => x + 1,
+);

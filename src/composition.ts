@@ -6,7 +6,8 @@ import { reduce } from "./reduce.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
 type Arg<F> = F extends UnaryFn<infer A, unknown> ? A : never;
-type Res<F> = F extends UnaryFn<unknown, infer R> ? R : never;
+// deno-lint-ignore no-explicit-any
+type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
 
 // Return F1 if its return type is assignable to F2's argument type, otherwise
 // return the required function type for the error message.
