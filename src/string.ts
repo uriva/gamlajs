@@ -1,12 +1,13 @@
 export const truncate = (maxLength: number) => (input: string) =>
   input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;
 
-export const split = (x: string) => (s: string) => s.split(x);
+export const split = (x: string | RegExp) => (s: string) => s.split(x);
 
 export const uppercase = (s: string) => s.toLocaleUpperCase();
 export const lowercase = (s: string) => s.toLocaleLowerCase();
-export const replace = (target: string, replacement: string) => (s: string) =>
-  s.replace(target, replacement);
+export const replace =
+  (target: string | RegExp, replacement: string) => (s: string) =>
+    s.replace(target, replacement);
 
 export const capitalize = (s: string) => s[0].toLocaleUpperCase() + s.slice(1);
 
@@ -29,7 +30,7 @@ export const isValidRegExp = (str: string) => {
   try {
     new RegExp(str);
     return true;
-  } catch (e) {
+  } catch (_) {
     return false;
   }
 };
