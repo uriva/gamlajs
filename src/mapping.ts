@@ -115,6 +115,7 @@ export const mapTerminals =
 
 export const applySpec =
   <Args extends unknown[]>(spec: Tree<(..._: Args) => unknown>) =>
+  // @ts-ignore reason: difference between deno compiler and node
   (...args: Args) => mapTerminals(applyTo(...args))(spec);
 
 const setter = <K, V>(obj: Map<K, V>, key: K, value: V) => obj.set(key, value);
