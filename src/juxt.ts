@@ -29,7 +29,8 @@ export const juxt =
     return anyAsync ? Promise.all(result) : result;
   };
 
-export const pairRight = <Input, Output>(f: (_: Input) => Output) =>
+// deno-lint-ignore no-explicit-any
+export const pairRight = <Function extends (_: any) => any>(f: Function) =>
   juxt((x) => x, f);
 
 export const stack = <Functions extends Func[]>(

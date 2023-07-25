@@ -1,9 +1,9 @@
-import { Func, Predicate, Unary } from "./typing.ts";
+import { Func, Unary } from "./typing.ts";
+import { filter, Predicate } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
 import { Map } from "npm:immutable";
-import { filter } from "./filter.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.ts";
@@ -66,18 +66,34 @@ export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
   () => new Set(),
 );
 
-const onEntries = <OldKey, OldValue, NewKey, NewValue>(
-  transformation: (kvs: [OldKey, OldValue][]) => [NewKey, NewValue][],
-  // @ts-ignore: TODO - fix
-) => pipe(Object.entries, transformation, Object.fromEntries);
+const onEntries = <
+  Function extends (
+    // deno-lint-ignore no-explicit-any
+    | ((kvs: [any, any][]) => [any, any])
+    // deno-lint-ignore no-explicit-any
+    | ((kvs: [any, any][]) => Promise<[any, any]>)
+  ),
+>(
+  transformation: Function,
+) =>
+  pipe(
+    // @ts-ignore Object.entries needs parameter and it's not worth the effort.
+    Object.entries,
+    transformation,
+    Object.fromEntries,
+  );
 
 // @ts-ignore: TODO - fix
 export const entryMap = pipe(map, onEntries);
 
-export const entryFilter = <Key extends RecordKey, Value>(
-  f: Predicate<[Key, Value]>,
-  // @ts-ignore: TODO - fix
-) => pipe(filter, onEntries)(f);
+export const entryFilter = <
+  Function extends (
+    // deno-lint-ignore no-explicit-any
+    | ((_: [any, any]) => boolean)
+    // deno-lint-ignore no-explicit-any
+    | ((_: [any, any]) => Promise<boolean>)
+  ),
+>(f: Function) => onEntries(filter<Function>(f));
 
 type RecordKey = string | number | symbol;
 
@@ -85,8 +101,7 @@ export const valFilter = <Value>(f: Predicate<Value>) =>
   // @ts-ignore reason: TODO - fix typing
   entryFilter(pipe(second, f));
 
-export const keyFilter = <Key extends RecordKey>(f: Predicate<Key>) =>
-  // @ts-ignore reason: TODO - fix typing
+export const keyFilter = <Function extends Predicate>(f: Function) =>
   entryFilter(pipe(head, f));
 
 export const valMap = <OldValue, NewValue>(f: (v: OldValue) => NewValue) =>

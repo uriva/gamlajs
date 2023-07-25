@@ -4,6 +4,7 @@ import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { AsyncFunction } from "./typing.ts";
 
 Deno.test("pipe with async functions", async () => {
   assertEquals(
@@ -63,3 +64,7 @@ pipe(
   (x: string) => Promise.resolve(x + "a"),
   (x: number) => x + 1,
 );
+
+// @ts-expect-error: infers correctly if the pipe is async
+((_: AsyncFunction) => {})(pipe((x: boolean) => !!x, not));
+((_: AsyncFunction) => {})(pipe((x: boolean) => Promise.resolve(!!x), not));

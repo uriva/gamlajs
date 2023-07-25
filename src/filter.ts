@@ -1,21 +1,32 @@
 import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 
-import { Unary } from "./typing.ts";
+import { AsyncFunction } from "./typing.ts";
 import { map } from "./map.ts";
 import { pairRight } from "./juxt.ts";
 
-export const filter = <Input, Output>(
-  f: Unary<Input, Output>,
-) =>
+// deno-lint-ignore no-explicit-any
+type ParamOf<T> = T extends (_: infer P) => any ? P : never;
+
+export type Predicate =
+  // deno-lint-ignore no-explicit-any
+  | ((_: any) => boolean)
+  // deno-lint-ignore no-explicit-any
+  | ((_: any) => Promise<boolean>);
+
+export const filter = <F extends Predicate>(
+  f: F,
+): (
+  _: ParamOf<F>[],
+) => F extends AsyncFunction ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
+  // @ts-ignore typing head is hard.
   pipe(
     map(pairRight(f)),
-    (array: [Input, Awaited<Output>][]) => array.filter(second),
+    (array) => array.filter(second),
     map(head),
   );
 
-export const find = <T>(predicate: (x: T) => boolean | Promise<boolean>) =>
-  pipe(filter(predicate), head);
+export const find = (predicate) => pipe(filter(predicate), head);
 
 export const remove = pipe(complement, filter);
 

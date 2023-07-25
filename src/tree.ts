@@ -7,5 +7,5 @@ export const reduceTree = <Tree, R>(
 (tree: Tree): R =>
   reduce(
     tree,
-    map<Tree, R>(reduceTree(getChildren, reduce))(getChildren(tree)) as R[],
+    map(reduceTree(getChildren, reduce))(getChildren(tree)) as R[],
   );

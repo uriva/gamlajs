@@ -1,4 +1,4 @@
-import { AnyAsync, Func } from "./typing.ts";
+import { AnyAsync, AsyncFunction, Func } from "./typing.ts";
 import { reverse, Reversed } from "./array.ts";
 
 import { not } from "./operator.ts";
@@ -11,7 +11,7 @@ type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
 
 // Return F1 if its return type is assignable to F2's argument type, otherwise
 // return the required function type for the error message.
-type ValidCompose<F1, F2> = Res<F1> extends Arg<F2> | Promise<Arg<F2>> ? F1
+type ValidCompose<F1, F2> = Res<F1> extends (Arg<F2> | Promise<Arg<F2>>) ? F1
   : (arg: Arg<F1>) => Arg<F2>;
 
 // For each function, validate the composition with its successor.
@@ -30,7 +30,8 @@ type Last<L extends unknown[]> = L[Length<Tail<L>>];
 type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
   ? (
     ...x: Parameters<Functions[0]>
-  ) => Promise<Awaited<ReturnType<Last<Functions>>>>
+  ) => Last<Functions> extends AsyncFunction ? ReturnType<Last<Functions>>
+    : Promise<ReturnType<Last<Functions>>>
   : (
     ...x: Parameters<Functions[0]>
   ) => ReturnType<Last<Functions>>;
@@ -56,7 +57,13 @@ export const before =
   <T>(f1: (...args: unknown[]) => T) => (f2: (input: T) => unknown) =>
     pipe(f1, f2);
 
-export const complement = after<boolean>(not);
+export const complement = (
+  f:
+    // deno-lint-ignore no-explicit-any
+    | ((..._: any[]) => boolean)
+    // deno-lint-ignore no-explicit-any
+    | ((..._: any[]) => Promise<boolean>),
+) => pipe(f, not);
 
 export const sideEffect = <T>(f: (_: T) => void) => (x: T) => {
   f(x);

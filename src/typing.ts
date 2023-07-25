@@ -1,4 +1,5 @@
-export type AsyncFunction = (..._: unknown[]) => Promise<unknown>;
+// deno-lint-ignore no-explicit-any
+export type AsyncFunction = (..._: any[]) => Promise<any>;
 
 export type AnyAsync<Functions> = Functions extends [] ? never
   : Functions extends [infer _1 extends AsyncFunction, ...infer _2] ? Functions
@@ -7,9 +8,7 @@ export type AnyAsync<Functions> = Functions extends [] ? never
 
 export type Unary<Input, Output> = (_: Input) => Output;
 
-export type Predicate<Input> =
-  | Unary<Input, boolean>
-  | Unary<Input, Promise<boolean>>;
+export type BooleanEquivalent = boolean | string | number | null | undefined;
 
 // deno-lint-ignore no-explicit-any
 export type Func = (..._: any[]) => unknown;

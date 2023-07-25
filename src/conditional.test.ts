@@ -15,7 +15,7 @@ Deno.test("ifElse async", async () => {
 
 Deno.test("unless async", async () => {
   const testFunction = unless(
-    (x) => wrapPromise(x === 2),
+    (x: number) => wrapPromise(x === 2),
     () => true,
   );
   assertEquals(await testFunction(2), 2);
@@ -24,7 +24,7 @@ Deno.test("unless async", async () => {
 
 Deno.test("when async", async () => {
   const testFunction = when(
-    (x) => wrapPromise(x === 2),
+    (x: number) => wrapPromise(x === 2),
     () => true,
   );
   assertEquals(await testFunction(2), true);
@@ -39,3 +39,20 @@ Deno.test("cond", () => {
   assertEquals(testFunction(2), 1);
   assertEquals(testFunction(4), 5);
 });
+
+((_: Promise<boolean>) => {})(
+  ifElse(
+    (x) => wrapPromise(x === 2),
+    (_) => true,
+    (_) => false,
+  )(2),
+);
+
+((_: Promise<string>) => {})(
+  // @ts-expect-error typing mismatch
+  ifElse(
+    (x) => wrapPromise(x === 2),
+    (_) => true,
+    (_) => false,
+  )(2),
+);
