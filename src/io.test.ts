@@ -13,14 +13,15 @@ const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));
 
 type MyTask = { id: string; numbers: number[] };
+const executor = async (tasks: MyTask[]) => (repeat(
+  await pipe(mapCat(prop<MyTask, "numbers">("numbers")), sumOfThings)(tasks),
+  tasks.length,
+));
+
 const batchedSum = batch<string, MyTask, number[]>(
   prop<MyTask, "id">("id"),
   100,
-  (tasks: MyTask[]) =>
-    repeat(
-      pipe(mapCat(prop<MyTask, "numbers">("numbers")), sumOfThings)(tasks),
-      tasks.length,
-    ),
+  executor,
   () => true,
 );
 

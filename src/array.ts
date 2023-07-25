@@ -1,8 +1,8 @@
 export const anymap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.some(f);
-const identity = (x: any) => x;
-export const any = anymap(identity);
+const identity = <T>(x: T) => x;
+export const any = anymap(identity<boolean>);
 export const allmap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.every(f);
-export const all = allmap(identity);
+export const all = allmap(identity<boolean>);
 export const join = (str: string) => (x: string[]) => x.join(str);
 
 type Primitive = string | number | null;
@@ -21,7 +21,7 @@ export const unique = <T>(key: (x: T) => Primitive) => (array: T[]) => {
   return result;
 };
 
-export const concat = (array: any[][]) => {
+export const concat = (array: unknown[][]) => {
   const result = [];
   for (const xs of array) {
     for (const x of xs) {
@@ -39,15 +39,15 @@ export const reverse = <Input extends unknown[]>(
   array: Input,
 ): Reversed<Input> => array.slice().reverse() as Reversed<Input>;
 
-export const tail = (x: any[]) => x.slice(1);
-export const head = (x: any[]) => x[0];
-export const init = (x: any[]) => x.slice(0, -1);
-export const second = (x: any[]) => x[1];
-export const third = (x: any[]) => x[2];
-export const last = (x: any[]) => x[x.length - 1];
-export const empty = (x: any[]) => !x.length;
-export const nonempty = (x: any[]) => !!x.length;
-export const wrapArray = (x: any) => [x];
+export const tail = (x: unknown[]) => x.slice(1);
+export const head = <T extends (unknown[] | string)>(x: T): T[0] => x[0];
+export const init = (x: unknown[]) => x.slice(0, -1);
+export const second = <T extends (unknown[] | string)>(x: T): T[1] => x[1];
+export const third = <T extends (unknown[] | string)>(x: T): T[2] => x[2];
+export const last = (x: unknown[]) => x[x.length - 1];
+export const empty = (x: unknown[]) => !x.length;
+export const nonempty = (x: unknown[]) => !!x.length;
+export const wrapArray = (x: unknown) => [x];
 
 export const zip = <T extends unknown[][]>(
   ...args: T
@@ -65,14 +65,13 @@ const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
 
 type Comparable = string | number | Comparable[];
 
-function comparator(a: Comparable, b: Comparable): number;
-function comparator(a: any, b: any): number {
+const comparator = <T extends Comparable>(a: T, b: T): number => {
   return typeof a === "string" && typeof b === "string"
     ? a.localeCompare(b)
     : typeof a === "number" && typeof b === "number"
     ? a - b
-    : compareArrays(a, b);
-}
+    : compareArrays(a as Comparable[], b as Comparable[]);
+};
 
 const castToInt = (x: number | boolean) =>
   x === true ? 1 : x === false ? -1 : x;
@@ -95,10 +94,10 @@ export const range = (start: number, end: number) => {
 export const contains = <T>(x: T) => (array: T[]) => array.includes(x);
 export const includedIn = <T>(array: T[]) => (x: T) => array.includes(x);
 
-export const take = (n: number) => (xs: any[]) => xs.slice(0, n);
-export const drop = (n: number) => (xs: any[]) => xs.slice(n);
+export const take = (n: number) => (xs: unknown[]) => xs.slice(0, n);
+export const drop = (n: number) => (xs: unknown[]) => xs.slice(n);
 
-export const enumerate = (xs: any[]) => xs.map((x, i) => [i, x]);
+export const enumerate = (xs: unknown[]) => xs.map((x, i) => [i, x]);
 
-export const slidingWindow = (l: number) => (xs: any[]) =>
+export const slidingWindow = (l: number) => (xs: unknown[]) =>
   xs.flatMap((_, i) => (i <= xs.length - l ? [xs.slice(i, i + l)] : []));

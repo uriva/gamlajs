@@ -6,3 +6,10 @@ export type AnyAsync<Functions> = Functions extends [] ? never
   : never;
 
 export type Unary<Input, Output> = (_: Input) => Output;
+
+export type Predicate<Input> =
+  | Unary<Input, boolean>
+  | Unary<Input, Promise<boolean>>;
+
+// deno-lint-ignore no-explicit-any
+export type Func = (..._: any[]) => unknown;

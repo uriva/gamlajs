@@ -1,11 +1,10 @@
+import { AnyAsync, Func } from "./typing.ts";
 import { after, pipe } from "./composition.ts";
 import { all, any, zip } from "./array.ts";
 
-import { AnyAsync } from "./typing.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 
-type Func = (..._: any[]) => unknown;
 type AwaitedResults<Functions extends Func[]> = Promise<
   { [i in keyof Functions]: Awaited<ReturnType<Functions[i]>> }
 >;
@@ -33,15 +32,24 @@ export const juxt =
 export const pairRight = <Input, Output>(f: (_: Input) => Output) =>
   juxt((x) => x, f);
 
-export const stack = (...functions: ((x: any) => any)[]) =>
+export const stack = <Functions extends Func[]>(
+  ...functions: Functions
+): (
+  _: { [i in keyof Functions]: Parameters<Functions[i]>[0] },
+) => JuxtOutput<Functions> =>
+  // @ts-ignore reason: too complex
   pipe(
-    (values: any[]) => zip(functions, values),
-    map(([f, x]: [(x: any) => any, any]) => f(x)),
+    (values) => zip(functions, values),
+    // @ts-ignore reason: too complex
+    map(([f, x]) => f(x)),
   );
+
 export const juxtCat = pipe(
   juxt,
   after(
+    // deno-lint-ignore no-explicit-any
     reduce<any[], any[], false>(
+      // deno-lint-ignore no-explicit-any
       (a: any[], b: any[]) => a.concat(b),
       () => [],
     ),

@@ -33,8 +33,8 @@ Deno.test("when async", async () => {
 
 Deno.test("cond", () => {
   const testFunction = cond([
-    [(x) => x > 3, (x) => x + 1],
-    [(x) => x < 3, (x) => x - 1],
+    [(x: number) => x > 3, (x: number) => x + 1],
+    [(x: number) => x < 3, (x: number) => x - 1],
   ]);
   assertEquals(testFunction(2), 1);
   assertEquals(testFunction(4), 5);

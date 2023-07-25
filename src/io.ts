@@ -5,7 +5,7 @@ import { applySpec } from "./mapping.ts";
 import { map } from "./map.ts";
 import { pipe } from "./composition.ts";
 
-type Executor<TaskInput, Output> = (_: TaskInput[]) => Output;
+type Executor<TaskInput, Output> = (_: TaskInput[]) => Promise<Output>;
 
 const executeTasks = <TaskInput, Output>(
   execute: Executor<TaskInput, Output>,
@@ -16,10 +16,12 @@ const executeTasks = <TaskInput, Output>(
       input: map(prop<Task<TaskInput, Output>, "input">("input")),
       reject: pipe(
         map(prop<Task<TaskInput, Output>, "reject">("reject")),
+        // @ts-ignore reason: TODO - fix typing
         spread(juxt),
       ),
       resolve: pipe(
         map(prop<Task<TaskInput, Output>, "resolve">("resolve")),
+        // @ts-ignore reason: TODO - fix typing
         spread(stack),
       ),
     }),
@@ -77,11 +79,10 @@ export const batch = <
           { resolve, reject, input },
         ] as Task<TaskInput, Output>[];
         if (
-          condition(
-            map(prop<Task<TaskInput, Output>, "input">("input"))(
-              keyToTasks[key],
-            ),
-          )
+          pipe(
+            map(prop<Task<TaskInput, Output>, "input">("input")),
+            condition,
+          )(keyToTasks[key])
         ) {
           clearAndExecute(key);
         } else {

@@ -38,7 +38,7 @@ Deno.test("keyFilter", () => {
 );
 
 Deno.test("keyMap", () => {
-  assertEquals(keyMap((key) => key + "2")({ a: 1, b: [1, 2, 3] }), {
+  assertEquals(keyMap((key: string) => key + "2")({ a: 1, b: [1, 2, 3] }), {
     a2: 1,
     b2: [1, 2, 3],
   });
@@ -88,7 +88,7 @@ Deno.test("applySpec async", async () => {
 Deno.test("index", () => {
   type Element = [number, number, number];
   const { build, query, insert } = index<Element, number, Element[]>(
-    [head, second],
+    [head<Element>, second<Element>],
     (x, y) => {
       x.push(y);
       return x;
@@ -111,7 +111,7 @@ Deno.test("index", () => {
 });
 
 Deno.test("groupBy", () => {
-  assertEquals(groupBy(head)(["cow", "cat", "dog"]), {
+  assertEquals(groupBy<string, string>(head)(["cow", "cat", "dog"]), {
     c: ["cow", "cat"],
     d: ["dog"],
   });

@@ -1,4 +1,5 @@
-import { after, applyTo, before, identity, pipe } from "./composition.ts";
+import { Func, Predicate, Unary } from "./typing.ts";
+import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
 import { Map } from "npm:immutable";
@@ -30,7 +31,9 @@ export const groupByReduce = <T, S, K extends Primitive>(
   key: (_: T) => K,
   reducer: Reducer<T, S>,
   initial: () => S,
-) => groupByManyReduce(pipe(key, wrapArray), reducer, initial);
+): (_: T[]) => Record<K, S> =>
+  // @ts-ignore reason: TODO - fix typing
+  groupByManyReduce(pipe(key, wrapArray), reducer, initial);
 
 export const groupByMany = <T, K extends Primitive>(keys: (_: T) => K[]) =>
   groupByManyReduce(
@@ -48,19 +51,19 @@ export const addEntry =
     [key]: value,
   });
 
-export const groupBy = pipe(after(wrapArray), groupByMany);
+export const groupBy = <T, K extends Primitive>(f: Unary<T, K>) =>
+  // @ts-ignore reason: TODO - fix typing
+  groupByMany<T, K>(pipe(f, wrapArray));
 
 type Node = Primitive;
 type Edge = [Node, Node];
-export const edgesToGraph = pipe(
-  groupByReduce<Edge, Set<Node>, Node>(
-    head,
-    <Node, Edge extends [Node, Node]>(s: Set<Node>, [_, destination]: Edge) => {
-      s.add(destination);
-      return s;
-    },
-    () => new Set(),
-  ),
+export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
+  head,
+  <Node, Edge extends [Node, Node]>(s: Set<Node>, [_, destination]: Edge) => {
+    s.add(destination);
+    return s;
+  },
+  () => new Set(),
 );
 
 const onEntries = <OldKey, OldValue, NewKey, NewValue>(
@@ -70,28 +73,43 @@ const onEntries = <OldKey, OldValue, NewKey, NewValue>(
 
 // @ts-ignore: TODO - fix
 export const entryMap = pipe(map, onEntries);
-export const entryFilter = pipe(filter, onEntries);
 
-export const valFilter = pipe(before(second), entryFilter);
-export const keyFilter = pipe(before(head), entryFilter);
+export const entryFilter = <Key extends RecordKey, Value>(
+  f: Predicate<[Key, Value]>,
+  // @ts-ignore: TODO - fix
+) => pipe(filter, onEntries)(f);
+
+type RecordKey = string | number | symbol;
+
+export const valFilter = <Value>(f: Predicate<Value>) =>
+  // @ts-ignore reason: TODO - fix typing
+  entryFilter(pipe(second, f));
+
+export const keyFilter = <Key extends RecordKey>(f: Predicate<Key>) =>
+  // @ts-ignore reason: TODO - fix typing
+  entryFilter(pipe(head, f));
 
 export const valMap = <OldValue, NewValue>(f: (v: OldValue) => NewValue) =>
+  // @ts-ignore reason: TODO - fix typing
   entryMap(stack(identity, f));
-export const keyMap = <OldKey, NewKey>(f: (v: OldKey) => NewKey) =>
-  entryMap(stack(f, identity));
 
-// See MDN Object constructor.
-const isObject = (obj: unknown) => obj === Object(obj);
+export const keyMap = <OldKey extends RecordKey, NewKey extends RecordKey>(
+  f: (v: OldKey) => NewKey,
+): (_: Record<OldKey, unknown>) => Record<NewKey, unknown> =>
+  // @ts-ignore reason: TODO - fix typing
+  entryMap(stack(f, identity));
 
 // Record is untyped but it should have a recursive definition.
 type Tree<Terminal> = Terminal | Tree<Terminal>[] | Record<Primitive, unknown>;
 
 export const mapTerminals =
-  <Terminal>(terminalMapper: (_: Terminal) => unknown) =>
+  <Terminal extends (string | boolean | number | Func)>(
+    terminalMapper: (_: Terminal) => unknown,
+  ) =>
   (obj: Tree<Terminal>): Tree<unknown> =>
     Array.isArray(obj)
       ? map(mapTerminals(terminalMapper))(obj)
-      : isObject(obj) && !(obj instanceof Function)
+      : typeof obj === "object" && !(obj instanceof Function)
       ? valMap(mapTerminals(terminalMapper))(obj)
       : terminalMapper(obj as Terminal);
 

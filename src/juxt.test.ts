@@ -8,13 +8,7 @@ import { wrapPromise } from "./promise.ts";
 
 Deno.test("async juxt", async () => {
   assertEquals(
-    await juxt(
-      wrapPromise,
-      pipe(
-        map<number, number, false>(multiply(2)),
-        wrapPromise<number[]>,
-      ),
-    )([2]),
+    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2]),
     [[2], [4]],
   );
 });

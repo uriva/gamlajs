@@ -1,12 +1,12 @@
+import { AnyAsync, Func } from "./typing.ts";
 import { reverse, Reversed } from "./array.ts";
 
-import { AnyAsync } from "./typing.ts";
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
 type Arg<F> = F extends UnaryFn<infer A, unknown> ? A : never;
-type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
+type Res<F> = F extends UnaryFn<unknown, infer R> ? R : never;
 
 // Return F1 if its return type is assignable to F2's argument type, otherwise
 // return the required function type for the error message.
@@ -18,14 +18,13 @@ type ValidPipe<FS> = FS extends [infer F1, infer F2, ...infer Rest]
   ? [ValidCompose<F1, F2>, ...ValidPipe<[F2, ...Rest]>] // tuple length >= 2
   : FS; // tuple length < 2
 
-type Length<L extends any[]> = L["length"];
+type Length<L extends unknown[]> = L["length"];
 
-type Tail<L extends any[]> = L extends readonly [any, ...infer LTail] ? LTail
+type Tail<L extends unknown[]> = L extends readonly [unknown, ...infer LTail]
+  ? LTail
   : L;
 
-type Last<L extends any[]> = L[Length<Tail<L>>];
-
-type Func = (..._: any[]) => unknown;
+type Last<L extends unknown[]> = L[Length<Tail<L>>];
 
 type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
   ? (
@@ -38,17 +37,17 @@ type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
 export const pipe = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
 ): Pipeline<Fs> =>
-// @ts-ignore
+// @ts-ignore reason: TODO - fix typing
 (...x) => reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1));
 
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
 ): Fs extends ValidPipe<Reversed<Fs>> ? Pipeline<Reversed<Fs>> : never =>
-  // @ts-ignore
+  // @ts-ignore reason: TODO - fix typing
   pipe(...reverse(fs));
 
 export const after =
-  <T>(f: UnaryFn<T, any>) => <L extends any[]>(g: (...args: L) => T) =>
+  <T>(f: UnaryFn<T, unknown>) => <L extends unknown[]>(g: (...args: L) => T) =>
     pipe(g, f);
 
 export const before =
