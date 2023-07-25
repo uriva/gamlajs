@@ -44,10 +44,10 @@ export const head = <T extends (unknown[] | string)>(x: T): T[0] => x[0];
 export const init = (x: unknown[]) => x.slice(0, -1);
 export const second = <T extends (unknown[] | string)>(x: T): T[1] => x[1];
 export const third = <T extends (unknown[] | string)>(x: T): T[2] => x[2];
-export const last = (x: unknown[]) => x[x.length - 1];
+export const last = <T>(x: T[]) => x[x.length - 1];
 export const empty = (x: unknown[]) => !x.length;
 export const nonempty = (x: unknown[]) => !!x.length;
-export const wrapArray = (x: unknown) => [x];
+export const wrapArray = <T>(x: T) => [x];
 
 export const zip = <T extends unknown[][]>(
   ...args: T
