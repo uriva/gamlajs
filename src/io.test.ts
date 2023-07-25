@@ -14,12 +14,12 @@ const sumOfThings = (numbers: number[]) =>
 
 type MyTask = { id: string; numbers: number[] };
 const executor = async (tasks: MyTask[]) => (repeat(
-  await pipe(mapCat(prop<MyTask, "numbers">("numbers")), sumOfThings)(tasks),
+  await pipe(mapCat(prop<MyTask>()("numbers")), sumOfThings)(tasks),
   tasks.length,
 ));
 
 const batchedSum = batch<string, MyTask, number[]>(
-  prop<MyTask, "id">("id"),
+  prop<MyTask>()("id"),
   100,
   executor,
   () => true,

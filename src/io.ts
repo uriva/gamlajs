@@ -13,14 +13,14 @@ const executeTasks = <TaskInput, Output>(
   pipe(
     // @ts-ignore reason: pipe can't figure out the typing here.
     applySpec({
-      input: map(prop<Task<TaskInput, Output>, "input">("input")),
+      input: map(prop<Task<TaskInput, Output>>()("input")),
       reject: pipe(
-        map(prop<Task<TaskInput, Output>, "reject">("reject")),
+        map(prop<Task<TaskInput, Output>>()("reject")),
         // @ts-ignore reason: TODO - fix typing
         spread(juxt),
       ),
       resolve: pipe(
-        map(prop<Task<TaskInput, Output>, "resolve">("resolve")),
+        map(prop<Task<TaskInput, Output>>()("resolve")),
         // @ts-ignore reason: TODO - fix typing
         spread(stack),
       ),
@@ -80,7 +80,7 @@ export const batch = <
         ] as Task<TaskInput, Output>[];
         if (
           pipe(
-            map(prop<Task<TaskInput, Output>, "input">("input")),
+            map(prop<Task<TaskInput, Output>>()("input")),
             condition,
           )(keyToTasks[key])
         ) {

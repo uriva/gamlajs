@@ -9,11 +9,13 @@ export const repeat = <T>(element: T, times: number) => {
   return result;
 };
 
+// deno-lint-ignore no-explicit-any
 export const product = reduce<any[][], any[], false>(
   (a, b) => a.flatMap((x) => b.map((y) => [...x, y])),
   () => [[]],
 );
 
+// deno-lint-ignore no-explicit-any
 type ExplodeResult = { result: any; index: number };
 export const explode = (...positions: number[]) =>
   pipe(
@@ -24,6 +26,6 @@ export const explode = (...positions: number[]) =>
       },
       () => ({ index: 0, result: [] }),
     ),
-    prop<ExplodeResult, "result">("result"),
+    prop<ExplodeResult>()("result"),
     product,
   );

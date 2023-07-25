@@ -13,11 +13,11 @@ Deno.test("modulo", () => {
 });
 
 Deno.test("prop", () => {
-  assertEquals(prop<{ a: number }, "a">("a")({ a: 1 }), 1);
+  assertEquals(prop<{ a: number }>()("a")({ a: 1 }), 1);
 });
 
 const assertString = (x: string) => x;
 
-prop<{ a: number }, "a">("a")({ a: 1 }) as number;
+prop<{ a: number }>()("a")({ a: 1 }) as number;
 // @ts-expect-error: type does not match
-assertString(prop<{ a: number }, "a">("a")({ a: 1 }));
+assertString(prop<{ a: number }>()("a")({ a: 1 }));

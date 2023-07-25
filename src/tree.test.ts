@@ -7,7 +7,7 @@ Deno.test("reduceTree", () => {
   type Tree = { payload: number; children: Tree[] };
   assertEquals(
     reduceTree(
-      prop<Tree, "children">("children"),
+      prop<Tree>()("children"),
       (current: Tree, children: number[]) =>
         sum([current.payload, ...children]),
     )({

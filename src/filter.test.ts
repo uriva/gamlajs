@@ -28,7 +28,7 @@ Deno.test("find", async () => {
 
 Deno.test("intersectBy", () => {
   assertEquals(
-    intersectBy(prop<{ id: number }, "id">("id"))([
+    intersectBy(prop<{ id: number }>()("id"))([
       [{ id: 1 }, { id: 2 }],
       [{ id: 3 }, { id: 1 }],
       [{ id: 3 }, { id: 1 }, { id: 4 }],
