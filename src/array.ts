@@ -94,10 +94,10 @@ export const range = (start: number, end: number) => {
 export const contains = <T>(x: T) => (array: T[]) => array.includes(x);
 export const includedIn = <T>(array: T[]) => (x: T) => array.includes(x);
 
-export const take = (n: number) => (xs: unknown[]) => xs.slice(0, n);
-export const drop = (n: number) => (xs: unknown[]) => xs.slice(n);
+export const take = <T>(n: number) => (xs: T[]) => xs.slice(0, n);
+export const drop = <T>(n: number) => (xs: T[]) => xs.slice(n);
 
-export const enumerate = (xs: unknown[]) => xs.map((x, i) => [i, x]);
+export const enumerate = <T>(xs: T[]) => xs.map((x, i) => [i, x]);
 
-export const slidingWindow = (l: number) => (xs: unknown[]) =>
+export const slidingWindow = <T>(l: number) => (xs: T[]) =>
   xs.flatMap((_, i) => (i <= xs.length - l ? [xs.slice(i, i + l)] : []));
