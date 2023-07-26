@@ -68,3 +68,9 @@ pipe(
 // @ts-expect-error: infers correctly if the pipe is async
 ((_: AsyncFunction) => {})(pipe((x: boolean) => !!x, not));
 ((_: AsyncFunction) => {})(pipe((x: boolean) => Promise.resolve(!!x), not));
+
+pipe(
+  (x: string) => x,
+  (x: string) => Promise.resolve(x),
+  (x: string) => x,
+)("a").then();

@@ -16,8 +16,8 @@ Deno.test("async juxt", async () => {
 Deno.test("juxt non unary", () => {
   assertEquals(
     juxt(
-      (x, y) => x - y,
-      (x, y) => x + y,
+      (x: number, y: number) => x - y,
+      (x: number, y: number) => x + y,
     )(3, 2),
     [1, 5],
   );

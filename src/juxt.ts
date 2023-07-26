@@ -48,8 +48,7 @@ export const stack = <Functions extends Func[]>(
 export const juxtCat = pipe(
   juxt,
   after(
-    // deno-lint-ignore no-explicit-any
-    reduce<any[], any[], false>(
+    reduce(
       // deno-lint-ignore no-explicit-any
       (a: any[], b: any[]) => a.concat(b),
       () => [],

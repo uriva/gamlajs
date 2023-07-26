@@ -5,7 +5,7 @@ import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 
 const addition = (a: number, b: number) => a + b;
-export const sum = reduce<number, number, false>(addition, () => 0);
+export const sum = reduce(addition, () => 0);
 export const divide = (x: number) => (y: number) => y / x;
 export const times = (x: number) => (y: number) => y * x;
 export const average = (arr: number[]) => sum(arr) / arr.length;

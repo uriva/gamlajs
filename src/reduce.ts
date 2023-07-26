@@ -22,12 +22,12 @@ const reduceHelper = <
   return current as ReturnType<Reducer>;
 };
 
-export const reduce = <State, Element, IsAsync extends boolean>(
-  reducer: IsAsync extends true ? (_1: State, _2: Element) => Promise<State>
-    : (_1: State, _2: Element) => State,
-  initial: () => State,
+// deno-lint-ignore no-explicit-any
+export const reduce = <Function extends (state: any, element: any) => any>(
+  reducer: Function,
+  initial: () => Awaited<ReturnType<Function>>,
 ) =>
-(xs: Element[]) => reduceHelper(reducer, initial(), xs, 0);
+(xs: Parameters<Function>[1][]) => reduceHelper(reducer, initial(), xs, 0);
 
 export const min = <T>(key: (x: T) => number | Promise<number>) => (xs: T[]) =>
   reduceHelper((s: T, x: T) => (key(s) > key(x) ? x : s), xs[0], xs, 1);

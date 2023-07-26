@@ -207,7 +207,7 @@ export const index = <T, K, Terminal>(
   build: () => Map() as Index<K, Terminal>,
   query: query(leafConstructor),
   insert: (index: Index<K, Terminal>, xs: T[]): Index<K, Terminal> =>
-    reduce<Index<K, Terminal>, T, false>(
+    reduce(
       dbReducer<T, K, Terminal>(
         keys,
         reducer,

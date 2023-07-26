@@ -9,9 +9,8 @@ export const repeat = <T>(element: T, times: number) => {
   return result;
 };
 
-// deno-lint-ignore no-explicit-any
-export const product = reduce<any[][], any[], false>(
-  (a, b) => a.flatMap((x) => b.map((y) => [...x, y])),
+export const product = reduce(
+  (a, b) => a.flatMap((x: unknown[]) => b.map((y: unknown) => [...x, y])),
   () => [[]],
 );
 
