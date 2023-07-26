@@ -1,12 +1,9 @@
+import { AsyncFunction, ParamOf } from "./typing.ts";
 import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 
-import { AsyncFunction } from "./typing.ts";
 import { map } from "./map.ts";
 import { pairRight } from "./juxt.ts";
-
-// deno-lint-ignore no-explicit-any
-type ParamOf<T> = T extends (_: infer P) => any ? P : never;
 
 export type Predicate =
   // deno-lint-ignore no-explicit-any
@@ -14,9 +11,7 @@ export type Predicate =
   // deno-lint-ignore no-explicit-any
   | ((_: any) => Promise<boolean>);
 
-export const filter = <F extends Predicate>(
-  f: F,
-): (
+export const filter = <F extends Predicate>(f: F): (
   _: ParamOf<F>[],
 ) => F extends AsyncFunction ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
   // @ts-ignore typing head is hard.
@@ -26,7 +21,8 @@ export const filter = <F extends Predicate>(
     map(head),
   );
 
-export const find = (predicate) => pipe(filter(predicate), head);
+export const find = <Fn extends Predicate>(predicate: Fn) =>
+  pipe(filter(predicate), head);
 
 export const remove = pipe(complement, filter);
 

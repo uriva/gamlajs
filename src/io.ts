@@ -71,7 +71,7 @@ export const batch = <
   };
 
   return pipe(
-    pairRight<TaskInput, TaskKey>(keyFn),
+    pairRight(keyFn),
     ([input, key]: [TaskInput, TaskKey]) =>
       new Promise((resolve, reject) => {
         keyToTasks[key] = [

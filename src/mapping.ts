@@ -1,4 +1,4 @@
-import { Func, Unary } from "./typing.ts";
+import { AsyncFunction, Func, ParamOf, Unary } from "./typing.ts";
 import { filter, Predicate } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
@@ -66,42 +66,59 @@ export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
   () => new Set(),
 );
 
+type ElementOf<T> = T extends (infer X)[] ? X : never;
+
 const onEntries = <
   Function extends (
     // deno-lint-ignore no-explicit-any
-    | ((kvs: [any, any][]) => [any, any])
+    | ((kvs: [any, any][]) => [any, any][])
     // deno-lint-ignore no-explicit-any
-    | ((kvs: [any, any][]) => Promise<[any, any]>)
+    | ((kvs: [any, any][]) => Promise<[any, any][]>)
   ),
 >(
   transformation: Function,
-) =>
+): (
+  Obj: Record<
+    ElementOf<ParamOf<Function>>[0],
+    ElementOf<ParamOf<Function>>[1]
+  >,
+) => Function extends AsyncFunction ? Promise<
+    Record<
+      ElementOf<Awaited<ReturnType<Function>>>[0],
+      ElementOf<Awaited<ReturnType<Function>>>[1]
+    >
+  >
+  : Record<
+    ElementOf<Awaited<ReturnType<Function>>>[0],
+    ElementOf<Awaited<ReturnType<Function>>>[1]
+  > =>
+  // @ts-ignore: too hard
   pipe(
-    // @ts-ignore Object.entries needs parameter and it's not worth the effort.
+    // @ts-ignore: too hard
     Object.entries,
     transformation,
     Object.fromEntries,
   );
 
-// @ts-ignore: TODO - fix
 export const entryMap = pipe(map, onEntries);
 
 export const entryFilter = <
   Function extends (
     // deno-lint-ignore no-explicit-any
-    | ((_: [any, any]) => boolean)
+    | ((kv: [any, any]) => boolean)
     // deno-lint-ignore no-explicit-any
-    | ((_: [any, any]) => Promise<boolean>)
+    | ((kv: [any, any]) => Promise<boolean>)
   ),
->(f: Function) => onEntries(filter<Function>(f));
+>(f: Function) => onEntries(filter(f));
 
 type RecordKey = string | number | symbol;
 
-export const valFilter = <Value>(f: Predicate<Value>) =>
+export const valFilter = (f: Predicate) =>
   // @ts-ignore reason: TODO - fix typing
   entryFilter(pipe(second, f));
 
-export const keyFilter = <Function extends Predicate>(f: Function) =>
+export const keyFilter = <Function>(f: Function) =>
+  // @ts-ignore reason: TODO - fix typing
   entryFilter(pipe(head, f));
 
 export const valMap = <OldValue, NewValue>(f: (v: OldValue) => NewValue) =>
