@@ -69,12 +69,8 @@ export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
 type ElementOf<T> = T extends (infer X)[] ? X : never;
 
 const onEntries = <
-  Function extends (
-    // deno-lint-ignore no-explicit-any
-    | ((kvs: [any, any][]) => [any, any][])
-    // deno-lint-ignore no-explicit-any
-    | ((kvs: [any, any][]) => Promise<[any, any][]>)
-  ),
+  // deno-lint-ignore no-explicit-any
+  Function extends (kvs: [any, any][]) => [any, any][] | Promise<[any, any][]>,
 >(
   transformation: Function,
 ): (

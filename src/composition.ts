@@ -1,4 +1,4 @@
-import { AnyAsync, AsyncFunction, Func } from "./typing.ts";
+import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
 import { reverse, Reversed } from "./array.ts";
 
 import { not } from "./operator.ts";
@@ -18,14 +18,6 @@ type ValidCompose<F1, F2> = Res<F1> extends (Arg<F2> | Promise<Arg<F2>>) ? F1
 type ValidPipe<FS> = FS extends [infer F1, infer F2, ...infer Rest]
   ? [ValidCompose<F1, F2>, ...ValidPipe<[F2, ...Rest]>] // tuple length >= 2
   : FS; // tuple length < 2
-
-type Length<L extends unknown[]> = L["length"];
-
-type Tail<L extends unknown[]> = L extends readonly [unknown, ...infer LTail]
-  ? LTail
-  : L;
-
-type Last<L extends unknown[]> = L[Length<Tail<L>>];
 
 type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
   ? (

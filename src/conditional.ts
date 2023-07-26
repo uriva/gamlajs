@@ -1,8 +1,8 @@
+import { AnyAsync, BooleanEquivalent } from "./typing.ts";
 import { head, second } from "./array.ts";
 
 import { filter } from "./filter.ts";
 import { pipe } from "./composition.ts";
-import { AnyAsync, BooleanEquivalent } from "./typing.ts";
 
 // deno-lint-ignore no-explicit-any
 type Func<Input extends any[], Output> = (..._: Input) => Output;
@@ -63,17 +63,22 @@ export const when = <
   ifElse(predicate, fTrue, (...x) => x[0]);
 
 type CondElement<Args extends unknown[]> = [
-  Predicate<Args>,
-  Func<Args, Output>,
+  (..._: Args) => boolean | Promise<boolean>,
+  // deno-lint-ignore no-explicit-any
+  (..._: Args) => any,
 ];
 
-export const cond = <Args extends unknown[], Output>(
-  predicatesAndResolvers: CondElement<Args>[],
+// deno-lint-ignore no-explicit-any
+export const cond = <CondElements extends CondElement<any[]>[]>(
+  predicatesAndResolvers: CondElements,
 ) =>
-(...x: Args) =>
+(
+  ...x: Parameters<CondElements[0][0]>
+) =>
   pipe(
     filter(pipe(head, (predicate) => predicate(...x))),
-    head<CondElement<Args>[]>,
+    // @ts-ignore too complex
+    head,
     second,
-    (f: Func<Args, Output>) => f(...x),
+    (f) => f(...x),
   )(predicatesAndResolvers);
