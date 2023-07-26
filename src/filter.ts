@@ -1,4 +1,4 @@
-import { AsyncFunction, ParamOf } from "./typing.ts";
+import { AsyncFunction, BooleanEquivalent, ParamOf } from "./typing.ts";
 import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 
@@ -7,9 +7,9 @@ import { pairRight } from "./juxt.ts";
 
 export type Predicate =
   // deno-lint-ignore no-explicit-any
-  | ((_: any) => boolean)
+  | ((_: any) => BooleanEquivalent)
   // deno-lint-ignore no-explicit-any
-  | ((_: any) => Promise<boolean>);
+  | ((_: any) => Promise<BooleanEquivalent>);
 
 export const filter = <F extends Predicate>(f: F): (
   _: ParamOf<F>[],

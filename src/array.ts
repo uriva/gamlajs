@@ -7,7 +7,7 @@ export const join = (str: string) => (x: string[]) => x.join(str);
 
 type Primitive = string | number | null;
 
-export const length = (array: unknown[]) => array.length;
+export const length = <T>(array: T[]) => array.length;
 export const unique = <T>(key: (x: T) => Primitive) => (array: T[]) => {
   const seen = new Set();
   const result = [];

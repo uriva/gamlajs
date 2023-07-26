@@ -2,7 +2,8 @@ import { sideEffect } from "./composition.ts";
 
 export const log = sideEffect(console.log);
 export const logTable = sideEffect(console.table);
-export const logWith = <T>(...x: unknown[]) =>
+// deno-lint-ignore no-explicit-any
+export const logWith = <T>(...x: any[]) =>
   sideEffect<T>((y) => console.log(...x, y));
 
 const getTimestampMilliseconds = () => new Date().getTime();
