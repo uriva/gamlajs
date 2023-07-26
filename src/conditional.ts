@@ -16,7 +16,8 @@ export const ifElse = <
   Predicate extends PredicateType,
   // deno-lint-ignore no-explicit-any
   If extends (..._: Parameters<Predicate>) => any,
-  Else extends (..._: Parameters<Predicate>) => ReturnType<If>,
+  // deno-lint-ignore no-explicit-any
+  Else extends (..._: Parameters<Predicate>) => any,
 >(
   predicate: Predicate,
   fTrue: If,
@@ -25,8 +26,8 @@ export const ifElse = <
 (
   ...x: Parameters<Predicate>
 ): [Predicate, If, Else] extends AnyAsync<[Predicate, If, Else]>
-  ? Promise<Awaited<ReturnType<If>>>
-  : ReturnType<If> => {
+  ? Promise<Awaited<ReturnType<If>> | Awaited<ReturnType<Else>>>
+  : ReturnType<If> | ReturnType<Else> => {
   const result = predicate(...x);
   // @ts-ignore: too complex
   return result instanceof Promise

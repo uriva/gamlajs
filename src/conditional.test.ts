@@ -1,6 +1,7 @@
 import { cond, ifElse, unless, when } from "./conditional.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { pipe } from "./index.ts";
 import { wrapPromise } from "./promise.ts";
 
 Deno.test("ifElse async", async () => {
@@ -55,4 +56,10 @@ Deno.test("cond", () => {
     (_) => true,
     (_) => false,
   )(2),
+);
+
+pipe(
+  // @ts-expect-error the function after needs to handle the `null` case.
+  ifElse((x: number) => x > 7, (x: number) => x + 1, (_) => null),
+  (x: number) => x,
 );
