@@ -3,7 +3,7 @@ const identity = <T>(x: T) => x;
 export const any = anymap(identity<boolean>);
 export const allmap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.every(f);
 export const all = allmap(identity<boolean>);
-export const join = (str: string) => (x: string[]) => x.join(str);
+export const join = (str: string) => (x: (string | number)[]) => x.join(str);
 
 type Primitive = string | number | null;
 
