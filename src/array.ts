@@ -40,7 +40,8 @@ export const reverse = <Input extends unknown[]>(
 ): Reversed<Input> => array.slice().reverse() as Reversed<Input>;
 
 export const tail = (x: unknown[]) => x.slice(1);
-export const head = <T extends (unknown[] | string)>(x: T): T[0] => x[0];
+// deno-lint-ignore no-explicit-any
+export const head = <T extends (any[] | string)>(x: T): T[0] => x[0];
 export const init = (x: unknown[]) => x.slice(0, -1);
 export const second = <T extends (unknown[] | string)>(x: T): T[1] => x[1];
 export const third = <T extends (unknown[] | string)>(x: T): T[2] => x[2];
