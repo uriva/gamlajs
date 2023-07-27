@@ -1,9 +1,8 @@
 import { AnyAsync, Func } from "./typing.ts";
 import { after, identity, pipe } from "./composition.ts";
-import { all, any, zip } from "./array.ts";
+import { all, any, concat, zip } from "./array.ts";
 
 import { map } from "./map.ts";
-import { reduce } from "./reduce.ts";
 
 type AwaitedResults<Functions extends Func[]> = Promise<
   { [i in keyof Functions]: Awaited<ReturnType<Functions[i]>> }
@@ -41,16 +40,11 @@ export const stack = <Functions extends Func[]>(
   // @ts-expect-error reason: too complex
   pipe((values) => zip(functions, values), map(([f, x]) => f(x)));
 
-export const juxtCat = pipe(
-  juxt,
-  after(
-    reduce(
-      // deno-lint-ignore no-explicit-any
-      (a: any[], b: any[]) => a.concat(b),
-      () => [],
-    ),
-  ),
-);
+export const juxtCat = <Functions extends Func[]>(
+  ...fs: Functions
+): (..._: Parameters<Functions[0]>) => ReturnType<Functions[0]> =>
+  // @ts-expect-error too complex
+  pipe(juxt(...fs), concat);
 
 export const alljuxt = pipe(juxt, after(all));
 export const anyjuxt = pipe(juxt, after(any));
