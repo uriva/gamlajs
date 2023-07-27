@@ -11,17 +11,19 @@ import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
-type Arg<F> = F extends UnaryFn<infer A, unknown> ? A : never;
+type Arg<F extends Func> = Parameters<F>[0];
 // deno-lint-ignore no-explicit-any
 type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
 
 // Return F1 if its return type is assignable to F2's argument type, otherwise
 // return the required function type for the error message.
-type ValidCompose<F1, F2> = Res<F1> extends (Arg<F2> | Promise<Arg<F2>>) ? F1
-  : (arg: Arg<F1>) => Arg<F2>;
+type ValidCompose<F1 extends Func, F2 extends Func> = Res<F1> extends
+  (Arg<F2> | Promise<Arg<F2>>) ? F1
+  : (...arg: Parameters<F1>) => Arg<F2>;
 
 // For each function, validate the composition with its successor.
-type ValidPipe<FS> = FS extends [infer F1, infer F2, ...infer Rest]
+type ValidPipe<FS extends Func[]> = FS extends
+  [infer F1 extends Func, infer F2 extends Func, ...infer Rest extends Func[]]
   ? [ValidCompose<F1, F2>, ...ValidPipe<[F2, ...Rest]>] // tuple length >= 2
   : FS; // tuple length < 2
 

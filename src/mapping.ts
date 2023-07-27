@@ -1,5 +1,5 @@
 import { AsyncFunction, ElementOf, Func, ParamOf, Unary } from "./typing.ts";
-import { filter, Predicate } from "./filter.ts";
+import { Predicate, filter } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
@@ -88,8 +88,8 @@ const onEntries = <
   > =>
   // @ts-expect-error: too hard
   pipe(
-    // @ts-expect-error: too hard
     Object.entries,
+    // @ts-expect-error: too hard
     transformation,
     Object.fromEntries,
   );

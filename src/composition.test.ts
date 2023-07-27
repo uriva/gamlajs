@@ -75,10 +75,7 @@ pipe(
   (x: string) => x,
 )("a").then();
 
+// Check generics work as well.
 (<T, Fn extends (x: T) => number>(f: Fn) => {
-  const g = (x: T) => x;
-  const h = (_: T) => 1;
-  // @ts-expect-error expected bug in ts
-  pipe(g, f);
-  pipe(g, h);
+  pipe((x: T) => x, f);
 });
