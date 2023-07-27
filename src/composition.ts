@@ -1,4 +1,10 @@
-import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
+import {
+  AnyAsync,
+  AsyncFunction,
+  BooleanEquivalent,
+  Func,
+  Last,
+} from "./typing.ts";
 import { reverse, Reversed } from "./array.ts";
 
 import { not } from "./operator.ts";
@@ -52,9 +58,9 @@ export const before =
 export const complement = (
   f:
     // deno-lint-ignore no-explicit-any
-    | ((..._: any[]) => boolean)
+    | ((..._: any[]) => BooleanEquivalent)
     // deno-lint-ignore no-explicit-any
-    | ((..._: any[]) => Promise<boolean>),
+    | ((..._: any[]) => Promise<BooleanEquivalent>),
 ) => pipe(f, not);
 
 export const sideEffect = <T>(f: (_: T) => void) => (x: T) => {

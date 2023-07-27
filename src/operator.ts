@@ -1,6 +1,8 @@
+import { BooleanEquivalent } from "./typing.ts";
+
 export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
   constructor(value);
-export const not = (x: boolean) => !x;
+export const not = (x: BooleanEquivalent) => !x;
 export const prop = <T>() => <K extends keyof T>(key: K) => (x: T): T[K] =>
   x[key];
 
