@@ -1,13 +1,14 @@
+import { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
 
-// deno-lint-ignore no-explicit-any
-export const withLock = <Args extends any[]>(
+export const withLock = <Function extends AsyncFunction>(
   lock: () => void | Promise<void>,
   unlock: () => void | Promise<void>,
-  // deno-lint-ignore no-explicit-any
-  f: (..._: Args) => any,
+  f: Function,
 ) =>
-async (...args: Args) => {
+async (
+  ...args: Parameters<Function>
+): Promise<Awaited<ReturnType<Function>>> => {
   await lock();
   try {
     const result = await f(...args);
@@ -29,15 +30,13 @@ export const makeLockWithId =
   <Key>(set: (_: Key) => boolean | Promise<boolean>) => (id: Key) =>
     retry(() => set(id));
 
-// deno-lint-ignore no-explicit-any
-export const withLockByInput = <Args extends any[]>(
-  argsToLockId: (..._: Args) => string,
+export const withLockByInput = <Function extends AsyncFunction>(
+  argsToLockId: (..._: Parameters<Function>) => string,
   lock: (_: string) => Promise<void>,
   unlock: (_: string) => Promise<void>,
-  // deno-lint-ignore no-explicit-any
-  f: (..._: Args) => any,
+  f: Function,
 ) =>
-(...args: Args) => {
+(...args: Parameters<Function>) => {
   const lockId = argsToLockId(...args);
   return withLock(
     () => lock(lockId),
@@ -45,13 +44,16 @@ export const withLockByInput = <Args extends any[]>(
     f,
   )(...args);
 };
-// deno-lint-ignore no-explicit-any
-export const sequentialized = <Args extends any[]>(f: (..._: Args) => any) => {
-  // deno-lint-ignore no-explicit-any
-  type QueueElement = [Args, (_: any) => void, (_: any) => void];
+export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
+  type QueueElement = [
+    Parameters<Function>,
+    (_: Awaited<ReturnType<Function>>) => void,
+    // deno-lint-ignore no-explicit-any
+    (_: any) => void,
+  ];
   const queue: QueueElement[] = [];
   const lock = { isLocked: false };
-  return (...args: Args) =>
+  return (...args: Parameters<Function>) =>
     // deno-lint-ignore no-async-promise-executor
     new Promise(async (resolve, reject) => {
       queue.push([args, resolve, reject]);
@@ -69,13 +71,12 @@ export const sequentialized = <Args extends any[]>(f: (..._: Args) => any) => {
     });
 };
 
-// deno-lint-ignore no-explicit-any
-export const throttle = <Function extends (..._: any[]) => any>(
+export const throttle = <Function extends AsyncFunction>(
   maxParallelism: number,
   f: Function,
 ) => {
   const lockObj = { count: 0 };
-  return withLock<Parameters<Function>>(
+  return withLock(
     () =>
       retry(() => {
         if (lockObj.count < maxParallelism) {

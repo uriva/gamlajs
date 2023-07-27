@@ -59,14 +59,14 @@ Deno.test("lock by input", async () => {
     return true;
   });
   const results1: number[] = [];
-  const f1 = withLockByInput<[string, number]>(
+  const f1 = withLockByInput(
     (x: string) => x,
     lock,
     unlock,
     (_, ms) => pushToArrayAfterMs(results1)(ms),
   );
   const results2: number[] = [];
-  const f2 = withLockByInput<[string, number]>(
+  const f2 = withLockByInput(
     (x: string) => x,
     lock,
     unlock,
