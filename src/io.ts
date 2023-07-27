@@ -11,17 +11,17 @@ const executeTasks = <TaskInput, Output>(
   execute: Executor<TaskInput, Output>,
 ) =>
   pipe(
-    // @ts-ignore reason: pipe can't figure out the typing here.
+    // @ts-expect-error reason: pipe can't figure out the typing here.
     applySpec({
       input: map(prop<Task<TaskInput, Output>>()("input")),
       reject: pipe(
         map(prop<Task<TaskInput, Output>>()("reject")),
-        // @ts-ignore reason: TODO - fix typing
+        // @ts-expect-error reason: TODO - fix typing
         spread(juxt),
       ),
       resolve: pipe(
         map(prop<Task<TaskInput, Output>>()("resolve")),
-        // @ts-ignore reason: TODO - fix typing
+        // @ts-expect-error reason: TODO - fix typing
         spread(stack),
       ),
     }),

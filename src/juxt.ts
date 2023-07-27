@@ -25,7 +25,7 @@ export const juxt =
       result.push(f(...x));
       anyAsync = anyAsync || result[result.length - 1] instanceof Promise;
     }
-    // @ts-ignore reason=ts does not understand me :_(
+    // @ts-expect-error reason=ts does not understand me :_(
     return anyAsync ? Promise.all(result) : result;
   };
 
@@ -38,12 +38,8 @@ export const stack = <Functions extends Func[]>(
 ): (
   _: { [i in keyof Functions]: Parameters<Functions[i]>[0] },
 ) => JuxtOutput<Functions> =>
-  // @ts-ignore reason: too complex
-  pipe(
-    (values) => zip(functions, values),
-    // @ts-ignore reason: too complex
-    map(([f, x]) => f(x)),
-  );
+  // @ts-expect-error reason: too complex
+  pipe((values) => zip(functions, values), map(([f, x]) => f(x)));
 
 export const juxtCat = pipe(
   juxt,

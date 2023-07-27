@@ -14,7 +14,7 @@ export type Predicate =
 export const filter = <F extends Predicate>(f: F): (
   _: ParamOf<F>[],
 ) => F extends AsyncFunction ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
-  // @ts-ignore typing head is hard.
+  // @ts-expect-error typing head is hard.
   pipe(
     map(pairRight(f)),
     (array) => array.filter(second),

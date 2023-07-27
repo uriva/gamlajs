@@ -31,18 +31,18 @@ type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
 export const pipe = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
 ): Pipeline<Fs> =>
-// @ts-ignore reason: TODO - fix typing
+// @ts-expect-error TODO - fix typing
 (...x) => reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1));
 
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
 ): Fs extends ValidPipe<Reversed<Fs>> ? Pipeline<Reversed<Fs>> : never =>
-  // @ts-ignore reason: TODO - fix typing
+  // @ts-expect-error reason: TODO - fix typing
   pipe(...reverse(fs));
 
 export const after =
   <T>(f: UnaryFn<T, unknown>) => <L extends unknown[]>(g: (...args: L) => T) =>
-    // @ts-ignore reason: difference between deno compiler and node
+    // @ts-ignore: difference between deno compiler and node
     pipe(g, f);
 
 export const before =

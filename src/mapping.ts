@@ -32,7 +32,7 @@ export const groupByReduce = <T, S, K extends Primitive>(
   reducer: Reducer<T, S>,
   initial: () => S,
 ): (_: T[]) => Record<K, S> =>
-  // @ts-ignore reason: TODO - fix typing
+  // @ts-expect-error reason: TODO - fix typing
   groupByManyReduce(pipe(key, wrapArray), reducer, initial);
 
 export const groupByMany = <T, K extends Primitive>(keys: (_: T) => K[]) =>
@@ -52,7 +52,7 @@ export const addEntry =
   });
 
 export const groupBy = <T, K extends Primitive>(f: Unary<T, K>) =>
-  // @ts-ignore reason: TODO - fix typing
+  // @ts-expect-error reason: TODO - fix typing
   groupByMany<T, K>(pipe(f, wrapArray));
 
 type Node = Primitive;
@@ -88,9 +88,9 @@ const onEntries = <
     ElementOf<Awaited<ReturnType<Function>>>[0],
     ElementOf<Awaited<ReturnType<Function>>>[1]
   > =>
-  // @ts-ignore: too hard
+  // @ts-expect-error: too hard
   pipe(
-    // @ts-ignore: too hard
+    // @ts-expect-error: too hard
     Object.entries,
     transformation,
     Object.fromEntries,
@@ -110,21 +110,19 @@ export const entryFilter = <
 type RecordKey = string | number | symbol;
 
 export const valFilter = (f: Predicate) =>
-  // @ts-ignore reason: TODO - fix typing
+  // @ts-expect-error reason: TODO - fix typing
   entryFilter(pipe(second, f));
 
 export const keyFilter = <Function>(f: Function) =>
-  // @ts-ignore reason: TODO - fix typing
+  // @ts-expect-error reason: TODO - fix typing
   entryFilter(pipe(head, f));
 
 export const valMap = <OldValue, NewValue>(f: (v: OldValue) => NewValue) =>
-  // @ts-ignore reason: TODO - fix typing
   entryMap(stack(identity, f));
 
 export const keyMap = <OldKey extends RecordKey, NewKey extends RecordKey>(
   f: (v: OldKey) => NewKey,
 ): (_: Record<OldKey, unknown>) => Record<NewKey, unknown> =>
-  // @ts-ignore reason: TODO - fix typing
   entryMap(stack(f, identity));
 
 // Record is untyped but it should have a recursive definition.

@@ -29,7 +29,6 @@ export const ifElse = <
   ? Promise<Awaited<ReturnType<If>> | Awaited<ReturnType<Else>>>
   : ReturnType<If> | ReturnType<Else> => {
   const result = predicate(...x);
-  // @ts-ignore: too complex
   return result instanceof Promise
     ? result.then((predicateResult) =>
       predicateResult ? fTrue(...x) : fFalse(...x)
@@ -78,7 +77,6 @@ export const cond = <CondElements extends CondElement<any[]>[]>(
 ) =>
   pipe(
     filter(pipe(head, (predicate) => predicate(...x))),
-    // @ts-ignore too complex
     head,
     second,
     (f) => f(...x),
