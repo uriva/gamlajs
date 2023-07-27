@@ -1,5 +1,5 @@
 import { AnyAsync, Func } from "./typing.ts";
-import { after, pipe } from "./composition.ts";
+import { after, identity, pipe } from "./composition.ts";
 import { all, any, zip } from "./array.ts";
 
 import { map } from "./map.ts";
@@ -31,7 +31,7 @@ export const juxt =
 
 // deno-lint-ignore no-explicit-any
 export const pairRight = <Function extends (_: any) => any>(f: Function) =>
-  juxt((x) => x, f);
+  juxt(identity<Parameters<Function>[0]>, f);
 
 export const stack = <Functions extends Func[]>(
   ...functions: Functions

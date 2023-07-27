@@ -1,4 +1,4 @@
-import { AsyncFunction, Func, ParamOf, Unary } from "./typing.ts";
+import { AsyncFunction, ElementOf, Func, ParamOf, Unary } from "./typing.ts";
 import { filter, Predicate } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
@@ -65,8 +65,6 @@ export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
   },
   () => new Set(),
 );
-
-type ElementOf<T> = T extends (infer X)[] ? X : never;
 
 const onEntries = <
   // deno-lint-ignore no-explicit-any

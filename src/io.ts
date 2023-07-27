@@ -1,6 +1,7 @@
 import { juxt, pairRight, stack } from "./juxt.ts";
 import { prop, spread } from "./operator.ts";
 
+import { ElementOf } from "./typing.ts";
 import { applySpec } from "./mapping.ts";
 import { map } from "./map.ts";
 import { pipe } from "./composition.ts";
@@ -41,7 +42,7 @@ type Task<TaskInput, Output> = {
 };
 
 /**
- * Queues the "execute" function until the condition is met or maxWaitTime has passed.
+ * Queues the `execute` function until the condition is met or `maxWaitTime` has passed.
  * Once one of the above happens we flush the queue and run the execute functions
  */
 export const batch = <
@@ -71,8 +72,9 @@ export const batch = <
   };
 
   return pipe(
+    // @ts-expect-error - suspected bug in ts
     pairRight(keyFn),
-    ([input, key]: [TaskInput, TaskKey]) =>
+    ([input, key]: [TaskInput, TaskKey]): Promise<ElementOf<Output>> =>
       new Promise((resolve, reject) => {
         keyToTasks[key] = [
           ...((keyToTasks[key] || []) as Task<TaskInput, Output>[]),

@@ -27,3 +27,5 @@ export type Tail<L extends unknown[]> = L extends
 // deno-lint-ignore no-explicit-any
 export type Second<T extends any[]> = T extends [any, infer S, ...unknown[]] ? S
   : never;
+
+export type ElementOf<T> = T extends (infer X)[] ? X : never;

@@ -74,3 +74,11 @@ pipe(
   (x: string) => Promise.resolve(x),
   (x: string) => x,
 )("a").then();
+
+(<T, Fn extends (x: T) => number>(f: Fn) => {
+  const g = (x: T) => x;
+  const h = (_: T) => 1;
+  // @ts-expect-error expected bug in ts
+  pipe(g, f);
+  pipe(g, h);
+});
