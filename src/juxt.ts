@@ -46,5 +46,18 @@ export const juxtCat = <Functions extends Func[]>(
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
-export const alljuxt = pipe(juxt, after(all));
-export const anyjuxt = pipe(juxt, after(any));
+export const alljuxt = <Functions extends Func[]>(
+  ...fs: Functions
+): (
+  ..._: Parameters<Functions[0]>
+) => Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean =>
+  // @ts-expect-error too complex
+  pipe(juxt(...fs), all);
+
+export const anyjuxt = <Functions extends Func[]>(
+  ...fs: Functions
+): (
+  ..._: Parameters<Functions[0]>
+) => Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean =>
+  // @ts-expect-error too complex
+  pipe(juxt(...fs), any);

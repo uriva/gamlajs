@@ -3,6 +3,7 @@ import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { map } from "./map.ts";
 import { multiply } from "./math.ts";
+import { not } from "./operator.ts";
 import { pipe } from "./composition.ts";
 import { wrapPromise } from "./promise.ts";
 
@@ -73,3 +74,21 @@ Deno.test("alljuxt", () => {
     false,
   );
 });
+
+// Check `anyjuxt` reports typing correctly.
+pipe(
+  anyjuxt(
+    (x: number) => x > 7,
+    (x: number) => x > 1,
+  ),
+  not,
+);
+
+// Check `alljuxt` reports typing correctly.
+pipe(
+  alljuxt(
+    (x: number) => x > 7,
+    (x: number) => Promise.resolve(x > 1),
+  ),
+  not,
+);
