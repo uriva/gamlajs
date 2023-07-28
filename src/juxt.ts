@@ -1,5 +1,5 @@
 import { AnyAsync, Func } from "./typing.ts";
-import { after, identity, pipe } from "./composition.ts";
+import { identity, pipe } from "./composition.ts";
 import { all, any, concat, zip } from "./array.ts";
 
 import { map } from "./map.ts";

@@ -12,15 +12,6 @@ repos:
         entry: deno lint --unstable
         language: system
         types: [file, ts]
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v8.23.1
-    hooks:
-      - id: eslint
-        entry: eslint --fix --ext js,jsx .
-        files: \.(js|jsx|md)$
-        additional_dependencies:
-          - eslint-plugin-sort-requires@latest
-          - eslint@latest
   - repo: https://github.com/codespell-project/codespell
     rev: v2.2.1
     hooks:
