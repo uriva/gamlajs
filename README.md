@@ -19,7 +19,7 @@ It has two main advantages over similar libs:
 A basic example:
 
 ```ts
-const wordHistogram = pipe(
+const histogram = pipe(
   split(""),
   filter(complement(anyjuxt(equals(" "), equals("'")))),
   // The function here is async.
@@ -27,5 +27,5 @@ const wordHistogram = pipe(
   sideEffect(console.log),
 );
 
-await wordHistogram("let's see how many times each letter appears here");
+await histogram("let's see how many times each letter appears here");
 ```

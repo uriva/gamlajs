@@ -8,7 +8,7 @@ import { reduce } from "./src/reduce.ts";
 import { split } from "./src/string.ts";
 
 Deno.test("check docs example works", async () => {
-  const wordHistogram = pipe(
+  const histogram = pipe(
     split(""),
     filter(complement(anyjuxt(equals(" "), equals("'")))),
     reduce(
@@ -20,7 +20,7 @@ Deno.test("check docs example works", async () => {
   );
 
   assertEquals(
-    await wordHistogram("let's see how many times each letter appears here"),
+    await histogram("let's see how many times each letter appears here"),
     {
       l: 2,
       e: 10,
