@@ -19,33 +19,13 @@ It has two main advantages over similar libs:
 A basic example:
 
 ```ts
-// Keeps typing information.
-const wordHistogram: (text: string) => Record<string, number> = pipe(
+const wordHistogram = pipe(
   split(""),
   filter(complement(anyjuxt(equals(" "), equals("'")))),
   // The function here is async.
-  reduce((x, y) => Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }), () => 0),
+  reduce((x, y) => Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }), () => ({})),
   sideEffect(console.log),
 );
 
-assertEquals(
-  await wordHistogram("let's see how many times each letter appears here"),
-  {
-    l: 2,
-    e: 10,
-    t: 4,
-    s: 4,
-    h: 3,
-    o: 1,
-    w: 1,
-    m: 2,
-    a: 4,
-    n: 1,
-    y: 1,
-    i: 1,
-    c: 1,
-    r: 3,
-    p: 2,
-  },
-);
+await wordHistogram("let's see how many times each letter appears here");
 ```

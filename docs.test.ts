@@ -8,10 +8,14 @@ import { reduce } from "./src/reduce.ts";
 import { split } from "./src/string.ts";
 
 Deno.test("check docs example works", async () => {
-  const wordHistogram: (text: string) => Record<string, number> = pipe(
+  const wordHistogram = pipe(
     split(""),
     filter(complement(anyjuxt(equals(" "), equals("'")))),
-    reduce((x, y) => Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }), () => 0),
+    reduce(
+      (x, y): Promise<Record<string, number>> =>
+        Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }),
+      () => ({}),
+    ),
     sideEffect(console.log),
   );
 
