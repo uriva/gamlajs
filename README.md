@@ -1,4 +1,6 @@
-# Functional programming library for Javascript
+# Gamla
+
+`gamla` is a functional programming library for Javascript/Typescript.
 
 ## Installation
 
