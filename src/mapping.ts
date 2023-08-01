@@ -1,9 +1,9 @@
 import { AsyncFunction, ElementOf, Func, ParamOf, Unary } from "./typing.ts";
-import { Predicate, filter } from "./filter.ts";
+import { filter, Predicate } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
-import { Map } from "npm:immutable";
+import { Map } from "https://deno.land/x/immutable@4.0.0-rc.14-deno/mod.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.ts";
@@ -151,7 +151,7 @@ const getter =
   };
 
 const nonterminalGetter = <K, Terminal>(index: Index<K, Terminal>, key: K) =>
-  getter<K, Index<K, Terminal>>(() => Map())(
+  getter<K, Index<K, Terminal>>(() => Map<K, Index<K, Terminal>>())(
     index as Index<K, Index<K, Terminal>>,
     key,
   );
