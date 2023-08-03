@@ -1,4 +1,4 @@
-import { complement, pipe, sideEffect } from "./src/composition.ts";
+import { complement, pipe } from "./src/composition.ts";
 
 import { anyjuxt } from "./src/juxt.ts";
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
@@ -16,7 +16,6 @@ Deno.test("check docs example works", async () => {
         Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }),
       () => ({}),
     ),
-    sideEffect(console.log),
   );
 
   assertEquals(
