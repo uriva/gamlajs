@@ -3,7 +3,6 @@ import {
   applySpec,
   edgesToGraph,
   groupBy,
-  index,
   keyFilter,
   keyMap,
   mapTerminals,
@@ -11,9 +10,9 @@ import {
   valMap,
   wrapObject,
 } from "./mapping.ts";
-import { head, second } from "./array.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { head } from "./array.ts";
 import { wrapPromise } from "./promise.ts";
 
 Deno.test("keyFilter", () => {
@@ -83,31 +82,6 @@ Deno.test("applySpec async", async () => {
     })({ x: 1, y: 2 }),
     { a: 1, b: { a: 2 } },
   );
-});
-
-Deno.test("index", () => {
-  type Element = [number, number, number];
-  const { build, query, insert } = index<Element, number, Element[]>(
-    [head<Element>, second<Element>],
-    (x, y) => {
-      x.push(y);
-      return x;
-    },
-    () => [],
-  );
-  const queryDb = query(
-    insert(build(), [
-      [1, 2, 8],
-      [3, 4, 7],
-      [1, 2, 5],
-    ]),
-  );
-  assertEquals(queryDb([3, 4]), [[3, 4, 7]]);
-  assertEquals(queryDb([1, 2]), [
-    [1, 2, 8],
-    [1, 2, 5],
-  ]);
-  assertEquals(queryDb([9, 15]), []);
 });
 
 Deno.test("groupBy", () => {
