@@ -31,3 +31,14 @@ const histogram = pipe(
 
 await histogram("let's see how many times each letter appears here");
 ```
+
+## Use case: throttling and mapping
+
+- you have a list of 1000 items
+- you have an async function `process(item)`
+- you need to process all items
+- it needs to be done concurrently, but not more than 25 at a time
+
+then you can just do
+
+`map(throttle(25, process))(items)`
