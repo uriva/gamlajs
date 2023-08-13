@@ -1,4 +1,4 @@
-import { BooleanEquivalent } from "./typing.ts";
+import { BooleanEquivalent, Func } from "./typing.ts";
 
 export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
   constructor(value);
@@ -16,7 +16,5 @@ export const between = (start: number, end: number) => (x: number) =>
   start <= x && x < end;
 export const unspread = <Inputs extends unknown[]>(...stuff: Inputs): Inputs =>
   stuff;
-export const spread =
-  <Func extends (..._: unknown[]) => unknown>(f: Func) =>
-  (x: Parameters<Func>) => f(...x);
+export const spread = <F extends Func>(f: F) => (x: Parameters<F>) => f(...x);
 export const modulo = (y: number) => (x: number) => x % y;
