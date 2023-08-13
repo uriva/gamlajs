@@ -15,37 +15,84 @@ This library allows you to write in typescript/javascript using composition.
 It has two main advantages over similar libs:
 
 1. It supports mixing async and sync functions
-1. It keeps the type information, so you still get type safety when programming
-   in pipelines.
+1. As oppposed to `ramda` and other libraries it keeps typing information, so
+   you get type safety when programming in pipelines.
 
-A basic example:
+## Use cases
+
+### Basic Example
 
 ```ts
-const histogram = pipe(
-  split(""),
-  filter(complement(anyjuxt(equals(" "), equals("'")))),
-  // The function here is async.
-  reduce((x, y) => Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }), () => ({})),
-  sideEffect(console.log),
+type Person = { name: string; age: number };
+
+const people: Person[] = [
+  { name: "alice", age: 28 },
+  { name: "bob", age: 22 },
+  { name: "carroll", age: 76 },
+];
+
+const getNamesOfPeopleOlderThan25 = pipe(
+  filter(({ age }) => age > 25),
+  sideEffect(console.log), // Log mid pipeline.
+  map(({ name }) => name), // get names only
+  join(", "),
 );
 
-await histogram("let's see how many times each letter appears here");
+console.log(getNamesOfPeopleOlderThan25(people)); // "alice, carroll"
 ```
 
-Another example:
+### Async programming
+
+Let's imagine you want to call a remote server for some information. Usually
+this means refactoring your entire program to async functions. Writing in
+pipelines let's you change whatever you want with no collateral refactoring
+needed.
+
+```ts
+// Call some remote server to get hobbies for a person.
+const getHobbies = async (person: Person): string[] => {...} 
+
+const isAnyoneUnder25InterestedInGolfing = pipe(
+  filter(({ age }: Person) => age < 25),
+  // Async function mid pipeline, even tho functions before and after are not.
+  // Also flatten the result.
+  mapCat(getHobbies),
+  includes('golfing'),
+);
+
+console.log(await isAnyoneUnder25InterestedInGolfing(people)); // probably `false` :)
+```
+
+### IO and multithreading
+
+`gamla` also has a bunch of methods to facilitate parallel IO operations.
+Consider the following case:
 
 - you have a list of 1000 items
 - you have an async function `process(item)`
 - you need to process all items
 - it needs to be done concurrently, but not more than 25 at a time
 
-then you can just do
+This seemingly complex list of requirements is a simple readable one liner:
 
-`map(throttle(25, process))(items)`
+```ts
+map(throttle(25, process))(items);
+```
 
-And here is a list of all functions:
+`gamla` preserves typing, so if you by accident you write something like this:
 
-## Function: anymap
+```ts
+const typingMismatch = pipe(
+  filter(({ age }: Person) => age < 25),
+  (x: number) => x + 1, // The result of `filter` here is an array of `Person`, not a number!
+);
+```
+
+You will get a typing error.
+
+## API
+
+### anymap
 
 ```typescript
 anymap<X>(f: (x: X) => boolean): (xs: X[]) => boolean
@@ -55,7 +102,7 @@ The `anymap` function takes a predicate function `f` and returns a new function
 that takes an array `xs` and checks if any element in the array satisfies the
 predicate `f`. It returns a boolean value indicating the result.
 
-### Example:
+#### Example
 
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
@@ -71,7 +118,7 @@ In the example above, the `anymap` function is used to create a new function
 `anyEven` that checks if any number in an array is even. The result is `true`
 because there is at least one even number in the array `[1, 2, 3, 4, 5]`.
 
-## Function: allmap
+### allmap
 
 `(f: (x: X) => boolean) => (xs: X[]) => xs.every(f)`
 
@@ -79,19 +126,19 @@ This function takes a predicate function `f` and returns a new function that
 takes an array `xs` and returns `true` if `f` returns `true` for every element
 in `xs`, or `false` otherwise.
 
-### Parameters:
+#### Parameters:
 
 - `f: (x: X) => boolean` - A predicate function that takes an element `x` of
   type `X` and returns a boolean value. It determines the condition to be
   checked for each element in the input array.
 
-### Returns:
+#### Returns:
 
 - `(xs: X[]) => boolean` - A function that takes an array `xs` of type `X` and
   returns `true` if `f` returns `true` for every element in `xs`, or `false`
   otherwise.
 
-### Example:
+#### Example
 
 ```typescript
 const isEven = (x: number) => x % 2 === 0;
@@ -107,7 +154,7 @@ In the above example, the `allNumbersEven` function is created by passing the
 `[2, 4, 6, 8]` is even using the `isEven` function. The resulting value is
 `true`, as all numbers in the array are even.
 
-## `join`
+### `join`
 
 Signature: `(str: string) => (x: (string | number)[]) => string`
 
@@ -116,7 +163,7 @@ a new function. The returned function takes an array `x` of `string` or `number`
 elements and joins them into a single string using the specified separator
 `str`.
 
-Example:
+Example
 
 ```javascript
 const numbers = [1, 2, 3, 4, 5];
@@ -133,26 +180,26 @@ Output:
 The function is curried, allowing you to partially apply the string separator
 before applying it to the array.
 
-## length
+### length
 
 Returns the number of elements in an array.
 
-### Signature
+#### Signature
 
 ```typescript
 length<T>(array: T[]): number
 ```
 
-### Parameters
+#### Parameters
 
 - `array`: An array of type `T[]`. The array for which the length is to be
   determined.
 
-### Returns
+#### Returns
 
 The function returns a number representing the number of elements in the array.
 
-### Example
+#### Example
 
 ```typescript
 const array = [1, 2, 3, 4, 5];
@@ -160,7 +207,7 @@ const result = length(array);
 console.log(result); // Output: 5
 ```
 
-## unique
+### unique
 
 ```typescript
 unique<T>(key: (x: T) => Primitive): (array: T[]) => any[]
@@ -171,7 +218,7 @@ array with unique items based on the key.
 
 - `key`: A function that extracts a primitive value from each item in the array.
 
-**Example:**
+**Example**
 
 ```typescript
 const array = [
@@ -196,7 +243,7 @@ In this example, the `unique` function is used to remove duplicates from the
 array of objects based on the `id` property. The resulting array only contains
 objects with unique `id` values.
 
-## concat
+### concat
 
 Concatenates an array of arrays into a single array.
 
@@ -226,7 +273,7 @@ In the example above, the `concat` function is called with an input array
 `[[1, 2], [3, 4], [5, 6]]`. It returns a new array `[1, 2, 3, 4, 5, 6]` where
 the elements from the sub-arrays are concatenated into a single array.
 
-## reverse
+### reverse
 
 **Signature:** `reverse(array: Input): Reversed<Input>`
 
@@ -239,7 +286,7 @@ the elements from the sub-arrays are concatenated into a single array.
 The `reverse` function takes an array and returns a new array with the elements
 reversed.
 
-**Example:**
+**Example**
 
 ```typescript
 const arr = [1, 2, 3, 4];
@@ -247,7 +294,7 @@ const reversedArray = reverse(arr);
 console.log(reversedArray); // Output: [4, 3, 2, 1]
 ```
 
-## tail
+### tail
 
 ```typescript
 tail(x: unknown[]): unknown[]
@@ -256,7 +303,7 @@ tail(x: unknown[]): unknown[]
 The `tail` function takes an array `x` and returns a new array with all the
 elements except the first element.
 
-### Example
+#### Example
 
 ```typescript
 const arr = [1, 2, 3, 4, 5];
@@ -269,25 +316,25 @@ In the example above, the `tail` function is used to remove the first element of
 the `arr` array. The resulting array `[2, 3, 4, 5]` is then stored in the
 `result` variable and logged to the console.
 
-## `head`
+### `head`
 
 Returns the first element of an array or string.
 
-### Signature
+#### Signature
 
 ```typescript
 head<T extends (any[] | string)>(x: T): T[0]
 ```
 
-### Parameters
+#### Parameters
 
 - `x`: The array or string from which to retrieve the first element.
 
-### Returns
+#### Returns
 
 The first element of the given array or string.
 
-### Example
+#### Example
 
 ```typescript
 const arr = [1, 2, 3, 4];
@@ -297,22 +344,22 @@ const firstElementOfArr = head(arr); // 1
 const firstCharacterOfStr = head(str); // "H"
 ```
 
-## init
+### init
 
 `init(x: unknown[]): unknown[]`
 
 This function takes an array `x` and returns a new array with all elements
 except the last one.
 
-### Parameters
+#### Parameters
 
 - `x: unknown[]`: The array to be modified.
 
-### Returns
+#### Returns
 
 - `unknown[]`: A new array with all elements of `x` except the last one.
 
-### Example
+#### Example
 
 ```javascript
 const arr = [1, 2, 3, 4, 5];
@@ -324,7 +371,7 @@ In the above example, the `init` function is called with the `arr` array as an
 argument. The function returns a new array `[1, 2, 3, 4]`, which contains all
 elements of the original array `arr` except the last one.
 
-## `second`
+### `second`
 
 ```typescript
 function second<T extends (unknown[] | string)>(x: T): T[1];
@@ -333,7 +380,7 @@ function second<T extends (unknown[] | string)>(x: T): T[1];
 The `second` function takes an argument `x` of type `T`, where `T` is an array
 or a string. It returns the second element (index `1`) of the array or string.
 
-### Example:
+#### Example
 
 ```typescript
 console.log(second([1, 2, 3])); // Output: 2
@@ -344,7 +391,7 @@ In the first example, the `second` function returns `2`, which is the second
 element in the array `[1, 2, 3]`. In the second example, it returns `'e'`, which
 is the second character in the string `'hello'`.
 
-## third
+### third
 
 **Signature:** `function third<T extends (unknown[] | string)>(x: T): T[2]`
 
@@ -353,21 +400,21 @@ Returns the third element of the input array or string.
 - `T` generic type that extends an array or string.
 - `x` the input array or string.
 
-**Example:**
+**Example**
 
 ```typescript
 third([1, 2, 3, 4]); // returns 3
 third("hello"); // returns 'l'
 ```
 
-## last
+### last
 
 **Signature:** `<T>(x: T[]) => x[x.length - 1]`
 
 The `last` function takes an array `x` of type `T[]` and returns the last
 element of the array.
 
-**Example:**
+**Example**
 
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
@@ -381,7 +428,7 @@ const lastName = last(names);
 console.log(lastName); // Output: "David"
 ```
 
-## empty
+### empty
 
 ```typescript
 empty<T>(x: T[]): boolean
@@ -389,15 +436,15 @@ empty<T>(x: T[]): boolean
 
 This function checks if an array is empty.
 
-### Parameters
+#### Parameters
 
 - `x: T[]` - The array to check if it is empty.
 
-### Returns
+#### Returns
 
 - `boolean` - Returns `true` if the array is empty, `false` otherwise.
 
-### Example
+#### Example
 
 ```typescript
 const arr1 = [1, 2, 3];
@@ -407,19 +454,19 @@ empty(arr1); // false
 empty(arr2); // true
 ```
 
-## `nonempty(x: T[]): boolean`
+### `nonempty(x: T[]): boolean`
 
 This function checks if an array `x` is non-empty.
 
-### Parameters
+#### Parameters
 
 - `x: T[]` - an array of any type `T`
 
-### Returns
+#### Returns
 
 - `boolean` - `true` if the array `x` is non-empty, `false` otherwise
 
-### Example
+#### Example
 
 ```typescript
 const arr1: number[] = [1, 2, 3];
@@ -431,16 +478,16 @@ console.log(nonempty(arr2)); // Output: false
 console.log(nonempty(arr3)); // Output: true
 ```
 
-## wrapArray
+### wrapArray
 
 **Signature:** `(x: T) => T[]`
 
-### Description:
+#### Description:
 
 This function takes an input value `x` and returns an array containing `x` as
 its only element. It essentially wraps the given value in an array.
 
-### Example:
+#### Example
 
 ```typescript
 wrapArray("hello"); // returns ["hello"]
@@ -448,7 +495,7 @@ wrapArray(42); // returns [42]
 wrapArray({ name: "John", age: 25 }); // returns [{ name: "John", age: 25 }]
 ```
 
-## zip
+### zip
 
 ```typescript
 zip<T extends unknown[][]>(
@@ -460,19 +507,19 @@ The `zip` function takes in multiple arrays as arguments (spread syntax) and
 returns a new array composed of the corresponding elements from each input
 array.
 
-### Parameters
+#### Parameters
 
 - `...args: T`: The arrays to zip together. The type `T` represents a tuple of
   arrays, where each array may have different element types.
 
-### Return Type
+#### Return Type
 
 The return type is an array of tuples, where each tuple contains the
 corresponding elements from the input arrays. The element types of the tuples
 are inferred from the input arrays, and any arrays with different element types
 will result in a type of `never` for that position in the resulting tuple.
 
-### Example
+#### Example
 
 ```typescript
 const array1 = [1, 2, 3];
@@ -492,7 +539,7 @@ element types. The resulting `zipped` array contains tuples where the first
 element is a number, the second element is a string, and the third element is a
 boolean.
 
-## sortCompare
+### sortCompare
 
 ```typescript
 comparator:
@@ -502,7 +549,7 @@ comparator:
 The `sortCompare` function is a higher-order function that takes a `comparator`
 function as input and returns a new function that can be used to sort an array.
 
-### Example
+#### Example
 
 ```typescript
 const numbers = [3, 1, 2];
@@ -515,28 +562,28 @@ In this example, the `sortCompare` function is used to sort an array of numbers
 in descending order using a custom `comparator` function. The resulting sorted
 array is then logged to the console.
 
-## sortKey
+### sortKey
 
 `sortKey` is a higher-order function that takes a `key` function as a parameter
 and returns a `sortCompare` function.
 
-### Signature
+#### Signature
 
 ```typescript
 sortKey<X>(key: (_: X) => Comparable): (xs: X[]) => X[]
 ```
 
-### Parameters
+#### Parameters
 
 - `key` : A function that takes an element of type `X` and returns a value of
   type `Comparable`. This value will be used to compare elements during sorting.
 
-### Return Type
+#### Return Type
 
 - `(xs: X[]) => X[]` : A function that takes an array of type `X` and returns a
   sorted array of type `X` based on the `key` function.
 
-### Example
+#### Example
 
 ```typescript
 const sortByAge = sortKey((person) => person.age);
@@ -561,7 +608,7 @@ used to sort the `people` array and the result is stored in the `sortedPeople`
 array. The `sortedPeople` array is then printed to the console showing the
 sorted order based on the age of the people.
 
-## range
+### range
 
 ```typescript
 range(start: number, end: number): any[]
@@ -569,16 +616,16 @@ range(start: number, end: number): any[]
 
 Creates an array of numbers from `start` to `end` (exclusive).
 
-### Parameters
+#### Parameters
 
 - `start`: The starting number of the range.
 - `end`: The ending number of the range (exclusive).
 
-### Return Type
+#### Return Type
 
 - `any[]`: An array of numbers.
 
-### Example
+#### Example
 
 ```typescript
 const numbers = range(1, 5);
@@ -589,7 +636,7 @@ console.log(numbers);
 In this example, `range(1, 5)` returns an array of numbers from 1 to 4
 (exclusive). The resulting array is `[1, 2, 3, 4]`.
 
-## contains
+### contains
 
 **Signature:** `(x: T) => (array: T[]) => boolean`
 
@@ -597,7 +644,7 @@ The `contains` function takes a value `x` of generic type `T` and returns a
 closure that takes an array `array` of type `T[]` and returns a boolean value
 indicating whether the array contains the given value or not.
 
-**Example:**
+**Example**
 
 ```javascript
 const checkForValue = contains(3);
@@ -605,26 +652,26 @@ console.log(checkForValue([1, 2, 3, 4])); // true
 console.log(checkForValue([5, 6, 7])); // false
 ```
 
-## includedIn
+### includedIn
 
 Returns a function that checks if a given value is included in an array.
 
-### Signature
+#### Signature
 
 ```typescript
 (<T>(array: T[]) => (x: T) => array.includes(x));
 ```
 
-### Parameters
+#### Parameters
 
 - `array`: An array of values to check if the given value is included.
 
-### Returns
+#### Returns
 
 A function that takes a value (`x`) and returns `true` if the value is included
 in the array, otherwise `false`.
 
-### Example
+#### Example
 
 ```javascript
 const fruits = ["apple", "banana", "orange"];
@@ -634,14 +681,14 @@ console.log(isIncluded("apple")); // true
 console.log(isIncluded("grape")); // false
 ```
 
-## take
+### take
 
 Signature: `(n: number) => (xs: T[]) => T[]`
 
 This function takes a number `n` and returns a function that takes an array `xs`
 and returns a new array containing the first `n` elements of `xs`.
 
-### Example:
+#### Example
 
 ```typescript
 const takeThree = take(3);
@@ -649,7 +696,7 @@ const numbers = [1, 2, 3, 4, 5];
 console.log(takeThree(numbers)); // Output: [1, 2, 3]
 ```
 
-## drop
+### drop
 
 `(n: number) => (xs: T[]) => T[]`
 
@@ -657,7 +704,7 @@ This function takes a number `n` as its argument and returns another function
 that accepts an array `xs`. It returns a new array containing the elements of
 `xs` starting from index `n` onwards.
 
-### Example
+#### Example
 
 ```typescript
 const dropThree = drop(3);
@@ -665,7 +712,7 @@ const numbers = [1, 2, 3, 4, 5];
 const result = dropThree(numbers); // [4, 5]
 ```
 
-## enumerate
+### enumerate
 
 ```typescript
 enumerate<T>(xs: T[]): (number | T)[][]
@@ -674,16 +721,16 @@ enumerate<T>(xs: T[]): (number | T)[][]
 The `enumerate` function takes an array `xs` and returns an array of arrays of
 pairs containing the index and value of each element in the original array.
 
-### Parameters
+#### Parameters
 
 - `xs: T[]` : The input array.
 
-### Returns
+#### Returns
 
 `(number | T)[][]` : An array of arrays where each inner array contains the
 index and value of an element from the input array.
 
-### Example
+#### Example
 
 ```typescript
 const array = ["a", "b", "c"];
@@ -691,7 +738,7 @@ const result = enumerate(array);
 // result is [[0, 'a'], [1, 'b'], [2, 'c']]
 ```
 
-## slidingWindow
+### slidingWindow
 
 ```typescript
 (<T>(l: number) => (xs: T[]) =>
@@ -700,16 +747,16 @@ const result = enumerate(array);
 
 Creates a function that returns a sliding window view of a given array.
 
-### Parameters
+#### Parameters
 
 - `l: number`: The size of the sliding window.
 
-### Returns
+#### Returns
 
 - `(xs: T[]) => any`: A function that takes an array of type `T` and returns an
   array of sliding window views.
 
-### Example
+#### Example
 
 ```typescript
 const getWindowViews = slidingWindow(3);
@@ -723,30 +770,30 @@ In the example above, the `slidingWindow` function is used to create a function
 is then passed to `getWindowViews` and the resulting `outputArray` contains all
 sliding window views: `[[1, 2, 3], [2, 3, 4], [3, 4, 5]]`.
 
-## Function: pipe
+### pipe
 
 Creates a pipeline of functions by composing them together. The output of one
 function serves as the input to the next function in the pipeline.
 
-### Signature
+#### Signature
 
 ```typescript
 pipe<Fs extends Func[]>(...fs: ValidPipe<Fs>): Pipeline<Fs>
 ```
 
-### Parameters
+#### Parameters
 
 - `...fs: ValidPipe<Fs>`: Rest parameter that accepts a series of functions to
   be piped together. Each function in the pipeline should have compatible input
   and output types.
 
-### Return Type
+#### Return Type
 
 - `Pipeline<Fs>`: The type of the pipeline, which represents a function that
   takes multiple arguments and returns the final output after applying each
   function in the pipeline.
 
-### Example
+#### Example
 
 ```typescript
 const add = (a: number, b: number): number => a + b;
@@ -762,7 +809,7 @@ In the example above, `myPipeline` is created by piping together the `add`,
 `5` and `2`, it applies each function in the pipeline sequentially and returns
 the final output `12`.
 
-## compose
+### compose
 
 **Signature**:
 
@@ -800,7 +847,7 @@ composition is applied in reverse order: `subtract` is first called with the
 arguments `5` and `2`, the result is then passed to `double`, and finally the
 output of `double` is passed to `addOne`. The final result is `16`.
 
-## after
+### after
 
 ```typescript
 (<T>(f: UnaryFn<T, unknown>) => <L extends unknown[]>(g: (...args: L) => T) =>
@@ -812,7 +859,7 @@ as an argument and returns a new function. The returned function takes a generic
 function `g` as an argument and returns the result of piping `g` through `f`
 using the `pipe` function.
 
-### Example
+#### Example
 
 ```typescript
 const double = (value: number): number => value * 2;
@@ -828,7 +875,7 @@ In the above example, `after(square)(double)` returns a new function
 argument through `square` and then through `double`, resulting in the output
 `18` (3 * 3 * 2 = 18).
 
-## before
+### before
 
 ```typescript
 before<T>(f1: (...args: unknown[]) => T): (f2: (input: T) => unknown) => Pipeline<[(...args: unknown[]) => T, (input: T) => unknown]>
@@ -839,7 +886,7 @@ function that takes in another function `f2`. It then returns a `Pipeline` that
 consists of `f1` and `f2`, with `f1` as the first function in the pipeline and
 `f2` as the second function.
 
-### Example
+#### Example
 
 ```typescript
 const addOne = (num: number) => num + 1;
@@ -854,7 +901,7 @@ In the above example, `addOne` is the first function in the pipeline, and
 `5`, it applies `addOne` first, resulting in `6`, and then applies `double`,
 resulting in `12`.
 
-## `complement`
+### `complement`
 
 **Signature:** `complement(f: F): (...x: Parameters<F>) => boolean`
 
@@ -869,7 +916,7 @@ result of `f`.
 
 **Return Type:** `(...x: Parameters<F>) => boolean`
 
-**Example:**
+**Example**
 
 ```typescript
 const greaterThanTen = (num: number) => num > 10;
@@ -884,7 +931,7 @@ In the above example, the `complement` function is used to create a new function
 function. When `isLessThanOrEqualToTen` is called with a number, it returns
 `true` if the number is less than or equal to 10, and `false` otherwise.
 
-## `sideEffect`
+### `sideEffect`
 
 ```typescript
 (<T>(f: (_: T) => void) => (x: T) => {
@@ -904,7 +951,7 @@ the function `f` with a given value of type `T`, while still returning that
 value. This allows for the execution of side effects without losing the
 reference to the value being operated on.
 
-### Example
+#### Example
 
 ```javascript
 const printAndReturn = sideEffect(console.log);
@@ -920,7 +967,7 @@ message. The `printAndReturn` function is then used to execute
 `console.log('Hello, World!')`, and the result is stored in the `result`
 variable, which is then logged to the console.
 
-## wrapSideEffect
+### wrapSideEffect
 
 **Signature:**
 
@@ -954,7 +1001,7 @@ the promise resolves. If the cleanup function also returns a `Promise`, the
 final result will be the result of the wrapped function. Otherwise, the final
 result will be the result of the cleanup function.
 
-**Example:**
+**Example**
 
 ```typescript
 const cleanupFunction = (arg1: string, arg2: number) => {
@@ -977,7 +1024,7 @@ wrappedFunction("Hello", 123);
 // Result: Hello123
 ```
 
-## applyTo
+### applyTo
 
 ```typescript
 applyTo(...args: A): (f: (...args: A) => unknown) => unknown
@@ -987,17 +1034,17 @@ This higher-order function takes in a variable number of arguments `args` of
 type `A`, and returns another function that takes in a function `f` which
 accepts the same arguments `args` and returns a value of type `unknown`.
 
-### Parameters
+#### Parameters
 
 - `...args: A`: A variadic parameter representing a variable number of arguments
   of type `A`.
 
-### Return Type
+#### Return Type
 
 `(f: (...args: A) => unknown) => unknown`: A function that accepts a function
 `f` and returns a value of type `unknown`.
 
-### Example
+#### Example
 
 ```typescript
 const addNumbers = (a: number, b: number) => a + b;
@@ -1005,7 +1052,7 @@ const applyToExample = applyTo(10, 20);
 const result = applyToExample(addNumbers); // 30
 ```
 
-## always
+### always
 
 **Signature:** `always<T>(x: T) => () => T`
 
@@ -1015,21 +1062,21 @@ Creates a function that always returns the same value.
 
 **Returns:** A function that when called, always returns the provided value `x`.
 
-**Example:**
+**Example**
 
 ```typescript
 const constantFunc = always(42);
 console.log(constantFunc()); // Output: 42
 ```
 
-## identity
+### identity
 
 **Signature:** `(x: T) => T`
 
 The `identity` function takes in an argument `x` of type `T` and returns it as
 is, without any modifications.
 
-**Example:**
+**Example**
 
 ```typescript
 const result: number = identity(5);
@@ -1039,7 +1086,7 @@ const result2: string = identity("hello");
 console.log(result2); // Output: "hello"
 ```
 
-## ifElse
+### ifElse
 
 ```typescript
 ifElse<Predicate, If, Else>(
@@ -1054,7 +1101,7 @@ and a function to execute if the predicate is false. It returns a new function
 that accepts the same arguments as the predicate and invokes either `fTrue` or
 `fFalse` based on the result of the predicate.
 
-### Example
+#### Example
 
 ```typescript
 const isEven = (num: number): boolean => num % 2 === 0;
@@ -1078,7 +1125,7 @@ and if it is, it multiplies it by two. If the number is odd, it divides it by
 two. The `conditionalFunction` is then invoked with different input numbers to
 test the conditional logic.
 
-## unless
+### unless
 
 ```typescript
 unless<Predicate extends (
@@ -1096,7 +1143,7 @@ returns a function that takes any number of arguments and checks if the
 function with the arguments and returns the result. If the `predicate` is true,
 it returns the arguments.
 
-Example:
+Example
 
 ```typescript
 const isFalsey = (x: any) => !x;
@@ -1109,10 +1156,10 @@ console.log(result); // The value false is false
 ```
 
 In this example, the `unless` function is used to check if the value `false` is
-falsey. Since it is falsey, the `fFalse` function is called with the value `false`
-and the result is returned.
+falsey. Since it is falsey, the `fFalse` function is called with the value
+`false` and the result is returned.
 
-## when
+### when
 
 ```typescript
 when<Predicate extends (
@@ -1125,20 +1172,20 @@ The `when` function is a higher-order function that takes a predicate function
 and a callback function. It returns a new function that checks if the predicate
 function returns true, and if so, calls the callback function.
 
-### Parameters
+#### Parameters
 
 - `predicate: Predicate` - The predicate function that determines whether the
   callback function should be called.
 - `fTrue: (_: Parameters<Predicate>[0]) => any` - The callback function to be
   called if the predicate function returns true.
 
-### Return Value
+#### Return Value
 
 The return value of `when` depends on the types of the `Predicate` and `fTrue`
 parameters. If the `Predicate` is an `AsyncFunction`, the return value is a
 `Promise<any>`. Otherwise, it is `any`.
 
-### Example
+#### Example
 
 ```typescript
 const isEven = (num: number) => num % 2 === 0;
@@ -1158,7 +1205,7 @@ number is even. If the number is even, the `callback` function is called and
 logs a message. The `whenIsEven` function is created using the `when` function,
 and when called with an even number, it logs a message.
 
-## cond
+### cond
 
 ```typescript
 CondElements extends CondElement<any[]>[]
@@ -1174,7 +1221,7 @@ The `cond` function takes an array of predicates and resolvers and returns a
 function that when called with arguments, runs each predicate on the arguments
 and returns the result of the first resolver that matches the predicate.
 
-### Example:
+#### Example
 
 ```typescript
 const isEven = (x: number) => x % 2 === 0;
@@ -1190,17 +1237,17 @@ console.log(resolver(4)); // Output: 8
 console.log(resolver(3)); // Output: 9
 ```
 
-## logWith
+### logWith
 
 **Signature:** `(x: any[]) => (y: T) => T`
 
-### Description:
+#### Description:
 
 This function takes in any number of arguments, `...x`, and returns a new
 function that takes in a value `y`. The returned function logs the arguments
 passed in as `x`, along with `y`, to the console, and then returns `y`.
 
-### Example:
+#### Example
 
 ```typescript
 const log = logWith("Hello");
@@ -1209,7 +1256,7 @@ const result = log("World");
 // result: "World"
 ```
 
-## asyncTimeit
+### asyncTimeit
 
 ```typescript
 asyncTimeit<Args extends unknown[], R>(
@@ -1224,17 +1271,17 @@ execution time of `f` and invokes the handler with the elapsed time, arguments,
 and result of `f`. The returned function is asynchronous and returns a promise
 of the result.
 
-### Parameters
+#### Parameters
 
 - `handler: (time: number, args: Args, result: R) => void` - The handler
   function to be invoked with the elapsed time, arguments, and result of `f`.
 - `f: (..._: Args) => R` - The function to be measured.
 
-### Returns
+#### Returns
 
 A new function that is asynchronous and returns a promise of the result of `f`.
 
-### Example
+#### Example
 
 ```typescript
 const fetchData = async (url: string) => {
@@ -1258,7 +1305,7 @@ is called with a URL, it measures the execution time of `fetchData` and logs the
 elapsed time. The result of `fetchData` is returned and can be used further in
 the code.
 
-## `timeit`
+### `timeit`
 
 Signature:
 `(handler: (time: number, args: Args, result: R) => void, f: (..._: Args) => R) => (...args: Args) => R`
@@ -1275,7 +1322,7 @@ inner function (`(...args: Args) => R`). This new function will measure the
 execution time of the inner function and call the `handler` function with the
 measured time, arguments, and result.
 
-Example:
+Example
 
 ```typescript
 const logTime = (time: number, args: number[], result: number) => {
@@ -1300,7 +1347,7 @@ using `timeit`, passing `logTime` as the handler and `add` as the inner
 function. When `timedAdd` is called with arguments `2` and `3`, it measures the
 execution time of `add` and logs the time, arguments, and result.
 
-## assert
+### assert
 
 ```typescript
 (<T>(condition: (_: T) => boolean, errorMessage: string) => (x: T) => T);
@@ -1322,7 +1369,7 @@ const result = greaterThanZero(5); // returns 5
 const error = greaterThanZero(-2); // throws an error with the message "Number must be greater than zero"
 ```
 
-## filter
+### filter
 
 ```typescript
 filter<F extends Predicate>(f: F): (
@@ -1337,7 +1384,7 @@ result.
 - `f`: The predicate function that determines whether an element should be
   included in the filtered array or not.
 
-Example:
+Example
 
 ```typescript
 const isEven = (num: number) => num % 2 === 0;
@@ -1353,21 +1400,21 @@ In the above example, the `filter` function is used to filter out the even
 numbers from the `numbers` array. The resulting filtered array contains only the
 even numbers [2, 4].
 
-## find
+### find
 
-### Signature
+#### Signature
 
 ```typescript
 ((Fn: Predicate) => Pipeline);
 ```
 
-### Description
+#### Description
 
 The `find` function takes a predicate function as an argument and returns a
 pipeline that filters an array based on the given predicate and returns the
 first element of the filtered array.
 
-### Example
+#### Example
 
 ```typescript
 const animals = ["cat", "dog", "elephant", "bird"];
@@ -1383,7 +1430,7 @@ In the above example, the `find` function is used to filter the `animals` array
 based on the `startsWithC` predicate function and returns the first element that
 matches the predicate, which is `'cat'`.
 
-### Return Type
+#### Return Type
 
 ```typescript
 Pipeline<
@@ -1400,7 +1447,7 @@ The `find` function returns a pipeline that takes an array as input and returns
 the first element of the filtered array based on the provided predicate
 function.
 
-## remove
+### remove
 
 ```typescript
 remove<F extends Predicate>(f: F): (x: Parameters<F>[0][]) => Parameters<F>[0][]
@@ -1409,19 +1456,19 @@ remove<F extends Predicate>(f: F): (x: Parameters<F>[0][]) => Parameters<F>[0][]
 The `remove` function takes a predicate `f` and returns a new function that
 removes elements from an array that satisfy the predicate.
 
-### Parameters
+#### Parameters
 
 - `f: F`: The predicate function to test each element of the array. The function
   `f` should accept an argument of the same type as the elements in the array
   and return a boolean.
 
-### Returns
+#### Returns
 
 - `(x: Parameters<F>[0][]) => Parameters<F>[0][]`: A new function that accepts
   an array and returns a new array with elements removed based on the provided
   predicate.
 
-### Example
+#### Example
 
 ```typescript
 const numbers = [1, 2, 3, 4, 5];
@@ -1439,7 +1486,7 @@ In the example above, the `remove` function is used to create a new function
 `removeEven` that removes even numbers from an array. The `result` array
 contains only the odd numbers `[1, 3, 5]`.
 
-## intersectBy
+### intersectBy
 
 ```typescript
 <T>(f: (x: T) => Primitive) => (arrays: T[][]) => T[]
@@ -1460,7 +1507,7 @@ values of `f`, and returns an array containing the common elements.
 - `(arrays: T[][]) => T[]` - The function takes an array of arrays of type `T`
   and returns an array of type `T` containing the common elements.
 
-**Example:**
+**Example**
 
 ```typescript
 const numbers = [[1, 2, 3, 4, 5], [2, 4, 6, 8, 10], [3, 6, 9, 12, 15]];
@@ -1491,7 +1538,7 @@ that maps strings to their lengths. The resulting function is then used to
 intersect the arrays in `strings`, resulting in an array `['banana', 'kiwi']`,
 which are the strings common to all arrays in `strings` based on their lengths.
 
-## batch
+### batch
 
 ```typescript
 batch(
@@ -1525,7 +1572,7 @@ The second step of the pipeline is a function that takes in `[input, key]`,
 which is the output of the previous step. It returns a promise that resolves to
 the `ElementOf<Output>`.
 
-Example:
+Example
 
 ```typescript
 const keyFn = (input: string) => input.charAt(0);
@@ -1549,13 +1596,13 @@ wait for the maximum wait time before executing the batched tasks. Once
 executed, the promise will resolve with the output of the `execute` function,
 which in this case is "APPLE".
 
-## timeout
+### timeout
 
 `timeout` is a function that takes in a timeout duration in milliseconds, a
 fallback function, and an asynchronous function. It returns a new function that
 incorporates the timeout functionality.
 
-### Signature
+#### Signature
 
 ```typescript
 timeout<Args extends unknown[], Output>(
@@ -1565,7 +1612,7 @@ timeout<Args extends unknown[], Output>(
 ): (...args: Args) => Promise<Output>
 ```
 
-### Parameters
+#### Parameters
 
 - `ms: number`: The duration for the timeout in milliseconds.
 - `fallback: (..._: Args) => Output | Promise<Output>`: The fallback function to
@@ -1573,13 +1620,13 @@ timeout<Args extends unknown[], Output>(
 - `f: (..._: Args) => Promise<Output>`: The asynchronous function to be
   executed.
 
-### Return Type
+#### Return Type
 
 `(...args: Args) => Promise<Output>`: The returned function takes the same
 arguments as the original asynchronous function and returns a promise that
 resolves to the output of the original function or the fallback function.
 
-### Example
+#### Example
 
 ```typescript
 const doSomethingAsync = async (arg: string) => {
@@ -1599,14 +1646,14 @@ In this example, the `timeoutDoSomething` function will execute the
 milliseconds to resolve, the fallback function `() => "Timeout"` will be called
 instead and its result will be returned.
 
-## `juxt(...fs: Functions)`
+### `juxt(...fs: Functions)`
 
 This function takes in an array of functions `fs` and returns a new function.
 The returned function takes the same parameters as the first function in `fs`
 and applies each function in `fs` to those parameters. The result is an array of
 the return values from each function in `fs`.
 
-### Example
+#### Example
 
 ```typescript
 const add = (a: number, b: number) => a + b;
@@ -1622,7 +1669,7 @@ In this example, `juxtFunc` is a function that takes two parameters `5` and `3`,
 and applies each of the three functions `add`, `subtract`, and `multiply` to
 those parameters. The result is an array `[8, 2, 15]`.
 
-## `pairRight`
+### `pairRight`
 
 ```ts
 (pairRight: Function) => (x: Parameters<Function>[0]) => AwaitedResults<[<Parameters<Function>[0]>(x: Parameters<Function>[0]) => Parameters<Function>[0], Function]>
@@ -1637,7 +1684,7 @@ The first function in the array takes the same argument `x` and returns `x`. The
 second function in the array takes the same argument `x` and applies it to the
 original function `f`, returning the result.
 
-Example:
+Example
 
 ```ts
 const increment = (num: number) => num + 1;
@@ -1655,7 +1702,7 @@ In the above example, the `pairRight` function is used to create a new function
 argument of `5`, it returns an array `[5, 6]` where `5` is the original argument
 and `6` is the result of applying `increment` to `5`.
 
-## stack
+### stack
 
 ```typescript
 /**
@@ -1671,7 +1718,7 @@ stack<Functions extends Func[]>(
 ) => JuxtOutput<Functions>
 ```
 
-Example:
+Example
 
 ```typescript
 const add = (a: number) => (b: number) => a + b;
@@ -1691,32 +1738,32 @@ additional keys `plus` and `times`, representing the output of each function in
 the composition. The example demonstrates calling the composed function with an
 input of `{ _: 4 }` and logging the output `{ _: 4, plus: 6, times: 12 }`.
 
-## juxtCat
+### juxtCat
 
-### Signature
+#### Signature
 
 ```typescript
 <Functions extends Func[]>(...fs: Functions): (..._: Parameters<Functions[0]>) => ReturnType<Functions[0]>
 ```
 
-### Description
+#### Description
 
 `juxtCat` is a utility function that takes in multiple functions as arguments
 and returns a new function. This new function applies the arguments to each of
 the input functions and then concatenates the results together.
 
-### Parameters
+#### Parameters
 
 - `...fs: Functions` : A rest parameter that accepts an array of functions
   (`Functions`) as input.
 
-### Return Value
+#### Return Value
 
 The return value of `juxtCat` is a new function that takes in the same arguments
 as the first function in the input `Functions` array, and returns the result
 type of the first function.
 
-### Example
+#### Example
 
 ```typescript
 const add = (a: number, b: number) => a + b;
@@ -1732,7 +1779,7 @@ arguments (`2` and `3`) and applies them to both the `add` and `multiply`
 functions. The result is an array `[5, 6]`, which is the concatenation of the
 results of the two functions.
 
-## alljuxt
+### alljuxt
 
 **Signature:**
 
@@ -1753,7 +1800,7 @@ If the input functions contain at least one asynchronous function
 asynchronous and return a `Promise<boolean>`. Otherwise, it will be synchronous
 and return a `boolean`.
 
-**Example:**
+**Example**
 
 ```typescript
 const isEven = (n: number) => n % 2 === 0;
@@ -1771,7 +1818,7 @@ In the example above, the `alljuxt` function is used to create a new function
 `isEven` and `greaterThanThree` functions to the argument. It returns `true` if
 both functions return `true`, otherwise it returns `false`.
 
-## `anyjuxt`
+### `anyjuxt`
 
 ```typescript
 anyjuxt<Functions extends Func[]>(...fs: Functions): (..._: Parameters<Functions[0]>) => Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean
@@ -1789,7 +1836,7 @@ If any of the functions in the `fs` array is an asynchronous function, the
 `anyjuxt` function returns a promise that resolves to either `true` or `false`
 depending on the results of the asynchronous functions.
 
-### Example
+#### Example
 
 ```typescript
 const isEven = (n: number) => n % 2 === 0;
@@ -1809,7 +1856,7 @@ function returns `true`. When called with `-3`, which is positive, the `anyjuxt`
 function also returns `true`. When called with `7`, which is neither even nor
 positive, the `anyjuxt` function returns `false`.
 
-## withLock
+### withLock
 
 ```typescript
 withLock(
@@ -1837,7 +1884,7 @@ expects. The wrapped execution of `f` is guarded by the acquired lock. If an
 exception is thrown within `f`, the lock is still released before re-throwing
 the exception.
 
-**Example:**
+**Example**
 
 ```typescript
 const lock = () =>
@@ -1873,21 +1920,21 @@ version of the `processResource` function. The lock is acquired before
 only one instance of `processResource` can be executing at a time, preventing
 race conditions when accessing shared resources.
 
-## retry(f: () => boolean | Promise<boolean>): Promise<void>
+### retry(f: () => boolean | Promise<boolean>): Promise<void>
 
 This function retries executing a given function until it returns a truthy
 value. It waits for 50 milliseconds between each execution.
 
-### Parameters
+#### Parameters
 
 - `f`: A function that returns a boolean or a Promise that resolves to a
   boolean. This function is executed repeatedly until it returns a truthy value.
 
-### Return Value
+#### Return Value
 
 A Promise that resolves to `void`.
 
-### Example
+#### Example
 
 ```javascript
 async function testFunction() {
@@ -1906,26 +1953,26 @@ async function testFunction() {
 testFunction();
 ```
 
-## `makeLockWithId`
+### `makeLockWithId`
 
 Creates a lock function that can be used to lock resources with a given ID.
 
-### Signature
+#### Signature
 
 `(set: (_: Key) => boolean | Promise<boolean>) => (id: Key) => Promise<void>`
 
-### Parameters
+#### Parameters
 
 - `set: (_: Key) => boolean | Promise<boolean>`: A function that sets the lock
   status for a given ID. It should return `true` if the lock is successfully
   set, `false` otherwise, or a Promise resolving to either of these values.
 
-### Return Type
+#### Return Type
 
 `(id: Key) => Promise<void>`: A function that locks a resource with the given
 ID.
 
-### Example
+#### Example
 
 ```
 const setLock = (id) => {
@@ -1953,12 +2000,12 @@ function as the argument to `makeLockWithId`. We can then use the `lockResource`
 function to lock a specific resource by its ID, and perform actions with the
 locked resource once it is successfully locked.
 
-## withLockByInput
+### withLockByInput
 
 The `withLockByInput` function wraps an asynchronous function `f` with a lock
 using dynamic lock ID based on input arguments.
 
-### Signature
+#### Signature
 
 ```typescript
 withLockByInput<Function extends AsyncFunction>(
@@ -1969,7 +2016,7 @@ withLockByInput<Function extends AsyncFunction>(
 ): (...args: Parameters<Function>) => Promise<Awaited<ReturnType<Function>>>;
 ```
 
-### Parameters
+#### Parameters
 
 - `argsToLockId` - A function that takes input arguments of `f` and returns a
   string representing the lock ID.
@@ -1977,12 +2024,12 @@ withLockByInput<Function extends AsyncFunction>(
 - `unlock` - A function that takes a lock ID and unlocks it.
 - `f` - The asynchronous function to be wrapped with a lock.
 
-### Return Value
+#### Return Value
 
 A function that takes the same input arguments as `f` and returns a promise that
 resolves to the result of `f` after acquiring and releasing the lock.
 
-### Example
+#### Example
 
 ```typescript
 const argsToLockId = (x: number, y: number) => `lock-${x}-${y}`;
@@ -2008,7 +2055,7 @@ the lock function `lock`, the unlock function `unlock`, and the async function
 with the lock ID `lock-2-3`, executes the `add` function, waits for it to
 complete, releases the lock, and returns the result `5`.
 
-## `sequentialized`
+### `sequentialized`
 
 ```typescript
 (<Function extends AsyncFunction>(f: Function) =>
@@ -2020,7 +2067,7 @@ new function that ensures that all invocations of `f` are processed in a
 sequential order. It achieves this by creating a queue of pending invocations
 and processing them one by one.
 
-### Example
+#### Example
 
 ```typescript
 async function asyncFunction(num: number): Promise<number> {
@@ -2058,30 +2105,30 @@ result is resolved and the third invocation is started. This ensures that the
 invocations are processed in the order they were made, even though each
 invocation has a delay of 1 second.
 
-## throttle
+### throttle
 
 `throttle` is a higher-order function that limits the maximum number of parallel
 invocations of an asynchronous function.
 
-### Signature
+#### Signature
 
 ```typescript
 throttle<Function extends AsyncFunction>(maxParallelism: number, f: Function): (...args: Parameters<Function>) => Promise<Awaited<ReturnType<Function>>>
 ```
 
-### Parameters
+#### Parameters
 
 - `maxParallelism` : number - The maximum number of parallel invocations
   allowed.
 - `f` : Function - The asynchronous function to be throttled.
 
-### Returns
+#### Returns
 
 A throttled version of the function `f`. The throttled function has the same
 signature as `f`, and returns a promise that resolves to the result of invoking
 `f`.
 
-### Example
+#### Example
 
 ```typescript
 const asyncFunction = async (arg: number) => {
@@ -2101,15 +2148,15 @@ throttledFunction(20).then(console.log); // Output: 40
 // The other invocations are placed in a queue and executed once a slot becomes available.
 ```
 
-## map
+### map
 
-### Signature
+#### Signature
 
 ```typescript
 map(f: Function): (xs: Parameters<Function>[0][]) => Function extends import("/home/uri/uriva/gamlajs/src/typing").AsyncFunction ? Promise<Awaited<ReturnType<Function>>[]> : ReturnType<Function>[]
 ```
 
-### Description
+#### Description
 
 The `map` function takes a function `f` and returns a new function. The new
 function takes an array `xs` and applies `f` to each element of `xs`. If `f` is
@@ -2117,7 +2164,7 @@ an asynchronous function, it returns a promise that resolves to an array of the
 results of applying `f` to each element. Otherwise, it returns an array of the
 results.
 
-### Example
+#### Example
 
 ```typescript
 const multiplyByTwo = (n: number) => n * 2;
@@ -2128,7 +2175,7 @@ console.log(result);
 // Output: [2, 4, 6, 8]
 ```
 
-## mapCat
+### mapCat
 
 ```typescript
 <T, G>(f: Unary<T, G>) => (x: T[]): G
@@ -2148,7 +2195,7 @@ that contains the concatenated results of applying `f` to each element of `x`.
 - `(x: T[]): G`: A new function that applies `f` to each element of the input
   array `x` and returns the concatenated result.
 
-**Example:**
+**Example**
 
 ```typescript
 const double = (x: number): number => x * 2;
@@ -2163,18 +2210,18 @@ In this example, the `mapCat` function is used to create a new function
 array. The result is a new array `[2, 4, 6]`, where each element is the result
 of doubling the corresponding element in the input array `[1, 2, 3]`.
 
-## wrapObject(key: string)
+### wrapObject(key: string)
 
 This function takes a key as a parameter and returns a curried function that
 takes a value and returns an object with the given key and value.
 
-### Signature
+#### Signature
 
 ```typescript
 wrapObject(key: string): <V>(value: V) => { [key: string]: V; }
 ```
 
-### Example
+#### Example
 
 ```typescript
 const createObject = wrapObject("name");
@@ -2186,7 +2233,7 @@ In the example above, we create a `createObject` function by passing the key
 "name" to `wrapObject`. We then use `createObject` to create an object with the
 key "name" and the value "John".
 
-## groupByManyReduce
+### groupByManyReduce
 
 **Signature**
 
@@ -2261,7 +2308,7 @@ by their cities and calculate the sum of their ages using the `ageSumReducer`
 function. The result is a record object where the keys are the cities and the
 values are the sums of ages for each city.
 
-## groupByReduce
+### groupByReduce
 
 ```typescript
 groupByReduce<T, S, K extends Primitive>(
@@ -2312,7 +2359,7 @@ We call `groupByAgeSum` with the `people` array to get the result, which is a
 record where the keys are the ages and the values are the sums of the ages. The
 output is `{ 25: 25, 30: 30, 35: 35 }`.
 
-## `groupByMany`
+### `groupByMany`
 
 ```typescript
 groupByMany<T, K extends Primitive>(keys: (_: T) => K[]) => (it: T[]) => Record<K, any[]>
@@ -2322,17 +2369,17 @@ This function takes in an array of items (`it`) and a function (`keys`) that
 maps each item to an array of keys (`K`). It returns a function that groups the
 items by the keys.
 
-### Parameters
+#### Parameters
 
 - `keys: (_: T) => K[]`: A function that maps each item to an array of keys.
 
-### Return Type
+#### Return Type
 
 `(it: T[]) => Record<K, any[]>`: A function that takes in an array of items
 (`it`) and returns an object where the keys are the distinct keys from the
 `keys` function and the values are arrays of items that share the same keys.
 
-### Example
+#### Example
 
 ```typescript
 const items = [
@@ -2365,9 +2412,9 @@ In the example above, `groupByCategoryAndColor` is a function that groups the
 `items` array by category and color. The resulting `groupedItems` object
 contains arrays of items that share the same category and color.
 
-## `addEntry`
+### `addEntry`
 
-### Signature
+#### Signature
 
 ```typescript
 (<Object, Value>(key: Primitive, value: Value) => (obj: Object) => ({
@@ -2376,14 +2423,14 @@ contains arrays of items that share the same category and color.
 }));
 ```
 
-### Description
+#### Description
 
 The `addEntry` function is a higher-order function that takes a key and a value,
 and returns a new function that takes an object as input. The returned function
 adds a new key-value pair to the input object and returns a new object with the
 added entry.
 
-### Example
+#### Example
 
 ```javascript
 const obj = { name: "John", age: 30 };
@@ -2398,7 +2445,7 @@ In the example above, the `addEntry` function is used to add an 'email' key with
 the value 'john@example.com' to the `obj` object. The resulting object `newObj`
 now contains the added entry.
 
-## groupBy
+### groupBy
 
 ```typescript
 groupBy<T, K extends Primitive>(f: Unary<T, K>): (it: T[]) => Record<K, any[]>
@@ -2409,7 +2456,7 @@ that accepts an array (`T[]`). It groups the elements of the array based on the
 result of applying `f` to each element. The grouping result is returned as an
 object with keys of type `K` and values as arrays of any type (`any[]`).
 
-### Example
+#### Example
 
 ```typescript
 const data = [
@@ -2431,7 +2478,7 @@ the `name` property. The result is an object with keys representing the first
 character of each name and values as arrays containing the corresponding
 objects.
 
-## edgesToGraph
+### edgesToGraph
 
 ```typescript
 edgesToGraph<Node, Edge extends [Node, Node]>(s: Set<Node>, [_, destination]: Edge): Set<Node>
@@ -2442,7 +2489,7 @@ Description:
 This function takes a set of nodes `s` and an edge `[_, destination]`, and adds
 the destination node to the set. It then returns the updated set.
 
-Example:
+Example
 
 ```typescript
 const nodes = new Set<string>(["A", "B", "C"]);
@@ -2455,7 +2502,7 @@ console.log(updatedNodes); // Output: Set(["A", "B", "C", "C"])
 In this example, the function adds the destination node "C" to the set of nodes,
 resulting in an updated set containing `"A", "B", "C", "C"`.
 
-## entryFilter
+### entryFilter
 
 ```typescript
 entryFilter(f: Function): (Obj: Record<ParamOf<Function>[0], ParamOf<Function>[1]>) => ((_: ParamOf<Function>[]) => Function extends AsyncFunction ? Promise<ParamOf<Function>[]> : ParamOf<Function>[])
@@ -2467,7 +2514,7 @@ function that filters the entries of an object.
 - `f`: A function that takes a key-value pair (`kv`) and returns a boolean or a
   promise that resolves to a boolean.
 
-Example:
+Example
 
 ```typescript
 const obj = { a: 1, b: 2, c: 3 };
@@ -2483,7 +2530,7 @@ In this example, the `filterFn` function filters the entries based on the
 condition `kv[1] > 1`. The `entryFilter` function applies the filter to the
 `obj` object, and the resulting filtered entries are returned.
 
-## valFilter
+### valFilter
 
 ```typescript
 const valFilter: (f: Predicate) => (Obj: Record<any, any>) => Record<any, any>;
@@ -2492,18 +2539,18 @@ const valFilter: (f: Predicate) => (Obj: Record<any, any>) => Record<any, any>;
 This function takes in a predicate function `f` and returns a new function that
 filters object properties based on the predicate.
 
-### Parameters
+#### Parameters
 
 - `f: Predicate` - A predicate function that takes in a value and returns a
   boolean.
 
-### Return Type
+#### Return Type
 
 `(Obj: Record<any, any>) => Record<any, any>` - The returned function takes in
 an object `Obj` and returns a new object that contains only the properties that
 pass the predicate test.
 
-### Example
+#### Example
 
 ```typescript
 const data = {
@@ -2531,7 +2578,7 @@ In the above example, `valFilter` is used to create two filter functions
 properties from the `data` object that are not strings, while
 `filterNumberProps` filters out properties that are not numbers.
 
-## keyFilter
+### keyFilter
 
 ```typescript
 ((keyFilter: Function) => (obj: Record<any, any>) => Record<any, any>);
@@ -2542,7 +2589,7 @@ function as an argument and returns a new function that applies the filter to
 the keys of an object. The returned function takes an object as its argument and
 returns a new object with only the keys that pass the filter.
 
-### Example
+#### Example
 
 ```typescript
 const obj = {
@@ -2564,7 +2611,7 @@ that checks if a key starts with the letter 'a'. The resulting function is then
 applied to an object, and only the key 'age' passes the filter. Therefore, the
 resulting object only contains the 'age' key.
 
-## valMap
+### valMap
 
 **Signature:**
 `(f: (v: OldValue) => NewValue) => (Obj: Record<any, any>) => Record<any, any>`
@@ -2572,7 +2619,7 @@ resulting object only contains the 'age' key.
 valMap is a higher-order function that takes a mapping function `f` and returns
 a new function that applies `f` to all values in an object.
 
-**Example:**
+**Example**
 
 ```typescript
 const double = (x: number) => x * 2;
@@ -2584,7 +2631,7 @@ In the example above, `valMap` is used to create a new function `doubleValues`,
 which doubles all values in an object when called with an object
 `{ a: 1, b: 2, c: 3 }`. The resulting object is then printed to the console.
 
-## keyMap
+### keyMap
 
 ```typescript
 (keyMap: (f: (v: OldKey) => NewKey) => (_: Record<OldKey, unknown>) => Record<NewKey, unknown>
@@ -2594,7 +2641,7 @@ The `keyMap` function takes a mapping function `f` that maps an old key `OldKey`
 to a new key `NewKey`. It returns a new function that takes a record of values
 with old keys and returns a new record with the mapped keys.
 
-### Example
+#### Example
 
 ```typescript
 const oldRecord = {
@@ -2619,7 +2666,7 @@ In the above example, the `keyMap` function is used to map the keys of
 `oldRecord` to lowercase keys using the `mappingFunction`. The resulting
 `newRecord` has the updated keys.
 
-## mapTerminals
+### mapTerminals
 
 `(terminalMapper: (_: Terminal) => unknown) => (obj: Tree<Terminal>) => Tree<unknown>`
 
@@ -2627,16 +2674,16 @@ This function takes in a `terminalMapper` function which is applied to all
 terminal values in a `Tree` object. It returns a new `Tree` object where the
 terminal values have been transformed by the `terminalMapper` function.
 
-### Parameters
+#### Parameters
 
 - `terminalMapper: (_: Terminal) => unknown` - A function that takes a terminal
   value of type `Terminal` and returns a value of type `unknown`.
 
-### Return Type
+#### Return Type
 
 `(obj: Tree<Terminal>) => Tree<unknown>`
 
-### Example
+#### Example
 
 ```typescript
 import { mapTerminals } from "your-library";
@@ -2672,7 +2719,7 @@ values of the `tree` object. The `mapper` function converts strings to uppercase
 and multiplies numbers by 2. The resulting `transformedTree` object reflects
 these transformations.
 
-## applySpec
+### applySpec
 
 ```typescript
 applySpec<Args extends unknown[]>(spec: Tree<(..._: Args) => unknown>): (...args: Args) => unknown
@@ -2682,7 +2729,7 @@ The `applySpec` function takes a `spec` argument which is a tree structure
 representing a set of functions, and returns a new function that applies the
 provided arguments to the functions in the spec.
 
-### Example
+#### Example
 
 ```typescript
 const spec = {
@@ -2701,24 +2748,24 @@ function `applyArgs` that applies the provided arguments `(2, 3)` to the
 functions in the `spec`. The output is an object with the results of applying
 the arguments to each function.
 
-## `sum()`
+### `sum()`
 
 **Signature:** `() => number`
 
 The `sum()` function returns the sum of zero. It does not take any parameters.
 
-**Example:**
+**Example**
 
 ```javascript
 sum(); // returns 0
 ```
 
-## `divide(x: number): (y: number) => number`
+### `divide(x: number): (y: number) => number`
 
 This function takes a number `x` and returns a function that when called with
 another number `y`, divides `y` by `x` and returns the result.
 
-### Example:
+#### Example
 
 ```javascript
 const divideBy2 = divide(2);
@@ -2729,7 +2776,7 @@ In the example above, `divideBy2` is a function that divides any number by 2.
 When we call `divideBy2(10)`, it returns the result of dividing 10 by 2, which
 is 5.
 
-## times
+### times
 
 ```typescript
 times(x: number): (y: number) => number
@@ -2737,7 +2784,7 @@ times(x: number): (y: number) => number
 
 Returns a function that multiplies a given number `y` by the input `x`.
 
-### Example
+#### Example
 
 ```typescript
 const multiplyByTwo = times(2); // returns a function that multiplies a number by 2
@@ -2750,25 +2797,25 @@ In the example above, the `times` function is used to create a new function
 `multiplyByTwo` which multiplies a given number by 2. This new function can then
 be called with different values to perform the multiplication.
 
-## average
+### average
 
 Calculate the average of an array of numbers.
 
-### Signature
+#### Signature
 
 ```typescript
 ((arr: number[]) => number);
 ```
 
-### Parameters
+#### Parameters
 
 - `arr`: an array of numbers.
 
-### Returns
+#### Returns
 
 Returns the average value of the array.
 
-### Example
+#### Example
 
 ```typescript
 const arr = [1, 2, 3, 4, 5];
@@ -2776,7 +2823,7 @@ const result = average(arr);
 console.log(result); // Output: 3
 ```
 
-## multiply
+### multiply
 
 ```typescript
 multiply(x: number): (y: number) => number
@@ -2786,7 +2833,7 @@ Returns a function that multiplies a number `x` with a number `y`.
 
 - `x`: The number to multiply with.
 
-### Example
+#### Example
 
 ```typescript
 const multiplyBy2 = multiply(2);
@@ -2798,7 +2845,7 @@ The `multiplyBy2` function returned by `multiply(2)` can be used to multiply any
 number with 2. In the example above, it is used to multiply `3` and `4` by `2`,
 resulting in `6` and `8` respectively.
 
-## rate
+### rate
 
 **Signature:** `(f: (x: T) => boolean) => (_: T[]) => number`
 
@@ -2808,7 +2855,7 @@ calculates the rate at which elements in an array pass the predicate.
 - `f` is a predicate function that takes an element of type `T` and returns a
   boolean value.
 
-**Example:**
+**Example**
 
 ```javascript
 const isEven = (x) => x % 2 === 0;
@@ -2827,7 +2874,7 @@ passing in `isEven`. Finally, we call `rateOfEvenNumbers` passing in `arr` and
 get the rate at which the numbers in the array are even, which is `1/3` or
 `0.3333333333333333`
 
-## repeat
+### repeat
 
 ```typescript
 repeat<T>(element: T, times: number): any[]
@@ -2836,23 +2883,23 @@ repeat<T>(element: T, times: number): any[]
 This function takes an element and a number of times to repeat that element, and
 returns an array containing the repeated elements.
 
-#### Parameters:
+##### Parameters:
 
 - `element: T`: The element to be repeated.
 - `times: number`: The number of times to repeat the element.
 
-#### Return Type:
+##### Return Type:
 
 - `any[]`: An array containing the repeated elements.
 
-#### Example:
+##### Example
 
 ```typescript
 repeat("hello", 3);
 // Output: ['hello', 'hello', 'hello']
 ```
 
-## product
+### product
 
 ```typescript
 product(a: unknown[], b: unknown): any
@@ -2861,17 +2908,17 @@ product(a: unknown[], b: unknown): any
 The `product` function takes two arrays `a` and `b` as parameters and returns a
 new array that represents the Cartesian product of `a` and `b`.
 
-### Parameters
+#### Parameters
 
 - `a` (type: unknown[]): The first array.
 - `b` (type: unknown): The second value.
 
-### Return Value
+#### Return Value
 
 - The Cartesian product of `a` and `b`. The return value's type is `any`, as it
   depends on the input types.
 
-### Example
+#### Example
 
 ```typescript
 const a = [1, 2, 3];
@@ -2885,7 +2932,7 @@ In this example, the function `product` is called with the arrays `a` and `b`.
 The resulting array contains all possible combinations of elements from `a` and
 `b` in a nested array format.
 
-## explode
+### explode
 
 ```typescript
 explode(...positions: number[]): (xs: any[]) => any
@@ -2895,7 +2942,7 @@ The `explode` function takes in a list of positions and returns a new function
 that accepts an array of values. It extracts the values at the given positions
 from the input array and returns them as an array.
 
-### Example
+#### Example
 
 ```typescript
 const input = [1, 2, 3, 4, 5];
@@ -2911,7 +2958,7 @@ the values at those positions from an input array. When `getValues` is called
 with the `input` array, it returns `[2, 4]` which are the values at positions 1
 and 3 in the input array.
 
-## letIn
+### letIn
 
 ```typescript
 letIn<T, Output>(value: T, constructor: (input: T) => Output): Output
@@ -2921,7 +2968,7 @@ The `letIn` function takes a value `value` of type `T` and a constructor
 function `constructor` that takes `value` as input and returns an `Output`
 value. It applies the constructor function to the value and returns the result.
 
-### Example
+#### Example
 
 ```typescript
 const length = letIn("hello", (str) => str.length);
@@ -2933,12 +2980,12 @@ function `(input: string) => string.length` to the value `'hello'`. The
 constructor function calculates the length of the input string, and the `letIn`
 function returns the result, which is `5`.
 
-## `not(x: any): boolean`
+### `not(x: any): boolean`
 
 This function takes an argument `x` of any type and returns the negation of `x`
 as a boolean value.
 
-### Example
+#### Example
 
 ```javascript
 not(false); // true
@@ -2952,7 +2999,7 @@ not("hello"); // false
 In the above example, the `not` function is called with various arguments to
 demonstrate its behavior.
 
-## Function: prop
+### prop
 
 ```typescript
 prop:
@@ -2962,17 +3009,17 @@ prop:
 Returns a function that takes an object (`x`) of type `T` and returns the value
 of the property with key `K`.
 
-### Parameters
+#### Parameters
 
 This function does not take any parameters.
 
-### Return Type
+#### Return Type
 
 - `<K extends keyof T>(key: K) => (x: T) => T[K]`: A function that accepts an
   object `x` of type `T` and returns the value of the property with key `K` on
   `x`.
 
-### Example
+#### Example
 
 ```typescript
 interface Person {
@@ -2991,27 +3038,27 @@ properties. We then create a function `getName` using the `prop` function.
 `getName` can be used to get the value of the `name` property from a `Person`
 object. We pass `person` to `getName` and it returns the value `"John"`.
 
-## equals
+### equals
 
 The `equals` function takes in two values and returns a function that checks if
 the values are equal.
 
-### Signature
+#### Signature
 
 ```typescript
 equals(x: Primitive): (y: Primitive) => boolean
 ```
 
-### Parameters
+#### Parameters
 
 - `x`: A value of type `Primitive`.
 
-### Return Type
+#### Return Type
 
 `(y: Primitive) => boolean`: A function that takes in a value of type
 `Primitive` and returns a boolean indicating whether the two values are equal.
 
-### Example
+#### Example
 
 ```typescript
 const equalsStrings = equals("hello");
@@ -3020,12 +3067,12 @@ console.log(equalsStrings("hello")); // Output: true
 console.log(equalsStrings("world")); // Output: false
 ```
 
-## `greater(x: number): (y: number) => boolean`
+### `greater(x: number): (y: number) => boolean`
 
 This function takes a number `x` and returns a function that takes a number `y`
 and determines if `y` is greater than `x`.
 
-### Example:
+#### Example
 
 ```javascript
 const isGreaterThan10 = greater(10);
@@ -3038,12 +3085,12 @@ In the example above, we first create a function `isGreaterThan10` using
 use `isGreaterThan10` to compare `15` and `5` with `10`, resulting in `true` and
 `false` respectively.
 
-## smaller(x)
+### smaller(x)
 
 This function takes a number `x` and returns a new function that takes a number
 `y` and returns a boolean value indicating whether `y` is smaller than `x`.
 
-### Example
+#### Example
 
 ```javascript
 const isSmallerThan5 = smaller(5);
@@ -3051,7 +3098,7 @@ console.log(isSmallerThan5(3)); // Output: true
 console.log(isSmallerThan5(7)); // Output: false
 ```
 
-## greaterEquals
+### greaterEquals
 
 ```typescript
 greaterEquals(x: number): (y: number) => boolean
@@ -3061,7 +3108,7 @@ This function takes a number `x` and returns a new function that takes a number
 `y` and checks if `y` is greater than or equal to `x`. It returns `true` if `y`
 is greater than or equal to `x`, otherwise it returns `false`.
 
-### Example:
+#### Example
 
 ```typescript
 const checkGreaterOrEqual = greaterEquals(5);
@@ -3069,24 +3116,24 @@ console.log(checkGreaterOrEqual(7)); // Output: true
 console.log(checkGreaterOrEqual(3)); // Output: false
 ```
 
-## smallerEquals
+### smallerEquals
 
 **Signature:** smallerEquals(x: number) => (y: number) => boolean
 
 Returns a curried function that takes a number `y` and returns true if `y` is
 smaller than or equal to `x`, otherwise returns false.
 
-### Parameters
+#### Parameters
 
 - `x` : number - The reference number to compare against.
 
-### Return type
+#### Return type
 
 - `(y: number) => boolean` - A curried function that accepts a number `y` and
   returns a boolean value based on the comparison against the reference number
   `x`.
 
-### Example
+#### Example
 
 ```typescript
 const smallerOrEqual = smallerEquals(5);
@@ -3101,7 +3148,7 @@ number `5` and returns whether it is smaller than or equal to it. So, in the
 example, `smallerOrEqual(3)` returns `true` while `smallerOrEqual(7)` returns
 `false`.
 
-## between
+### between
 
 ```typescript
 ((start: number, end: number) => (x: number) => boolean);
@@ -3110,7 +3157,7 @@ example, `smallerOrEqual(3)` returns `true` while `smallerOrEqual(7)` returns
 Returns a function that checks if a given number `x` is between `start`
 (inclusive) and `end` (exclusive).
 
-### Example
+#### Example
 
 ```typescript
 const isBetweenOneAndTen = between(1, 10);
@@ -3124,7 +3171,7 @@ function. This function checks if a given number is between 1 (inclusive) and 10
 (exclusive). The function returns `true` if the number is between 1 and 10, and
 `false` otherwise.
 
-## unspread
+### unspread
 
 ```typescript
 unspread<Inputs extends any[]>(...stuff: Inputs): Inputs
@@ -3132,7 +3179,7 @@ unspread<Inputs extends any[]>(...stuff: Inputs): Inputs
 
 The `unspread` function takes in a list of values and returns them as an array.
 
-### Example
+#### Example
 
 ```typescript
 const result = unspread(1, 2, 3);
@@ -3145,7 +3192,7 @@ In this example, the function `unspread` is called with values `1`, `2`, and
 `3`. The function returns an array `[1, 2, 3]`, which is then printed to the
 console.
 
-## spread
+### spread
 
 ```typescript
 spread<F extends Func>(f: F): (x: Parameters<F>) => ReturnType<F>
@@ -3161,7 +3208,7 @@ individual parameters and returns the result of calling `f` with those spread
 arguments. The return type of this new function is the same as the return type
 of `f`.
 
-### Example
+#### Example
 
 ```typescript
 const sum = (x: number, y: number): number => {
@@ -3179,7 +3226,7 @@ that spreads the arguments when called. We pass an array `[1, 2]` to `spreadSum`
 instead of two separate arguments, and it correctly calculates the sum and
 returns the result of `3`.
 
-## modulo
+### modulo
 
 ```typescript
 ((y: number) => (x: number) => x % y);
@@ -3188,16 +3235,16 @@ returns the result of `3`.
 This function takes a number `y` and returns a new function that takes another
 number `x` and calculates the remainder of `x` divided by `y`.
 
-### Parameters
+#### Parameters
 
 - `y: number`: The divisor.
 
-### Returns
+#### Returns
 
 - `(x: number) => number`: A function that takes a number `x` and returns the
   remainder of `x` divided by `y`.
 
-### Example
+#### Example
 
 ```typescript
 const modBy2 = modulo(2);
@@ -3206,7 +3253,7 @@ console.log(modBy2(8)); // Output: 0
 console.log(modBy2(10)); // Output: 0
 ```
 
-## promiseAll
+### promiseAll
 
 ```typescript
 promiseAll(promises: Promise<unknown>[]): Promise<any>
@@ -3216,7 +3263,7 @@ The `promiseAll` function takes in an array of promises and returns a new
 promise that is fulfilled when all the input promises are fulfilled, or rejected
 if any of the input promises are rejected.
 
-### Example
+#### Example
 
 ```typescript
 const promises = [
@@ -3237,7 +3284,7 @@ and a new promise is returned. When all the input promises are fulfilled, the
 any of the input promises are rejected, the `catch` callback is executed with
 the reason of the first rejected promise.
 
-## wrapPromise
+### wrapPromise
 
 ```typescript
 wrapPromise<T>(x: T): Promise<T>
@@ -3246,7 +3293,7 @@ wrapPromise<T>(x: T): Promise<T>
 This function takes a value `x` and wraps it in a Promise. The function returns
 the wrapped value as a Promise.
 
-### Example:
+#### Example
 
 ```typescript
 const value = 10;
@@ -3260,23 +3307,23 @@ In the example above, the function `wrapPromise` is called with the value `10`.
 The function wraps the value in a Promise and returns it. The console output
 shows that the value `10` is wrapped in a Promise object.
 
-## isPromise
+### isPromise
 
 Checks if a value is a Promise.
 
-### Signature
+#### Signature
 
 `isPromise(x: any): boolean`
 
-### Parameters
+#### Parameters
 
 `x`: any - The value to be checked.
 
-### Returns
+#### Returns
 
 `boolean` - True if the value is a Promise, false otherwise.
 
-### Example
+#### Example
 
 ```javascript
 const promise = new Promise((resolve, reject) => {
@@ -3288,13 +3335,13 @@ const result1 = isPromise(promise); // true
 const result2 = isPromise(42); // false
 ```
 
-## `doInSequence`
+### `doInSequence`
 
 `doInSequence` is a function that executes a series of functions in sequence,
 where each function is a nullary function (a function with no arguments). It
 returns a `Promise` that resolves to `void`.
 
-### Signature
+#### Signature
 
 ```typescript
 ((
@@ -3303,18 +3350,18 @@ returns a `Promise` that resolves to `void`.
 ) => Promise<void>);
 ```
 
-### Parameters
+#### Parameters
 
 - `head: NullaryFunction`: The first function to execute in the sequence.
 - `...rest: NullaryFunction[]`: The remaining functions to execute in the
   sequence.
 
-### Return Type
+#### Return Type
 
 - `Promise<void>`: A `Promise` that resolves to `void` when all the functions in
   the sequence have been executed.
 
-### Example
+#### Example
 
 ```javascript
 const func1 = () => {
@@ -3352,7 +3399,7 @@ Function 2 executed.
 Note that the exact timings may vary based on the machine's processing power and
 other factors.
 
-## reduce
+### reduce
 
 **Signature**
 
@@ -3393,7 +3440,7 @@ the sum. The `initialValues` function returns the initial state, which is 0.
 Finally, the `reduce` function is applied to the `numbers` array to calculate
 the total sum, which is 15.
 
-## min
+### min
 
 ```typescript
 ((key: (x: T) => number | Promise<number>) => (xs: T[]) => T);
@@ -3403,7 +3450,7 @@ The `min` function takes a `key` function which returns a number or a promise of
 a number for each element in an array `xs`. It returns a function that finds the
 element in `xs` that has the minimum value according to the `key` function.
 
-### Example
+#### Example
 
 ```typescript
 const numbers = [4, 2, 6, 1, 3];
@@ -3419,23 +3466,23 @@ In the example above, we have an array of numbers `numbers`. We define a
 `numbers` according to the `getKey` function. Finally, we call
 `findMin(numbers)` to get the minimum number in the array.
 
-## max
+### max
 
 `(key: (x: T) => number | Promise<number>) => (xs: T[]) => T`
 
 Function to find the maximum element in an array based on a key function.
 
-### Parameters:
+#### Parameters:
 
 - `key: (x: T) => number | Promise<number>`: A function that computes a
   numerical key for each element `x` in the array `xs`.
 
-### Returns:
+#### Returns:
 
 - `(xs: T[]) => T`: A function that takes an array `xs` of type `T` and return
   the maximum element based on the key function.
 
-### Example:
+#### Example
 
 ```javascript
 const data = [
@@ -3456,7 +3503,7 @@ the age of each person. The `maxAge` function is then used to find the oldest
 person in the `data` array. The result, `{ name: 'Jane', age: 30 }`, is printed
 to the console.
 
-## truncate
+### truncate
 
 `(maxLength: number) => (input: string) => string`
 
@@ -3465,15 +3512,15 @@ function that takes a `input` parameter. It truncates the input string to the
 specified maximum length and adds ellipsis (...) if the string is longer than
 the maximum length.
 
-### Parameters
+#### Parameters
 
 - `maxLength: number`: The maximum length of the string before truncation.
 
-### Return Type
+#### Return Type
 
 `(input: string) => string`: The truncated string.
 
-### Example
+#### Example
 
 ```typescript
 const truncateWithMaxLength10 = truncate(10);
@@ -3483,23 +3530,23 @@ const truncateWithMaxLength5 = truncate(5);
 console.log(truncateWithMaxLength5("Hello")); // Output: "Hello"
 ```
 
-## split
+### split
 
 - Signature: `split(x: string | RegExp): (s: string) => string[]`
 
 Splits a string into an array of substrings based on a specified delimiter.
 
-### Parameters:
+#### Parameters:
 
 - `x: string | RegExp` - The delimiter used to split the string. It can be a
   string or a regular expression.
 
-### Returns:
+#### Returns:
 
 - `(s: string) => string[]` - A function that takes a string `s` and returns an
   array of substrings.
 
-### Example:
+#### Example
 
 ```javascript
 const splitByComma = split(",");
@@ -3508,12 +3555,12 @@ console.log(splitByComma("apple,banana,orange"));
 // Output: ['apple', 'banana', 'orange']
 ```
 
-## `uppercase(s: string): string`
+### `uppercase(s: string): string`
 
 This function takes a string as input and returns a new string with all the
 characters converted to uppercase.
 
-### Example
+#### Example
 
 ```typescript
 const result = uppercase("hello world");
@@ -3524,7 +3571,7 @@ In the above example, the function is called with the string "hello world" as an
 argument. The function returns a new string with all the characters converted to
 uppercase, resulting in "HELLO WORLD".
 
-## lowercase
+### lowercase
 
 ```typescript
 lowercase(s: string): string
@@ -3533,7 +3580,7 @@ lowercase(s: string): string
 The `lowercase` function takes a string as input and returns a new string with
 all characters converted to lowercase using the `toLocaleLowerCase` method.
 
-### Example
+#### Example
 
 ```typescript
 const input = "Hello, World!";
@@ -3545,7 +3592,7 @@ In the example above, the `lowercase` function is called with the string
 `"Hello, World!"`. The function converts all characters to lowercase and returns
 the string `"hello, world!"`. The result is then logged to the console.
 
-## replace
+### replace
 
 **Signature:**
 `(target: string | RegExp, replacement: string) => (s: string) => string`
@@ -3556,7 +3603,7 @@ The `replace` function takes in two parameters: `target` and `replacement`. The
 string `s` and returns a new string with all occurrences of `target` replaced by
 `replacement`.
 
-**Example:**
+**Example**
 
 ```typescript
 const replaceHello = replace("hello", "hi");
@@ -3565,7 +3612,7 @@ const result = replaceHello("hello world");
 console.log(result); // Output: "hi world"
 ```
 
-## capitalize
+### capitalize
 
 **Signature:** `(s: string) => string`
 
@@ -3573,7 +3620,7 @@ The `capitalize` function takes a string as input and returns a new string where
 the first character is capitalized and the rest of the characters remain
 unchanged.
 
-**Example:**
+**Example**
 
 ```typescript
 capitalize("hello"); // returns "Hello"
@@ -3585,22 +3632,22 @@ In this example, the function takes the input string "hello" and returns
 "Hello", where the first letter "h" is capitalized. The same process is applied
 to the other input strings.
 
-## trim
+### trim
 
 `(characters: string[]) => (str: string) => string`
 
 This function trims characters from the beginning and end of a string.
 
-### Parameters
+#### Parameters
 
 - `characters: string[]` - An array of characters to be trimmed from the string.
 
-### Returns
+#### Returns
 
 `(str: string) => string` - A function that takes a string as input and returns
 the trimmed string.
 
-### Example
+#### Example
 
 ```javascript
 const trimWhitespaces = trim([" ", "\t"]);
@@ -3608,7 +3655,7 @@ const result = trimWhitespaces("  Hello World!  ");
 console.log(result); // Output: 'Hello World!'
 ```
 
-## testRegExp
+### testRegExp
 
 ```typescript
 ((regexp: RegExp) => (x: string) => regexp.test(x));
@@ -3618,7 +3665,7 @@ This function takes a regular expression `regexp` as a parameter and returns a
 new function that takes a string `x` as a parameter and applies the regular
 expression test on `x` using `regexp.test(x)`.
 
-### Example:
+#### Example
 
 ```typescript
 const testEmail = testRegExp(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
@@ -3627,26 +3674,26 @@ console.log(testEmail("test@example.com")); // Output: true
 console.log(testEmail("invalid_email")); // Output: false
 ```
 
-## `isValidRegExp`
+### `isValidRegExp`
 
 Checks if a given string is a valid regular expression.
 
-### Signature
+#### Signature
 
 ```typescript
 ((str: string) => boolean);
 ```
 
-### Parameters
+#### Parameters
 
 - `str` : string - The string to check if it is a valid regular expression.
 
-### Returns
+#### Returns
 
 boolean - Returns `true` if the string is a valid regular expression, otherwise
 `false`.
 
-### Example
+#### Example
 
 ```typescript
 isValidRegExp("abc"); // true
@@ -3657,7 +3704,7 @@ isValidRegExp("[a-z]+\\"); // false
 isValidRegExp("[a-z]{}"); // false
 ```
 
-## wrapString
+### wrapString
 
 ```typescript
 ((wrapping: string) => (inner: string) => string);
@@ -3667,16 +3714,16 @@ The `wrapString` function takes a `wrapping` string as an argument and returns a
 new function that can be used to wrap another string (`inner`) within the
 `wrapping` string.
 
-### Parameters
+#### Parameters
 
 - `wrapping` (string): The wrapping string used to wrap the `inner` string.
 
-### Returns
+#### Returns
 
 `(inner: string) => string`: A function that takes an `inner` string and returns
 the wrapped string.
 
-### Example
+#### Example
 
 ```typescript
 const wrapWithBrackets = wrapString("[]");
@@ -3689,7 +3736,7 @@ In the above example, the `wrapString` function is used to create a new function
 the `wrapWithBrackets` function is used to wrap the string "Hello" and the
 resulting wrapped string "[Hello]" is printed to the console.
 
-## addDays
+### addDays
 
 ```typescript
 addDays(millisTimestamp: number, days: number): Date
@@ -3698,7 +3745,7 @@ addDays(millisTimestamp: number, days: number): Date
 This function takes a millisecond timestamp and a number of days and returns a
 new date that is the number of days after the specified timestamp.
 
-### Example
+#### Example
 
 ```typescript
 const timestamp = 1639852800000; // 2021-12-19 00:00:00 UTC
@@ -3713,7 +3760,7 @@ In the above example, `addDays` is called with a millisecond timestamp of
 function returns a new date that is 7 days after the specified timestamp, which
 is "2021-12-26T00:00:00.000Z".
 
-## lastNDays
+### lastNDays
 
 ```typescript
 lastNDays(n: number): (number | Date)[]
@@ -3721,15 +3768,15 @@ lastNDays(n: number): (number | Date)[]
 
 Returns an array of the last `n` days, including today.
 
-### Parameters
+#### Parameters
 
 - `n`: A number representing the number of days to retrieve.
 
-### Returns
+#### Returns
 
 An array of `number` or `Date` objects representing the last `n` days.
 
-### Example
+#### Example
 
 ```typescript
 const lastSevenDays = lastNDays(7);
@@ -3745,16 +3792,16 @@ In the example above, the `lastNDays` function is called with different values
 for the parameter `n`. The function returns an array containing the
 corresponding number of dates representing the last `n` days.
 
-## sleep(milliseconds: number): Promise<any>
+### sleep(milliseconds: number): Promise<any>
 
 This function returns a Promise that resolves after the specified number of
 milliseconds.
 
-### Parameters
+#### Parameters
 
 - `milliseconds: number` - The number of milliseconds to sleep.
 
-### Example
+#### Example
 
 ```javascript
 await sleep(1000);
@@ -3765,30 +3812,30 @@ In the example above, the function `sleep` is called with `1000` as the
 argument, which represents 1 second. The code then waits for 1 second before
 logging "After 1 second" to the console.
 
-## reduceTree(getChildren, reduce)
+### reduceTree(getChildren, reduce)
 
 Creates a function that recursively reduces a tree structure using a given
 `getChildren` function to obtain the children of each node and a `reduce`
 function to combine the current node with its children.
 
-### Signature
+#### Signature
 
 ```typescript
 reduceTree(getChildren: (tree: Tree) => Tree[], reduce: (current: Tree, children: R[]) => R): (tree: Tree) => R
 ```
 
-### Parameters
+#### Parameters
 
 - `getChildren`: A function that takes a `tree` and returns an array of its
   children.
 - `reduce`: A function that takes the current `tree` and an array of reduced
   children and returns the reduced value.
 
-### Return Value
+#### Return Value
 
 A function that takes a `tree` and returns the reduced value.
 
-### Example
+#### Example
 
 ```typescript
 const tree = {
