@@ -17,12 +17,10 @@ const executeTasks = <TaskInput, Output>(
       input: map(prop<Task<TaskInput, Output>>()("input")),
       reject: pipe(
         map(prop<Task<TaskInput, Output>>()("reject")),
-        // @ts-expect-error reason: TODO - fix typing
         spread(juxt),
       ),
       resolve: pipe(
         map(prop<Task<TaskInput, Output>>()("resolve")),
-        // @ts-expect-error reason: TODO - fix typing
         spread(stack),
       ),
     }),

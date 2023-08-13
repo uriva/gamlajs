@@ -1,10 +1,4 @@
-import {
-  AnyAsync,
-  AsyncFunction,
-  BooleanEquivalent,
-  Func,
-  Last,
-} from "./typing.ts";
+import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
 import { reverse, Reversed } from "./array.ts";
 
 import { not } from "./operator.ts";
@@ -57,13 +51,11 @@ export const before =
   <T>(f1: (...args: unknown[]) => T) => (f2: (input: T) => unknown) =>
     pipe(f1, f2);
 
-export const complement = (
-  f:
-    // deno-lint-ignore no-explicit-any
-    | ((..._: any[]) => BooleanEquivalent)
-    // deno-lint-ignore no-explicit-any
-    | ((..._: any[]) => Promise<BooleanEquivalent>),
-) => pipe(f, not);
+export const complement = <F extends Func>(
+  f: F,
+): (...x: Parameters<F>) => boolean =>
+  // @ts-expect-error compiler cannot dynamically infer
+  pipe(f, not);
 
 export const sideEffect = <T>(f: (_: T) => void) => (x: T) => {
   f(x);

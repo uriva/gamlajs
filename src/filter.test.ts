@@ -1,4 +1,4 @@
-import { filter, find, intersectBy } from "./filter.ts";
+import { filter, find, intersectBy, remove } from "./filter.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { prop } from "./operator.ts";
@@ -15,6 +15,24 @@ Deno.test("async filter", async () => {
       6,
     ]),
     [2, 4, 6],
+  );
+});
+
+const _nums: number[] = remove((x: number) => x > 0)([1, 2, 3]);
+// @ts-expect-error should preserve typing information
+const _strings: string[] = remove((x: number) => x > 0)([1, 2, 3]);
+
+Deno.test("async filter", async () => {
+  assertEquals(
+    await remove((arg: number) => wrapPromise(arg % 2 === 0))([
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+    ]),
+    [1, 3, 5],
   );
 });
 

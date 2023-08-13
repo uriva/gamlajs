@@ -24,7 +24,11 @@ export const filter = <F extends Predicate>(f: F): (
 export const find = <Fn extends Predicate>(predicate: Fn) =>
   pipe(filter(predicate), head);
 
-export const remove = <F extends Predicate>(f: F) => filter(complement(f));
+export const remove = <F extends Predicate>(
+  f: F,
+): (x: Parameters<F>[0][]) => Parameters<F>[0][] =>
+  // @ts-expect-error compiler cannot infer
+  filter(complement(f));
 
 type Primitive = string | number | boolean | null | undefined;
 
