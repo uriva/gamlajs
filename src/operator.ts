@@ -15,7 +15,9 @@ export const greaterEquals = (x: number) => (y: number) => y >= x;
 export const smallerEquals = (x: number) => (y: number) => y <= x;
 export const between = (start: number, end: number) => (x: number) =>
   start <= x && x < end;
-export const unspread = <Inputs extends unknown[]>(...stuff: Inputs): Inputs =>
+// deno-lint-ignore no-explicit-any
+export const unspread = <Inputs extends any[]>(...stuff: Inputs): Inputs =>
   stuff;
-export const spread = <F extends Func>(f: F) => (x: Parameters<F>) => f(...x);
+export const spread = <F extends Func>(f: F) => (x: Parameters<F>) =>
+  f(...x) as ReturnType<F>;
 export const modulo = (y: number) => (x: number) => x % y;

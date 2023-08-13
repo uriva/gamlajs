@@ -1,4 +1,4 @@
-import { between, modulo, prop } from "./operator.ts";
+import { between, modulo, prop, spread } from "./operator.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 
@@ -21,3 +21,10 @@ const assertString = (x: string) => x;
 prop<{ a: number }>()("a")({ a: 1 }) as number;
 // @ts-expect-error: type does not match
 assertString(prop<{ a: number }>()("a")({ a: 1 }));
+
+spread((x: string, y: number) => x + y)(["a", 1]);
+// @ts-expect-error retains input type
+spread((x: string, y: number) => x + y)(["a", "a"]);
+const _1: string = spread((x: string, y: number) => x + y)(["a", 1]);
+// @ts-expect-error retains output type
+const _2: number = spread((x: string, y: number) => x + y)(["a", 1]);
