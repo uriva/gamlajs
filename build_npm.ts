@@ -10,7 +10,7 @@ await build({
   shims: { deno: true },
   package: {
     name: "gamla",
-    version: "12.0.0",
+    version: "15.0.0",
     description: "Functional programming with async",
     license: "MIT",
     repository: {
