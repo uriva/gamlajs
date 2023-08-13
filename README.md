@@ -2,7 +2,7 @@
 
 ![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
 
-`gamla` is a functional programming library for Javascript/Typescript.
+`gamla` is a zero-deps functional programming library for Javascript/Typescript.
 
 ## Installation
 
@@ -14,11 +14,12 @@ deno: `import { pipe } from "https://deno.land/x/gamla/src/index.ts";`
 
 This library allows you to write in typescript/javascript using composition.
 
-It has two main advantages over similar libs:
+It has two main advantages over the native functional APIs and similar libs
+(`ramda` and `lodash`):
 
 1. It supports mixing async and sync functions
-1. As oppposed to `ramda` and other libraries it keeps typing information, so
-   you get type safety when programming in pipelines.
+1. It keeps typing information, so you get type safety when programming in
+   pipelines.
 
 ## Use cases
 
