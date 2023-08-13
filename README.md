@@ -1,4 +1,4 @@
-# `gamla`
+# Gamla
 ![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
 
 
