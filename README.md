@@ -1,6 +1,6 @@
 # Gamla
-![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
 
+![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
 
 `gamla` is a functional programming library for Javascript/Typescript.
 
@@ -80,6 +80,8 @@ This seemingly complex list of requirements is a simple readable one liner:
 ```ts
 map(throttle(25, process))(items);
 ```
+
+### Type safety
 
 `gamla` preserves typing, so if you by accident you write something like this:
 
