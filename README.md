@@ -1,4 +1,6 @@
-# Gamla
+# `gamla`
+![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
+
 
 `gamla` is a functional programming library for Javascript/Typescript.
 
@@ -34,7 +36,7 @@ const people: Person[] = [
 const getNamesOfPeopleOlderThan25 = pipe(
   filter(({ age }) => age > 25),
   sideEffect(console.log), // Log mid pipeline.
-  map(({ name }) => name), // get names only
+  map(({ name }) => name), // Get people names only.
   join(", "),
 );
 
@@ -90,7 +92,7 @@ const typingMismatch = pipe(
 
 You will get a typing error.
 
-## API
+## Complete API
 
 ### anymap
 
