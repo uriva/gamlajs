@@ -2,6 +2,7 @@ import {
   all,
   any,
   anymap,
+  concat,
   contains,
   drop,
   enumerate,
@@ -16,6 +17,19 @@ import {
 } from "./array.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+
+const _: number[] = concat([[1, 2, 3], [0, 0, 0]]);
+
+Deno.test("concat", () => {
+  assertEquals(concat([[1, 2, 3], [0, 0, 0]]), [
+    1,
+    2,
+    3,
+    0,
+    0,
+    0,
+  ]);
+});
 
 Deno.test("zip", () => {
   assertEquals(zip([1, 2, 3], [0, 0, 0]), [

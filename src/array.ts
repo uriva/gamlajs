@@ -21,7 +21,7 @@ export const unique = <T>(key: (x: T) => Primitive) => (array: T[]) => {
   return result;
 };
 
-export const concat = (array: unknown[][]) => {
+export const concat = <T>(array: T[][]) => {
   const result = [];
   for (const xs of array) {
     for (const x of xs) {
