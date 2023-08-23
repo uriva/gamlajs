@@ -11,7 +11,7 @@ await build({
   package: {
     name: "gamla",
     version: "16.0.0",
-    description: "Functional programming with async",
+    description: "Functional programming with async and type safety",
     license: "MIT",
     repository: {
       type: "git",
