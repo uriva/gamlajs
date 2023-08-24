@@ -32,5 +32,5 @@ export const timeit = <Args extends unknown[], R>(
 
 export const assert = <T>(condition: (_: T) => boolean, errorMessage: string) =>
   sideEffect((x: T) => {
-    if (!condition(x)) throw errorMessage;
+    if (!condition(x)) throw new Error(errorMessage);
   });
