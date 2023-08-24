@@ -21,6 +21,9 @@ Deno.test("async filter", async () => {
 const _nums: number[] = remove((x: number) => x > 0)([1, 2, 3]);
 // @ts-expect-error should preserve typing information
 const _strings: string[] = remove((x: number) => x > 0)([1, 2, 3]);
+const _strings_promise: Promise<number[]> = remove((x: number) =>
+  Promise.resolve(x > 0)
+)([1, 2, 3]);
 
 Deno.test("async filter", async () => {
   assertEquals(

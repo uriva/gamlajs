@@ -26,7 +26,9 @@ export const find = <Fn extends Predicate>(predicate: Fn) =>
 
 export const remove = <F extends Predicate>(
   f: F,
-): (x: Parameters<F>[0][]) => Parameters<F>[0][] =>
+): F extends AsyncFunction
+  ? (x: Parameters<F>[0][]) => Promise<Parameters<F>[0][]>
+  : (x: Parameters<F>[0][]) => Parameters<F>[0][] =>
   // @ts-expect-error compiler cannot infer
   filter(complement(f));
 
