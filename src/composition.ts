@@ -44,7 +44,6 @@ export const compose = <Fs extends Func[]>(
 
 export const after =
   <T>(f: UnaryFn<T, unknown>) => <L extends unknown[]>(g: (...args: L) => T) =>
-    // @ts-ignore: difference between deno compiler and node
     pipe(g, f);
 
 export const before =

@@ -12,7 +12,7 @@ export type Unary<Input, Output> = (_: Input) => Output;
 export type BooleanEquivalent = boolean | string | number | null | undefined;
 
 // deno-lint-ignore no-explicit-any
-export type Func = (..._: any[]) => unknown;
+export type Func = (..._: any[]) => any;
 
 export type ParamOf<T extends Func> = Parameters<T>[0];
 

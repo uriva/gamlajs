@@ -112,11 +112,11 @@ export const entryFilter = <
 
 type RecordKey = string | number | symbol;
 
-export const valFilter = (f: Predicate) =>
+export const valFilter = <Function extends Predicate>(f: Function) =>
   // @ts-expect-error reason: TODO - fix typing
   entryFilter(pipe(second, f));
 
-export const keyFilter = <Function>(f: Function) =>
+export const keyFilter = <Function extends Predicate>(f: Function) =>
   // @ts-expect-error reason: TODO - fix typing
   entryFilter(pipe(head, f));
 
@@ -144,5 +144,4 @@ export const mapTerminals =
 
 export const applySpec =
   <Args extends unknown[]>(spec: Tree<(..._: Args) => unknown>) =>
-  // @ts-ignore reason: difference between deno compiler and node
   (...args: Args) => mapTerminals(applyTo(...args))(spec);
