@@ -18,7 +18,7 @@ Deno.test("prop", () => {
 
 const assertString = (x: string) => x;
 
-prop<{ a: number }>()("a")({ a: 1 }) as number;
+const _: number = prop<{ a: number }>()("a")({ a: 1 });
 // @ts-expect-error: type does not match
 assertString(prop<{ a: number }>()("a")({ a: 1 }));
 
