@@ -43,3 +43,6 @@ export const intersectBy = <T>(f: (x: T) => Primitive) => (arrays: T[][]) =>
   arrays.reduce((current, next) =>
     current.filter(pipe(f, toContainmentCheck(next.map(f))))
   );
+
+export const removeNulls = <T>(x: (T | null)[]) =>
+  x.filter(<T>(x: T | null): x is Exclude<T, null> => x !== null);
