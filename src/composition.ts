@@ -1,5 +1,5 @@
 import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
-import { reverse, Reversed } from "./array.ts";
+import { last, reverse, Reversed } from "./array.ts";
 
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
@@ -45,25 +45,26 @@ interface StackFrame {
 const frameToString = ({ line, file, column }: StackFrame) =>
   `${file}:${line}:${column}`;
 
+const parseStackLine = (stackLine: string): null | StackFrame => {
+  const matches = RegExp(/\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/).exec(
+    stackLine,
+  );
+  if (!matches) return null;
+  const [, , file, line, column] = matches;
+  return { file, line: parseInt(line), column: parseInt(column) };
+};
+
 const parseStackTrace = (trace: string) =>
-  trace.split("\n")
-    .slice(1)
-    .map((stackLine: string): StackFrame => {
-      const matches = RegExp(/\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/).exec(
-        stackLine,
-      );
-      if (!matches) throw new Error(stackLine);
-      const [, , file, line, column] = matches;
-      return { file, line: parseInt(line), column: parseInt(column) };
-    });
+  parseStackLine(last(trace.split("\n")));
 
 const errorBoundry = <F extends Func>(f: F) => {
-  const stack = parseStackTrace(new Error().stack as string).map(frameToString);
+  const err = new Error().stack as string;
   return ((...x) => {
     try {
       return f(...x);
     } catch (e) {
-      console.error(stack[stack.length - 1]);
+      const lastStackCall = parseStackTrace(err);
+      if (lastStackCall) console.error(frameToString(lastStackCall));
       throw e;
     }
   }) as F;
