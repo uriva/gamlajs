@@ -1,7 +1,38 @@
+import { Func } from "./typing.ts";
 import { sideEffect } from "./composition.ts";
 
-export const log = sideEffect(console.log);
-export const logTable = sideEffect(console.table);
+export const sideLog = <T>(x: T) => {
+  console.log(x);
+  return x;
+};
+
+export const sideLogAfter = <F extends Func>(f: F): F =>
+  ((...xs) => {
+    const output = f(...xs);
+    if (output instanceof Promise) {
+      return output.then((x) => {
+        console.log(x);
+        return x;
+      }) as ReturnType<F>;
+    }
+    console.log(output);
+    return output;
+  }) as F;
+
+export const sideLogBefore = <F extends Func>(f: F): F =>
+  ((...xs) => {
+    console.log(xs.length === 1 ? xs[0] : xs);
+    const output = f(...xs);
+    if (output instanceof Promise) {
+      return output.then((x) => {
+        return x;
+      }) as ReturnType<F>;
+    }
+    console.log(output);
+    return output;
+  }) as F;
+
+export const sideLogTable = sideEffect(console.table);
 // deno-lint-ignore no-explicit-any
 export const logWith = <T>(...x: any[]) =>
   sideEffect<T>((y) => console.log(...x, y));
