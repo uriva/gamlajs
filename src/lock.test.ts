@@ -1,5 +1,10 @@
 import {
+  assert,
+  assertEquals,
+} from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import {
   makeLockWithId,
+  rateLimit,
   retry,
   sequentialized,
   throttle,
@@ -7,7 +12,6 @@ import {
   withLockByInput,
 } from "./lock.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { map } from "./map.ts";
 import { sleep } from "./time.ts";
 
@@ -148,4 +152,44 @@ Deno.test("throttle", async () => {
 
   await map(throttle(1, mapFn))([1, 2, 3]);
   assertEquals(maxConcurrent, 1);
+});
+
+Deno.test("rate limiter by # calls", async () => {
+  const timeWindowMs = 1000;
+  const rateLimitedFunction = rateLimit(
+    2,
+    100,
+    timeWindowMs,
+    (args: number) => args,
+    (value: number) => Promise.resolve(value),
+  );
+  const results = [];
+  const tasks = [5, 3, 10];
+  const startTime = Date.now();
+  for (const task of tasks) {
+    results.push(await rateLimitedFunction(task));
+  }
+  const endTime = Date.now();
+  assertEquals(results, tasks);
+  assert(endTime - startTime >= timeWindowMs);
+});
+
+Deno.test("rate limiter by weight", async () => {
+  const timeWindowMs = 1000;
+  const rateLimitedFunction = rateLimit(
+    3,
+    15,
+    timeWindowMs,
+    (args: number) => args,
+    (value: number) => Promise.resolve(value),
+  );
+  const results = [];
+  const tasks = [5, 3, 10];
+  const startTime = Date.now();
+  for (const task of tasks) {
+    results.push(await rateLimitedFunction(task));
+  }
+  const endTime = Date.now();
+  assertEquals(results, tasks);
+  assert(endTime - startTime >= timeWindowMs);
 });

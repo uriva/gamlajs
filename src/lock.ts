@@ -2,23 +2,21 @@ import { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
 
 export const withLock = <Function extends AsyncFunction>(
-  lock: () => void | Promise<void>,
-  unlock: () => void | Promise<void>,
+  lock: (...task: Parameters<Function>) => void | Promise<void>,
+  unlock: (...task: Parameters<Function>) => void | Promise<void>,
   f: Function,
-) =>
-async (
-  ...args: Parameters<Function>
-): Promise<Awaited<ReturnType<Function>>> => {
-  await lock();
-  try {
-    const result = await f(...args);
-    await unlock();
-    return result;
-  } catch (e) {
-    await unlock();
-    throw e;
-  }
-};
+): Function =>
+  (async (...args: Parameters<Function>) => {
+    await lock(...args);
+    try {
+      const result = await f(...args);
+      await unlock(...args);
+      return result;
+    } catch (e) {
+      await unlock(...args);
+      throw e;
+    }
+  }) as Function;
 
 export const retry = async (f: () => boolean | Promise<boolean>) => {
   while (!(await f())) {
@@ -71,23 +69,65 @@ export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
     });
 };
 
-export const throttle = <Function extends AsyncFunction>(
+const throttleByWeight = <Function extends AsyncFunction>(
   maxParallelism: number,
+  weight: (...x: Parameters<Function>) => number,
   f: Function,
-) => {
-  const lockObj = { count: 0 };
+): Function => {
+  let lockObj = 0;
   return withLock(
-    () =>
+    (...task: Parameters<Function>) =>
       retry(() => {
-        if (lockObj.count < maxParallelism) {
-          lockObj.count++;
+        if (lockObj < maxParallelism) {
+          lockObj += weight(...task);
           return true;
         }
         return false;
       }),
-    () => {
-      lockObj.count--;
+    (...task: Parameters<Function>) => {
+      lockObj -= weight(...task);
     },
+    f,
+  );
+};
+
+export const throttle = <Function extends AsyncFunction>(
+  maxParallelism: number,
+  f: Function,
+) => throttleByWeight(maxParallelism, () => 1, f);
+
+export const rateLimit = <Function extends AsyncFunction>(
+  maxCalls: number,
+  maxWeight: number,
+  timeWindowMs: number,
+  weight: (...args: Parameters<Function>) => number,
+  f: Function,
+): Function => {
+  let history: { timestamp: number; weight: number }[] = [];
+  return withLock(
+    (...task: Parameters<Function>) =>
+      retry(() => {
+        history = history.filter(({ timestamp }) =>
+          timestamp > Date.now() - timeWindowMs
+        );
+        const currentWeight = weight(...task);
+        if (currentWeight > maxWeight) {
+          throw new Error(
+            "A single task exceeds the weight per time window, and so will never run.",
+          );
+        }
+        if (
+          history.reduce((sum, { weight }) => sum + weight, 0) +
+                currentWeight <=
+            maxWeight &&
+          history.length < maxCalls
+        ) {
+          history.push({ timestamp: Date.now(), weight: currentWeight });
+          return true;
+        }
+        return false;
+      }),
+    () => {},
     f,
   );
 };
