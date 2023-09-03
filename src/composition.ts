@@ -30,11 +30,47 @@ type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
     ...x: Parameters<Functions[0]>
   ) => ReturnType<Last<Functions>>;
 
-export const pipe = <Fs extends Func[]>(
+const pipeWithoutStack = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
 ): Pipeline<Fs> =>
 // @ts-expect-error TODO - fix typing
 (...x) => reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1));
+
+interface StackFrame {
+  file: string;
+  line: number;
+  column: number;
+}
+
+const frameToString = ({ line, file, column }: StackFrame) =>
+  `${file}:${line}:${column}`;
+
+const parseStackTrace = (trace: string) =>
+  trace.split("\n")
+    .slice(1)
+    .map((stackLine: string): StackFrame => {
+      const matches = RegExp(/\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/).exec(
+        stackLine,
+      );
+      if (!matches) throw new Error(stackLine);
+      const [, , file, line, column] = matches;
+      return { file, line: parseInt(line), column: parseInt(column) };
+    });
+
+const errorBoundry = <F extends Func>(f: F) => {
+  const stack = parseStackTrace(new Error().stack as string).map(frameToString);
+  return ((...x) => {
+    try {
+      return f(...x);
+    } catch (e) {
+      console.error(stack[stack.length - 1]);
+      throw e;
+    }
+  }) as F;
+};
+
+export const pipe: typeof pipeWithoutStack = (...fs) =>
+  errorBoundry(pipeWithoutStack(...fs));
 
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
