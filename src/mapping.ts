@@ -11,6 +11,7 @@ import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
 import { map } from "./map.ts";
+import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.ts";
 
 export const wrapObject = <V>(key: string) => (value: V) => ({ [key]: value });
@@ -31,6 +32,17 @@ export const groupByManyReduce = <T, S, K extends Primitive>(
   }
   return result;
 };
+
+export const count = reduce(
+  <T extends string | number | symbol>(
+    counts: Record<T, number>,
+    element: T,
+  ): Record<T, number> => {
+    counts[element] = (counts[element] || 0) + 1;
+    return counts;
+  },
+  () => ({}),
+);
 
 export const groupByReduce = <T, S, K extends Primitive>(
   key: (_: T) => K,
