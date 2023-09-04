@@ -82,6 +82,33 @@ This seemingly complex list of requirements is a simple readable one liner:
 map(throttle(25, process))(items);
 ```
 
+Here's another example, the OpenAI API has rate limitations, which will block
+your requests at some point. `rateLimit` can help you avoid these exceptions.
+
+```ts
+// This is how each request's weight is computed.
+const weightFn = pipe(
+  map(({ content }: ChatCompletionMessage) => (content || "").length),
+  sum,
+  divide(4), // For english, a token is around 4 characters.
+);
+
+const callAPI = (messages: ChatCompletionMessage[]) =>
+  new OpenAI(assertString(OpenAIToken)).createChatCompletion({
+    model: "gpt-4",
+    messages,
+  });
+
+// 10KTPM-200RPM is the official limitation for GPT-4, this means maximum 200 requests per minute, and not more than 10000 tokens.
+const callAPIWithRateLimiter = rateLimit(
+  200, // Max requests in time window.
+  10000, // Max total 'weight' in time window.
+  60 * 1000, // Time window to apply the limitation.
+  weightFn,
+  callAPI,
+);
+```
+
 ### Type safety
 
 `gamla` preserves typing, so if you by accident you write something like this:
