@@ -164,7 +164,8 @@ pipe(f, sideLogAfter(g), h); // Would log the output of `g`.
 pipe(f, g, sideLogBefore(h)); // Would log the input to `h`. So same.
 ```
 
-## Complete API
+<details>
+  <summary>All functions</summary>
 
 ### anymap
 
@@ -1860,7 +1861,7 @@ results of the two functions.
 ```typescript
 <Functions extends Func[]>(...fs: Functions): 
   (..._: Parameters<Functions[0]>) => 
-     Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean
+    Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean
 ```
 
 The `alljuxt` function takes in an arbitrary number of functions as arguments
@@ -3935,3 +3936,5 @@ const reduce = (current, children) => ({
 const sum = reduceTree(getChildren, reduce)(tree);
 console.log(sum); // Output: { value: 10, children: [] }
 ```
+
+</details>
