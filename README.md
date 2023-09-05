@@ -14,12 +14,14 @@ deno: `import { pipe } from "https://deno.land/x/gamla/src/index.ts";`
 
 This library allows you to write in typescript/javascript using composition.
 
-It has two main advantages over the native functional APIs and similar libs
+It has three main advantages over the native functional APIs and similar libs
 (`ramda` and `lodash`):
 
 1. It supports mixing async and sync functions
 1. It keeps typing information, so you get type safety when programming in
    pipelines.
+1. In case of exceptions you get a stack trace that logs your compositions too,
+   so you can debug as usual.
 
 ## Use cases
 
@@ -121,6 +123,46 @@ const typingMismatch = pipe(
 ```
 
 You will get a typing error.
+
+### Debugging
+
+`gamla` has a lot of utils for debugging. The most useful ones are `sideLog`,
+`sideLogAfter` and `sideLogBefore`. Their prpose is to allow logging without
+moving any code around.
+
+E.g. you have a complex expression like so:
+
+```ts
+someCondition ? f(a + g(b)) : c;
+```
+
+And you want to log the value of `g(b)` without inteferring with the code.
+Usually that would require rewriting a bit, placing the value into a variable
+and using `console.log`. But with `sideLog` you can just do:
+
+```ts
+someCondition ? f(a + sideLog(g(b))) : c;
+```
+
+Similarly, if you're working with pipelines and want to log somewhere in the
+middle:
+
+```ts
+pipe(
+  f,
+  g,
+  sideLog, // Would log the output of `g`.
+  h,
+);
+```
+
+If you want to keep typing information, use `sideLogAfter` or `sideLogBefore`:
+
+```ts
+pipe(f, sideLogAfter(g), h); // Would log the output of `g`.
+
+pipe(f, g, sideLogBefore(h)); // Would log the input to `h`. So same.
+```
 
 ## Complete API
 
