@@ -4,16 +4,27 @@ import { all, any, concat, zip } from "./array.ts";
 
 import { map } from "./map.ts";
 
-type AwaitedResults<Functions extends Func[]> = Promise<
-  { [i in keyof Functions]: Awaited<ReturnType<Functions[i]>> }
->;
+// deno-lint-ignore no-explicit-any
+type TupleToUnion<T extends any[]> = T[number];
+
+// deno-lint-ignore no-explicit-any
+type Concatenation<T extends any[]> = TupleToUnion<T[number]>[];
+
+type AwaitedResults<Functions extends Func[]> = {
+  [i in keyof Functions]: Awaited<ReturnType<Functions[i]>>;
+};
+
 type Results<Functions extends Func[]> = {
   [i in keyof Functions]: ReturnType<Functions[i]>;
 };
 
 type JuxtOutput<Functions extends Func[]> = Functions extends
-  AnyAsync<Functions> ? AwaitedResults<Functions>
+  AnyAsync<Functions> ? Promise<AwaitedResults<Functions>>
   : Results<Functions>;
+
+type JuxtCatOutput<Functions extends Func[]> = Functions extends // @ts-ignore-error
+AnyAsync<Functions> ? Promise<Concatenation<AwaitedResults<Functions>>>
+  : Concatenation<Results<Functions>>;
 
 export const juxt =
   <Functions extends Func[]>(...fs: Functions) =>
@@ -42,7 +53,7 @@ export const stack = <Functions extends Func[]>(
 
 export const juxtCat = <Functions extends Func[]>(
   ...fs: Functions
-): (..._: Parameters<Functions[0]>) => ReturnType<Functions[0]> =>
+): (..._: Parameters<Functions[0]>) => JuxtCatOutput<Functions> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
