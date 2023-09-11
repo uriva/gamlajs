@@ -1,14 +1,12 @@
 export const anymap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.some(f);
-const identity = <T>(x: T) => x;
-export const any = anymap(identity<boolean>);
+export const any = <T>(a: T[]) => a.some((x) => x);
 export const allmap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.every(f);
-export const all = allmap(identity<boolean>);
+export const all = <T>(a: T[]) => a.every((x) => x);
 export const join = (str: string) => (x: (string | number)[]) => x.join(str);
-
-type Primitive = string | number | null;
-
 export const length = <T>(array: T[]) => array.length;
-export const unique = <T>(key: (x: T) => Primitive) => (array: T[]) => {
+
+// deno-lint-ignore no-explicit-any
+export const uniqueBy = <T>(key: (x: T) => any) => (array: T[]): T[] => {
   const seen = new Set();
   const result = [];
   for (const x of array) {
@@ -21,6 +19,8 @@ export const unique = <T>(key: (x: T) => Primitive) => (array: T[]) => {
   return result;
 };
 
+export const unique = <T>(array: T[]) => Array.from(new Set(array));
+
 export const concat = <T>(array: T[][]) => {
   const result = [];
   for (const xs of array) {
@@ -30,10 +30,6 @@ export const concat = <T>(array: T[][]) => {
   }
   return result;
 };
-
-export type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
-  ? [...Reversed<Rest>, Head]
-  : [];
 
 export const reverse = <T>(
   array: T[],

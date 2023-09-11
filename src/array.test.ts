@@ -13,6 +13,8 @@ import {
   sortCompare,
   sortKey,
   take,
+  unique,
+  uniqueBy,
   zip,
 } from "./array.ts";
 
@@ -127,5 +129,16 @@ Deno.test("slidingWindow", () => {
   assertEquals(slidingWindow(3)([1, 2, 3, 4]), [
     [1, 2, 3],
     [2, 3, 4],
+  ]);
+});
+
+Deno.test("unique", () => {
+  assertEquals(unique([1, 1, 2, 3, 4]), [1, 2, 3, 4]);
+});
+
+Deno.test("uniqueBy", () => {
+  assertEquals(uniqueBy((x: number) => x % 2)([1, 1, 2, 3, 4]), [
+    1,
+    2,
   ]);
 });

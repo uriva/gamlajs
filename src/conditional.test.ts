@@ -63,3 +63,14 @@ pipe(
   ifElse((x: number) => x > 7, (x: number) => x + 1, (_) => null),
   (x: number) => x,
 );
+
+const _1: number = when((x: number) => x < 3, (x: number) => x + 1)(4);
+const _2: number = await unless(
+  (x: number) => Promise.resolve(x < 3),
+  (x: number) => x + 1,
+)(4);
+// @ts-expect-error should infer typing
+const _3: string = await unless(
+  (x: number) => Promise.resolve(x < 3),
+  (x: number) => x + 1,
+)(4);

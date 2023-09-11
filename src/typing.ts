@@ -9,8 +9,6 @@ export type AnyAsync<Functions> = Functions extends [] ? never
 
 export type Unary<Input, Output> = (_: Input) => Output;
 
-export type BooleanEquivalent = boolean | string | number | null | undefined;
-
 // deno-lint-ignore no-explicit-any
 export type Func = (..._: any[]) => any;
 
@@ -31,3 +29,7 @@ export type Second<T extends any[]> = T extends [any, infer S, ...unknown[]] ? S
 export type ElementOf<T> = T extends (infer X)[] ? X : never;
 
 export type Reducer<T, S> = (state: S, element: T) => S;
+
+export type ReturnTypeUnwrapped<F extends Func> = F extends AsyncFunction
+  ? Awaited<ReturnType<F>>
+  : ReturnType<F>;

@@ -22,7 +22,7 @@ type JuxtOutput<Functions extends Func[]> = Functions extends
   AnyAsync<Functions> ? Promise<AwaitedResults<Functions>>
   : Results<Functions>;
 
-type JuxtCatOutput<Functions extends Func[]> = Functions extends // @ts-ignore-error
+type juxtCatOutput<Functions extends Func[]> = Functions extends // @ts-ignore-error
 AnyAsync<Functions> ? Promise<Concatenation<AwaitedResults<Functions>>>
   : Concatenation<Results<Functions>>;
 
@@ -52,7 +52,7 @@ export const stack = <Functions extends Func[]>(
 
 export const juxtCat = <Functions extends Func[]>(
   ...fs: Functions
-): (..._: Parameters<Functions[0]>) => JuxtCatOutput<Functions> =>
+): (..._: Parameters<Functions[0]>) => juxtCatOutput<Functions> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 

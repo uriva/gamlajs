@@ -3,11 +3,11 @@ import { equals, prop } from "./operator.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { length } from "./array.ts";
-import { mapCat } from "./map.ts";
 import { pipe } from "./composition.ts";
+import { mapCat } from "./map.ts";
 import { repeat } from "./matrix.ts";
-import { sleep } from "./time.ts";
 import { wrapPromise } from "./promise.ts";
+import { sleep } from "./time.ts";
 
 const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));

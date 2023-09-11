@@ -4,12 +4,13 @@ import {
   Func,
   ParamOf,
   Reducer,
+  ReturnTypeUnwrapped,
   Unary,
 } from "./typing.ts";
-import { filter, Predicate } from "./filter.ts";
 import { applyTo, identity, pipe } from "./composition.ts";
 import { head, second, wrapArray } from "./array.ts";
 
+import { filter } from "./filter.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import { stack } from "./juxt.ts";
@@ -116,28 +117,51 @@ export const entryMap = pipe(map, onEntries);
 export const entryFilter = <
   Function extends (
     // deno-lint-ignore no-explicit-any
-    | ((kv: [any, any]) => boolean)
-    // deno-lint-ignore no-explicit-any
-    | ((kv: [any, any]) => Promise<boolean>)
+    ((kv: [any, any]) => any)
   ),
 >(f: Function) => onEntries(filter(f));
 
 type RecordKey = string | number | symbol;
+type EntryMap<
+  F,
+  OldKey extends RecordKey,
+  OldValue,
+  NewKey extends RecordKey,
+  NewValue,
+> = (
+  obj: Record<OldKey, OldValue>,
+) => F extends AsyncFunction ? Promise<Record<NewKey, NewValue>>
+  : Record<NewKey, NewValue>;
 
-export const valFilter = <Function extends Predicate>(f: Function) =>
-  // @ts-expect-error reason: TODO - fix typing
+type EntryFilter<F, Key extends RecordKey, Value> = (
+  obj: Record<Key, Value>,
+) => F extends AsyncFunction ? Awaited<Record<Key, Value>>
+  : Record<Key, Value>;
+
+export const valFilter = <Key extends RecordKey, F extends Func>(
+  f: F,
+): EntryFilter<F, Key, ParamOf<F>> =>
+  // @ts-expect-error can't infer typing here
   entryFilter(pipe(second, f));
 
-export const keyFilter = <Function extends Predicate>(f: Function) =>
-  // @ts-expect-error reason: TODO - fix typing
+export const keyFilter = <Value, F extends Func>(
+  f: F,
+): EntryFilter<F, ParamOf<F>, Value> =>
+  // @ts-expect-error can't infer typing here
   entryFilter(pipe(head, f));
 
-export const valMap = <OldValue, NewValue>(f: (v: OldValue) => NewValue) =>
+export const valMap = <Key extends RecordKey, F extends Func>(
+  f: F,
+): (
+  obj: Record<Key, ParamOf<F>>,
+) => EntryMap<F, Key, ParamOf<F>, Key, ReturnTypeUnwrapped<F>> =>
+  // @ts-expect-error can't infer typing here
   entryMap(stack(identity, f));
 
-export const keyMap = <OldKey extends RecordKey, NewKey extends RecordKey>(
-  f: (v: OldKey) => NewKey,
-): (_: Record<OldKey, unknown>) => Record<NewKey, unknown> =>
+export const keyMap = <Value, F extends Func>(
+  f: F,
+): EntryMap<F, ParamOf<F>, Value, ReturnTypeUnwrapped<F>, Value> =>
+  // @ts-expect-error can't infer typing here
   entryMap(stack(f, identity));
 
 // Record is untyped but it should have a recursive definition.
@@ -151,6 +175,7 @@ export const mapTerminals =
     Array.isArray(obj)
       ? map(mapTerminals(terminalMapper))(obj)
       : typeof obj === "object" && !(obj instanceof Function)
+      // @ts-expect-error too complicated
       ? valMap(mapTerminals(terminalMapper))(obj)
       : terminalMapper(obj as Terminal);
 

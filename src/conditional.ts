@@ -1,31 +1,17 @@
-import { AnyAsync, BooleanEquivalent } from "./typing.ts";
+import { AnyAsync, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 import { head, second } from "./array.ts";
 
 import { filter } from "./filter.ts";
 import { pipe } from "./composition.ts";
 
-// deno-lint-ignore no-explicit-any
-type Func<Input extends any[], Output> = (..._: Input) => Output;
-type PredicateType =
-  // deno-lint-ignore no-explicit-any
-  | ((..._: any[]) => BooleanEquivalent)
-  // deno-lint-ignore no-explicit-any
-  | ((..._: any[]) => Promise<BooleanEquivalent>);
-
-export const ifElse = <
-  Predicate extends PredicateType,
-  // deno-lint-ignore no-explicit-any
-  If extends (..._: Parameters<Predicate>) => any,
-  // deno-lint-ignore no-explicit-any
-  Else extends (..._: Parameters<Predicate>) => any,
->(
-  predicate: Predicate,
+export const ifElse = <F extends Func, If extends Func, Else extends Func>(
+  predicate: F,
   fTrue: If,
   fFalse: Else,
 ) =>
 (
-  ...x: Parameters<Predicate>
-): [Predicate, If, Else] extends AnyAsync<[Predicate, If, Else]>
+  ...x: Parameters<F>
+): [F, If, Else] extends AnyAsync<[F, If, Else]>
   ? Promise<Awaited<ReturnType<If>> | Awaited<ReturnType<Else>>>
   : ReturnType<If> | ReturnType<Else> => {
   const result = predicate(...x);
@@ -38,32 +24,37 @@ export const ifElse = <
     : fFalse(...x);
 };
 
-export const unless = <
-  Predicate extends (
-    // deno-lint-ignore no-explicit-any
-    | ((_: any) => BooleanEquivalent)
-    // deno-lint-ignore no-explicit-any
-    | ((_: any) => Promise<BooleanEquivalent>)
-  ),
->(
-  predicate: Predicate,
-  // deno-lint-ignore no-explicit-any
-  fFalse: (_: Parameters<Predicate>[0]) => any,
-) => ifElse(predicate, (...x) => x[0], fFalse);
+type WhenUnless<Functions extends Func[]> = (
+  ..._: Parameters<Functions[0]>
+) => Functions extends AnyAsync<Functions>
+  ? Promise<ParamOf<Functions[0]> | ReturnTypeUnwrapped<Functions[1]>>
+  : ParamOf<Functions[0]> | ReturnType<Functions[1]>;
 
-export const when = <
-  Predicate extends (
-    // deno-lint-ignore no-explicit-any
-    | ((_: any) => BooleanEquivalent)
-    // deno-lint-ignore no-explicit-any
-    | ((_: any) => Promise<BooleanEquivalent>)
-  ),
-> // deno-lint-ignore no-explicit-any
-(predicate: Predicate, fTrue: (_: Parameters<Predicate>[0]) => any) =>
-  ifElse(predicate, fTrue, (...x) => x[0]);
+export const unless = <F extends Func, G extends Func>(
+  predicate: F,
+  fFalse: G,
+): WhenUnless<[F, G]> =>
+  ifElse(
+    predicate,
+    // @ts-expect-error cannot infer
+    (...x) => x[0],
+    fFalse,
+  );
+
+export const when = <F extends Func, G extends Func>(
+  predicate: F,
+  fTrue: G,
+): WhenUnless<[F, G]> =>
+  ifElse(
+    predicate,
+    fTrue,
+    // @ts-expect-error cannot infer
+    (...x) => x[0],
+  );
 
 type CondElement<Args extends unknown[]> = [
-  (..._: Args) => boolean | Promise<boolean>,
+  // deno-lint-ignore no-explicit-any
+  (..._: Args) => any,
   // deno-lint-ignore no-explicit-any
   (..._: Args) => any,
 ];

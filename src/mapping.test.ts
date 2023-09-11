@@ -24,10 +24,13 @@ Deno.test("keyFilter", () => {
   );
 });
 
-[
+([
   [{ a: 1, b: 3 }, { b: 3 }],
   [{}, {}],
-].forEach(([obj, expected], i) =>
+] as [Record<string, number>, Record<string, number>][]).forEach((
+  [obj, expected],
+  i,
+) =>
   Deno.test(`valFilter async with input ${i}`, async () => {
     assertEquals(
       await valFilter((x: number) => wrapPromise(x > 2))(obj),

@@ -1,10 +1,10 @@
 import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { pipe } from "./composition.ts";
 import { map } from "./map.ts";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
-import { pipe } from "./composition.ts";
 import { wrapPromise } from "./promise.ts";
 
 Deno.test("async juxt", async () => {

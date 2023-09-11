@@ -1,5 +1,5 @@
 import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
-import { last, reverse, Reversed } from "./array.ts";
+import { last, reverse } from "./array.ts";
 
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
@@ -72,6 +72,10 @@ const errorBoundry = <F extends Func>(f: F) => {
 
 export const pipe: typeof pipeWithoutStack = (...fs) =>
   errorBoundry(pipeWithoutStack(...fs));
+
+type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
+  ? [...Reversed<Rest>, Head]
+  : [];
 
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
