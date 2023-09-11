@@ -14,6 +14,19 @@ Deno.test("async juxt", async () => {
   );
 });
 
+Deno.test("async pairRight", async () => {
+  assertEquals(
+    await pairRight(wrapPromise<number>)(2),
+    [2, 2],
+  );
+});
+
+(async () => {
+  // @ts-expect-error should identify type correctly
+  const _1: string = await pairRight(wrapPromise<number>)(2);
+  const _2: [number, number] = await pairRight(wrapPromise<number>)(2);
+})();
+
 Deno.test("juxt non unary", () => {
   assertEquals(
     juxt(

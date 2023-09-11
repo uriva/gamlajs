@@ -1,6 +1,6 @@
-import { AnyAsync, Func } from "./typing.ts";
-import { identity, pipe } from "./composition.ts";
 import { all, any, concat, zip } from "./array.ts";
+import { identity, pipe } from "./composition.ts";
+import { AnyAsync, Func } from "./typing.ts";
 
 import { map } from "./map.ts";
 
@@ -39,8 +39,7 @@ export const juxt =
     return anyAsync ? Promise.all(result) : result;
   };
 
-// deno-lint-ignore no-explicit-any
-export const pairRight = <Function extends (_: any) => any>(f: Function) =>
+export const pairRight = <Function extends Func>(f: Function) =>
   juxt(identity<Parameters<Function>[0]>, f);
 
 export const stack = <Functions extends Func[]>(
