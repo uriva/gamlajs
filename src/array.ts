@@ -35,16 +35,18 @@ export type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
   ? [...Reversed<Rest>, Head]
   : [];
 
-export const reverse = <Input extends unknown[]>(
-  array: Input,
-): Reversed<Input> => array.slice().reverse() as Reversed<Input>;
+export const reverse = <T>(
+  array: T[],
+): T[] => array.slice().reverse();
 
-export const tail = (x: unknown[]) => x.slice(1);
+export const tail = <T>(x: T[]) => x.slice(1);
 // deno-lint-ignore no-explicit-any
 export const head = <T extends (any[] | string)>(x: T): T[0] => x[0];
-export const init = (x: unknown[]) => x.slice(0, -1);
-export const second = <T extends (unknown[] | string)>(x: T): T[1] => x[1];
-export const third = <T extends (unknown[] | string)>(x: T): T[2] => x[2];
+export const init = <T>(x: T[]) => x.slice(0, -1);
+// deno-lint-ignore no-explicit-any
+export const second = <T extends (any[] | string)>(x: T): T[1] => x[1];
+// deno-lint-ignore no-explicit-any
+export const third = <T extends (any[] | string)>(x: T): T[2] => x[2];
 export const last = <T>(x: T[]) => x[x.length - 1];
 export const empty = <T>(x: T[]) => !x.length;
 export const nonempty = <T>(x: T[]) => !!x.length;

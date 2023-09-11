@@ -16,7 +16,7 @@ export type Func = (..._: any[]) => any;
 
 export type ParamOf<T extends Func> = Parameters<T>[0];
 
-export type Length<L extends unknown[]> = L["length"];
+type Length<L extends unknown[]> = L["length"];
 
 export type Last<L extends unknown[]> = L[Length<Tail<L>>];
 
