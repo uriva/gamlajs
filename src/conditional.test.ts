@@ -42,12 +42,11 @@ Deno.test("cond", () => {
 });
 
 Deno.test("async cond", async () => {
-  const inp = [
+  const testFunction = cond([
     [(x: number) => x > 3, (x: number) => Promise.resolve(x + 1)],
     [(x: number) => x < 3, (x: number) => x - 1],
-  ];
-  const testFunction = cond(inp);
-  const checkTyping = testFunction(2);
+  ]);
+  const checkTyping: Promise<number> | number = testFunction(2);
   assertEquals(await checkTyping, 1);
   assertEquals(await testFunction(4), 5);
 });

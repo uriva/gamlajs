@@ -52,9 +52,13 @@ export const when = <F extends Func, G extends Func>(
     (...x) => x[0],
   );
 
+type ReturnTypeOfSecondOfElements<Fs extends [Func, Func][]> = {
+  [K in keyof Fs]: ReturnType<Fs[K][1]>;
+}[number];
+
 export const cond =
-  <Fss extends Func[][]>(predicatesAndResolvers: Fss) =>
-  (...x: Parameters<Fss[0][0]>): ReturnType<Fss[0][1]> =>
+  <Fss extends [Func, Func][]>(predicatesAndResolvers: Fss) =>
+  (...x: Parameters<Fss[0][0]>): ReturnTypeOfSecondOfElements<Fss> =>
     // @ts-expect-error cannot infer
     pipe(
       filter(pipe(head, (predicate) => predicate(...x))),
