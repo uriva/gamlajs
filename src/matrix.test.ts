@@ -20,10 +20,13 @@ Deno.test("product", () => {
 });
 
 Deno.test("explode", () => {
-  const explode1 = explode(1);
-  assertEquals(explode1(["a", [1, 2, 3], "b"]), [
-    ["a", 1, "b"],
-    ["a", 2, "b"],
-    ["a", 3, "b"],
-  ]);
+  const explode1 = explode<[string, number, string]>(1);
+  assertEquals(
+    explode1(["a", [1, 2, 3], "b"]),
+    [["a", 1, "b"], ["a", 2, "b"], [
+      "a",
+      3,
+      "b",
+    ]] as ([string, number, string][]),
+  );
 });

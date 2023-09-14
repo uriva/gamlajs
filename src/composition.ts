@@ -1,5 +1,5 @@
-import { AnyAsync, AsyncFunction, Func, Last } from "./typing.ts";
 import { last, reverse } from "./array.ts";
+import { AnyAsync, Func, Last, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
@@ -21,20 +21,18 @@ type ValidPipe<FS extends Func[]> = FS extends
   ? [ValidCompose<F1, F2>, ...ValidPipe<[F2, ...Rest]>] // tuple length >= 2
   : FS; // tuple length < 2
 
-type Pipeline<Functions extends Func[]> = Functions extends AnyAsync<Functions>
-  ? (
-    ...x: Parameters<Functions[0]>
-  ) => Last<Functions> extends AsyncFunction ? ReturnType<Last<Functions>>
-    : Promise<ReturnType<Last<Functions>>>
-  : (
-    ...x: Parameters<Functions[0]>
-  ) => ReturnType<Last<Functions>>;
+type Pipeline<Fs extends Func[]> = (
+  ...x: Parameters<Fs[0]>
+) => Fs extends AnyAsync<Fs> ? Promise<ReturnTypeUnwrapped<Last<Fs>>>
+  : ReturnType<Last<Fs>>;
 
 const pipeWithoutStack = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
 ): Pipeline<Fs> =>
-// @ts-expect-error TODO - fix typing
-(...x) => reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1));
+  ((...x) =>
+    reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1))) as Pipeline<
+      Fs
+    >;
 
 interface StackFrame {
   file: string;

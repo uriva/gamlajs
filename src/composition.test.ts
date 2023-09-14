@@ -1,9 +1,9 @@
 import { complement, compose, identity, pipe } from "./composition.ts";
 
+import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { AsyncFunction } from "./typing.ts";
 
 Deno.test("pipe with async functions", async () => {
@@ -76,6 +76,12 @@ pipe(
 )("a").then();
 
 // Check generics work as well.
-(<T, Fn extends (x: T) => number>(f: Fn) => {
+const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
   pipe((x: T) => x, f);
-});
+};
+
+// limitation of type system
+// const _2 = <Fn extends (x: string) => number>(f: Fn) => {
+//   // @ts-expect-error first function does not match second
+//   pipe((x: number) => x, f);
+// };

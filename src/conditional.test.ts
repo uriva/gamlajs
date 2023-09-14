@@ -41,6 +41,17 @@ Deno.test("cond", () => {
   assertEquals(testFunction(4), 5);
 });
 
+Deno.test("async cond", async () => {
+  const inp = [
+    [(x: number) => x > 3, (x: number) => Promise.resolve(x + 1)],
+    [(x: number) => x < 3, (x: number) => x - 1],
+  ];
+  const testFunction = cond(inp);
+  const checkTyping = testFunction(2);
+  assertEquals(await checkTyping, 1);
+  assertEquals(await testFunction(4), 5);
+});
+
 ((_: Promise<boolean>) => {})(
   ifElse(
     (x) => wrapPromise(x === 2),

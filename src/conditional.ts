@@ -52,23 +52,13 @@ export const when = <F extends Func, G extends Func>(
     (...x) => x[0],
   );
 
-type CondElement<Args extends unknown[]> = [
-  // deno-lint-ignore no-explicit-any
-  (..._: Args) => any,
-  // deno-lint-ignore no-explicit-any
-  (..._: Args) => any,
-];
-
-// deno-lint-ignore no-explicit-any
-export const cond = <CondElements extends CondElement<any[]>[]>(
-  predicatesAndResolvers: CondElements,
-) =>
-(
-  ...x: Parameters<CondElements[0][0]>
-) =>
-  pipe(
-    filter(pipe(head, (predicate) => predicate(...x))),
-    head,
-    second,
-    (f) => f(...x),
-  )(predicatesAndResolvers);
+export const cond =
+  <Fss extends Func[][]>(predicatesAndResolvers: Fss) =>
+  (...x: Parameters<Fss[0][0]>): ReturnType<Fss[0][1]> =>
+    // @ts-expect-error cannot infer
+    pipe(
+      filter(pipe(head, (predicate) => predicate(...x))),
+      head,
+      second,
+      (f) => f(...x),
+    )(predicatesAndResolvers);

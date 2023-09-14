@@ -1,5 +1,8 @@
 // deno-lint-ignore no-explicit-any
-export type AsyncFunction = (..._: any[]) => Promise<any>;
+export type Union<T extends any[]> = T[number];
+
+// deno-lint-ignore no-explicit-any
+export type AsyncFunction = (...args: any[]) => Promise<any>;
 
 export type AnyAsync<Functions> = Functions extends [] ? never
   // deno-lint-ignore no-explicit-any

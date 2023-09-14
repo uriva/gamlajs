@@ -1,30 +1,22 @@
 import { all, any, concat, zip } from "./array.ts";
 import { identity, pipe } from "./composition.ts";
-import { AnyAsync, Func } from "./typing.ts";
+import { AnyAsync, Func, ReturnTypeUnwrapped, Union } from "./typing.ts";
 
 import { map } from "./map.ts";
 
-// deno-lint-ignore no-explicit-any
-type TupleToUnion<T extends any[]> = T[number];
-
-// deno-lint-ignore no-explicit-any
-type Concatenation<T extends any[]> = TupleToUnion<T[number]>[];
-
-type AwaitedResults<Functions extends Func[]> = {
-  [i in keyof Functions]: Awaited<ReturnType<Functions[i]>>;
-};
-
 type Results<Functions extends Func[]> = {
-  [i in keyof Functions]: ReturnType<Functions[i]>;
+  [i in keyof Functions]: ReturnTypeUnwrapped<Functions[i]>;
 };
 
 type JuxtOutput<Functions extends Func[]> = Functions extends
-  AnyAsync<Functions> ? Promise<AwaitedResults<Functions>>
-  : Results<Functions>;
+  AnyAsync<Functions> ? Promise<Results<Functions>> : Results<Functions>;
+
+// deno-lint-ignore no-explicit-any
+type ArrayOfOneOf<T extends any[]> = Union<Union<T>>[];
 
 type juxtCatOutput<Functions extends Func[]> = Functions extends // @ts-ignore-error
-AnyAsync<Functions> ? Promise<Concatenation<AwaitedResults<Functions>>>
-  : Concatenation<Results<Functions>>;
+AnyAsync<Functions> ? Promise<ArrayOfOneOf<AwaitedResults<Functions>>>
+  : ArrayOfOneOf<Results<Functions>>;
 
 export const juxt =
   <Functions extends Func[]>(...fs: Functions) =>

@@ -1,7 +1,6 @@
-import { pipe } from "./composition.ts";
-import { prop } from "./operator.ts";
-import { reduce } from "./reduce.ts";
 import { wrapArray } from "./array.ts";
+import { pipe } from "./composition.ts";
+import { reduce } from "./reduce.ts";
 
 export const repeat = <T>(element: T, times: number) => {
   const result = [];
@@ -9,22 +8,30 @@ export const repeat = <T>(element: T, times: number) => {
   return result;
 };
 
-export const product = reduce(
+// deno-lint-ignore no-explicit-any
+type GroupOfHomogeneousArrays<Types extends any[]> = {
+  [K in keyof Types]: Types[K][];
+};
+
+type ProductOutput<Types> = { [K in keyof Types]: Types[K] }[];
+
+export const product = (reduce(
   (a, b) => a.flatMap((x: unknown[]) => b.map((y: unknown) => [...x, y])),
   () => [[]],
-);
+  // deno-lint-ignore no-explicit-any
+)) as <Types extends any[]>(
+  arrays: GroupOfHomogeneousArrays<Types>,
+) => ProductOutput<Types>;
 
-// deno-lint-ignore no-explicit-any
-type ExplodeResult = { result: any; index: number };
-export const explode = (...positions: number[]) =>
+export const explode = <OutputType extends unknown[]>(...positions: number[]) =>
   pipe(
     reduce(
-      ({ index, result }: ExplodeResult, current) => {
+      ({ index, result }, current) => {
         result.push(positions.includes(index) ? current : wrapArray(current));
         return { index: index + 1, result };
       },
       () => ({ index: 0, result: [] }),
     ),
-    prop<ExplodeResult>()("result"),
-    product,
+    ({ result }) => result as GroupOfHomogeneousArrays<OutputType>,
+    product<OutputType>,
   );

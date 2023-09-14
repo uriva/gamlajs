@@ -1,3 +1,5 @@
+import { ReturnTypeUnwrapped } from "./typing.ts";
+
 const reduceHelper = <
   State,
   Element,
@@ -25,7 +27,7 @@ const reduceHelper = <
 // deno-lint-ignore no-explicit-any
 export const reduce = <Function extends (state: any, element: any) => any>(
   reducer: Function,
-  initial: () => Awaited<ReturnType<Function>>,
+  initial: () => ReturnTypeUnwrapped<Function>,
 ) =>
 (xs: Parameters<Function>[1][]) => reduceHelper(reducer, initial(), xs, 0);
 

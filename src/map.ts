@@ -22,4 +22,5 @@ export const map = <Function extends (_: any) => any>(f: Function) =>
 export const mapCat = <T, G>(
   f: Unary<T, G>,
 ) =>
+// @ts-expect-error ts cannot reason about this
 (x: T[]): G => pipe(map(f), reduce((a, b) => a.concat(b), () => []))(x);
