@@ -106,22 +106,24 @@ pipe(
   not,
 );
 
-// @ts-expect-error `juxtCat` reports typing correctly.
-const _1: string[] = juxtCat(
-  (x: number) => [x, x],
-  (_: number) => ["a", "b"],
-  (x: number) => [x, x],
-)(1);
-const _2: (string | number)[] = juxtCat(
-  (_: number) => ["a", "b"],
-  (x: number) => [x, x],
-)(1);
-// @ts-expect-error `juxtCat` detects async.
-const _3: (string | number)[] = juxtCat(
-  (_: number) => Promise.resolve(["a", "b"]),
-  (x: number) => [x, x],
-)(1);
-const _4: (string | number)[] = await juxtCat(
-  (_: number) => Promise.resolve(["a", "b"]),
-  (x: number) => [x, x],
-)(1);
+const _ = async () => {
+  // @ts-expect-error `juxtCat` reports typing correctly.
+  const _1: string[] = juxtCat(
+    (x: number) => [x, x],
+    (_: number) => ["a", "b"],
+    (x: number) => [x, x],
+  )(1);
+  const _2: (string | number)[] = juxtCat(
+    (_: number) => ["a", "b"],
+    (x: number) => [x, x],
+  )(1);
+  // @ts-expect-error `juxtCat` detects async.
+  const _3: (string | number)[] = juxtCat(
+    (_: number) => Promise.resolve(["a", "b"]),
+    (x: number) => [x, x],
+  )(1);
+  const _4: (string | number)[] = await juxtCat(
+    (_: number) => Promise.resolve(["a", "b"]),
+    (x: number) => [x, x],
+  )(1);
+};
