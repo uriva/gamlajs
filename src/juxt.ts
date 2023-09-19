@@ -14,8 +14,13 @@ type JuxtOutput<Functions extends Func[]> = Functions extends
 // deno-lint-ignore no-explicit-any
 type ArrayOfOneOf<T extends any[]> = Union<Union<T>>[];
 
-type juxtCatOutput<Functions extends Func[]> = Functions extends // @ts-ignore-error
-AnyAsync<Functions> ? Promise<ArrayOfOneOf<AwaitedResults<Functions>>>
+type AwaitedResults<Fs extends Func[]> = Fs extends
+  [infer First extends Func, ...infer Rest extends Func[]]
+  ? [ReturnTypeUnwrapped<First>, ...AwaitedResults<Rest>]
+  : [];
+
+type juxtCatOutput<Functions extends Func[]> = Functions extends
+  AnyAsync<Functions> ? Promise<ArrayOfOneOf<AwaitedResults<Functions>>>
   : ArrayOfOneOf<Results<Functions>>;
 
 export const juxt =
