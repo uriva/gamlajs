@@ -1,4 +1,4 @@
-import { assert, asyncTimeit, timeit } from "./debug.ts";
+import { assert, timeit } from "./debug.ts";
 import {
   assertSpyCall,
   assertSpyCalls,
@@ -21,7 +21,7 @@ Deno.test("timeit", () => {
 
 Deno.test("asyncTimeit", async () => {
   const logSpy = spy(console.log);
-  await asyncTimeit(
+  await timeit(
     (_, [time]) => logSpy(`slept for ${time}ms`),
     sleep,
   )(100);
@@ -35,7 +35,7 @@ Deno.test("asyncTimeit with args", async () => {
     await sleep(100);
     return a + b + c;
   };
-  await asyncTimeit(
+  await timeit(
     (_1, _2, result) => logSpy(`slept and returned ${result}`),
     f,
   )({ a: 1, b: 2, c: 3 });

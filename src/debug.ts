@@ -1,4 +1,5 @@
-import { Func } from "./typing.ts";
+import { Func, ReturnTypeUnwrapped } from "./typing.ts";
+
 import { sideEffect } from "./composition.ts";
 
 export const sideLog = <T>(x: T) => {
@@ -39,27 +40,28 @@ export const logWith = <T>(...x: any[]) =>
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
-export const asyncTimeit = <Args extends unknown[], R>(
-  handler: (time: number, args: Args, result: R) => void,
-  f: (..._: Args) => R,
-) =>
-async (...args: Args) => {
-  const started = getTimestampMilliseconds();
-  const result = await f(...args);
-  handler(getTimestampMilliseconds() - started, args, result);
-  return result;
-};
-
-export const timeit = <Args extends unknown[], R>(
-  handler: (time: number, args: Args, result: R) => void,
-  f: (..._: Args) => R,
-) =>
-(...args: Args) => {
-  const started = getTimestampMilliseconds();
-  const result = f(...args);
-  handler(getTimestampMilliseconds() - started, args, result);
-  return result;
-};
+export const timeit = <F extends (..._: any[]) => any>(
+  handler: (
+    elapsed: number,
+    args: Parameters<F>,
+    result: ReturnTypeUnwrapped<F>,
+  ) => void,
+  f: F,
+): F =>
+  ((...x: Parameters<F>) => {
+    const started = getTimestampMilliseconds();
+    const result = f(...x);
+    if (result instanceof Promise) {
+      return result.then((result) => {
+        const elapsed = getTimestampMilliseconds() - started;
+        handler(elapsed, x, result);
+        return result;
+      });
+    }
+    const elapsed = getTimestampMilliseconds() - started;
+    handler(elapsed, x, result);
+    return result;
+  }) as F;
 
 export const assert = <T>(condition: (_: T) => boolean, errorMessage: string) =>
   sideEffect((x: T) => {
