@@ -45,7 +45,7 @@ export const stack = <Functions extends Func[]>(
   _: { [i in keyof Functions]: Parameters<Functions[i]>[0] },
 ) => JuxtOutput<Functions> =>
   // @ts-expect-error reason: too complex
-  pipe((values) => zip(functions, values), map(([f, x]) => f(x)));
+  pipe((values) => zip([functions, values]), map(([f, x]) => f(x)));
 
 export const juxtCat = <Functions extends Func[]>(
   ...fs: Functions

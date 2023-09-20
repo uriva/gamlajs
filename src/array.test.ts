@@ -34,7 +34,7 @@ Deno.test("concat", () => {
 });
 
 Deno.test("zip", () => {
-  assertEquals(zip([1, 2, 3], [0, 0, 0]), [
+  assertEquals(zip([[1, 2, 3], [0, 0, 0]]), [
     [1, 0],
     [2, 0],
     [3, 0],

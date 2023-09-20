@@ -48,14 +48,20 @@ export const empty = <T>(x: T[]) => !x.length;
 export const nonempty = <T>(x: T[]) => !!x.length;
 export const wrapArray = <T>(x: T) => [x];
 
-export const zip = <T extends unknown[][]>(
-  ...args: T
-): { [K in keyof T]: T[K] extends (infer V)[] ? V : never }[] =>
-  // @ts-expect-error This is too much for ts
-  range(0, Math.min(...args.map(length))).map((i) => args.map((arr) => arr[i]));
+// deno-lint-ignore no-explicit-any
+export const zip = <Types extends any[]>(
+  args: { [K in keyof Types]: Types[K][] },
+): {
+  [K in keyof Types]: Types[K];
+}[] =>
+  range(0, Math.min(...args.map(length))).map((i) =>
+    args.map((arr) => arr[i]) as {
+      [K in keyof Types]: Types[K];
+    }
+  );
 
 const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
-  for (const [x, y] of zip(a, b)) {
+  for (const [x, y] of zip([a, b])) {
     const result = comparator(x, y);
     if (result) return result;
   }
