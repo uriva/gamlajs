@@ -41,6 +41,11 @@ Deno.test("zip", () => {
   ]);
 });
 
+// @ts-expect-error zip typing check
+const _zip: [string, string][] = zip<[string, number]>([["hello"], [
+  1,
+]]);
+
 Deno.test("init", () => {
   assertEquals(init([3, 2, 1]), [3, 2]);
 });

@@ -51,13 +51,11 @@ export const wrapArray = <T>(x: T) => [x];
 // deno-lint-ignore no-explicit-any
 export const zip = <Types extends any[]>(
   args: { [K in keyof Types]: Types[K][] },
-): {
+): ({
   [K in keyof Types]: Types[K];
-}[] =>
+})[] =>
   range(0, Math.min(...args.map(length))).map((i) =>
-    args.map((arr) => arr[i]) as {
-      [K in keyof Types]: Types[K];
-    }
+    args.map((arr) => arr[i]) as { [K in keyof Types]: Types[K] }
   );
 
 const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
