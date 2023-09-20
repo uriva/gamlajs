@@ -66,15 +66,16 @@ const compareArrays = <T extends Comparable>(a: T[], b: T[]) => {
   return 0;
 };
 
-type Comparable = string | number | Comparable[];
+type Comparable = boolean | string | number | Comparable[];
 
-const comparator = <T extends Comparable>(a: T, b: T): number => {
-  return typeof a === "string" && typeof b === "string"
+const comparator = <T extends Comparable>(a: T, b: T): number =>
+  typeof a === "boolean" && typeof b === "boolean"
+    ? Number(a) - Number(b)
+    : typeof a === "string" && typeof b === "string"
     ? a.localeCompare(b)
     : typeof a === "number" && typeof b === "number"
     ? a - b
     : compareArrays(a as Comparable[], b as Comparable[]);
-};
 
 const castToInt = (x: number | boolean) =>
   x === true ? 1 : x === false ? -1 : x;
@@ -85,7 +86,7 @@ export const sortCompare =
 
 export const sort = sortCompare(comparator);
 
-export const sortKey = <X>(key: (_: X) => Comparable) =>
+export const sortKey = <X>(key: (element: X) => Comparable) =>
   sortCompare<X>((a, b) => comparator(key(a), key(b)));
 
 export const range = (start: number, end: number) => {

@@ -66,13 +66,12 @@ Deno.test("sort", () => {
 });
 
 Deno.test("sort strings", () => {
-  const x = ["b", "bb", "a", "ab"];
-  assertEquals(sort(x), ["a", "ab", "b", "bb"]);
+  assertEquals(sort(["b", "bb", "a", "ab"]), ["a", "ab", "b", "bb"]);
 });
 
 Deno.test("sortKey", () => {
   assertEquals(
-    sortKey<{ a: number; b: number }>(({ a, b }) => [a, b])([
+    sortKey(({ a, b }: { a: number; b: number }) => [a, b])([
       { a: 1, b: 5 },
       { a: 1, b: 4 },
       { a: 0, b: 0 },
@@ -81,6 +80,21 @@ Deno.test("sortKey", () => {
       { a: 0, b: 0 },
       { a: 1, b: 4 },
       { a: 1, b: 5 },
+    ],
+  );
+});
+
+Deno.test("sortKey 2", () => {
+  assertEquals(
+    sortKey(({ id, n }: { id: string; n: number }) => [id !== "123", -n])([
+      { id: "123", n: 5 },
+      { id: "", n: 9 },
+      { id: "456", n: 8 },
+    ]),
+    [
+      { id: "123", n: 5 },
+      { id: "", n: 9 },
+      { id: "456", n: 8 },
     ],
   );
 });
