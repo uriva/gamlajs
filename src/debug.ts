@@ -1,37 +1,41 @@
 import { Func, ReturnTypeUnwrapped } from "./typing.ts";
 
+import { currentLocation } from "./trace.ts";
 import { sideEffect } from "./composition.ts";
 
 export const sideLog = <T>(x: T) => {
-  console.log(x);
+  console.log(currentLocation(), x);
   return x;
 };
 
-export const sideLogAfter = <F extends Func>(f: F): F =>
-  ((...xs) => {
+export const sideLogAfter = <F extends Func>(f: F): F => {
+  const codeLocation = currentLocation();
+  return ((...xs) => {
     const output = f(...xs);
     if (output instanceof Promise) {
       return output.then((x) => {
-        console.log(x);
+        console.log(codeLocation, x);
         return x;
       }) as ReturnType<F>;
     }
-    console.log(output);
+    console.log(codeLocation, output);
     return output;
   }) as F;
+};
 
-export const sideLogBefore = <F extends Func>(f: F): F =>
-  ((...xs) => {
-    console.log(xs.length === 1 ? xs[0] : xs);
+export const sideLogBefore = <F extends Func>(f: F): F => {
+  const codeLocation = currentLocation();
+  return ((...xs) => {
+    console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
     const output = f(...xs);
     if (output instanceof Promise) {
       return output.then((x) => {
         return x;
       }) as ReturnType<F>;
     }
-    console.log(output);
     return output;
   }) as F;
+};
 
 export const sideLogTable = sideEffect(console.table);
 // deno-lint-ignore no-explicit-any

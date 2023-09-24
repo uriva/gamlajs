@@ -1,8 +1,9 @@
-import { last, reverse } from "./array.ts";
+import { reverse } from "./array.ts";
 import { AnyAsync, Func, Last, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
+import { currentLocation } from "./trace.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
 type Arg<F extends Func> = Parameters<F>[0];
@@ -34,35 +35,13 @@ const pipeWithoutStack = <Fs extends Func[]>(
       Fs
     >;
 
-interface StackFrame {
-  file: string;
-  line: number;
-  column: number;
-}
-
-const frameToString = ({ line, file, column }: StackFrame) =>
-  `${file}:${line}:${column}`;
-
-const parseStackLine = (stackLine: string): null | StackFrame => {
-  const matches = RegExp(/\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/).exec(
-    stackLine,
-  );
-  if (!matches) return null;
-  const [, , file, line, column] = matches;
-  return { file, line: parseInt(line), column: parseInt(column) };
-};
-
-const parseStackTrace = (trace: string) =>
-  parseStackLine(last(trace.split("\n")));
-
 const errorBoundry = <F extends Func>(f: F) => {
-  const err = new Error().stack as string;
+  const codeLocation = currentLocation();
   return ((...x) => {
     try {
       return f(...x);
     } catch (e) {
-      const lastStackCall = parseStackTrace(err);
-      if (lastStackCall) console.error(frameToString(lastStackCall));
+      console.error(codeLocation);
       throw e;
     }
   }) as F;
