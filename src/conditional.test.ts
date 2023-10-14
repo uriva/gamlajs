@@ -86,3 +86,8 @@ const _ = async () => {
     (x: number) => x + 1,
   )(4);
 };
+
+// Check if all constituents are sync, so is the `ifElse`.
+((_: string) => {})(
+  ifElse((x: number) => x === 2, (_: number) => "hi", (_: number) => "bye")(2),
+);
