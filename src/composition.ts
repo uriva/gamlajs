@@ -36,10 +36,17 @@ const pipeWithoutStack = <Fs extends Func[]>(
     >;
 
 const errorBoundry = <F extends Func>(f: F) => {
-  const codeLocation = currentLocation();
+  const codeLocation = currentLocation(4);
   return ((...x) => {
     try {
-      return f(...x);
+      const result = f(...x);
+      if (result instanceof Promise) {
+        return result.catch((e) => {
+          console.error(codeLocation);
+          throw e;
+        });
+      }
+      return result;
     } catch (e) {
       console.error(codeLocation);
       throw e;

@@ -4,12 +4,12 @@ import { currentLocation } from "./trace.ts";
 import { sideEffect } from "./composition.ts";
 
 export const sideLog = <T>(x: T) => {
-  console.log(currentLocation(), x);
+  console.log(currentLocation(3), x);
   return x;
 };
 
 export const sideLogAfter = <F extends Func>(f: F): F => {
-  const codeLocation = currentLocation();
+  const codeLocation = currentLocation(3);
   return ((...xs) => {
     const output = f(...xs);
     if (output instanceof Promise) {
@@ -24,7 +24,7 @@ export const sideLogAfter = <F extends Func>(f: F): F => {
 };
 
 export const sideLogBefore = <F extends Func>(f: F): F => {
-  const codeLocation = currentLocation();
+  const codeLocation = currentLocation(3);
   return ((...xs) => {
     console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
     const output = f(...xs);
@@ -44,7 +44,7 @@ export const logWith = <T>(...x: any[]) =>
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
-export const timeit = <F extends (..._: any[]) => any>(
+export const timeit = <F extends Func>(
   handler: (
     elapsed: number,
     args: Parameters<F>,

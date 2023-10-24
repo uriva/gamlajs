@@ -18,5 +18,5 @@ const parseStackLine = (stackLine: string): StackFrame => {
 const parseStackTrace = (trace: string, picker: (lines: string[]) => string) =>
   parseStackLine(picker(trace.split("\n")));
 
-export const currentLocation = () =>
-  frameToString(parseStackTrace(new Error().stack as string, (x) => x[3]));
+export const currentLocation = (depth: number) =>
+  frameToString(parseStackTrace(new Error().stack as string, (x) => x[depth]));
