@@ -3,9 +3,9 @@ import {
   assertEquals,
 } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import {
+  keepTryingEvery50ms,
   makeLockWithId,
   rateLimit,
-  retry,
   sequentialized,
   throttle,
   withLock,
@@ -25,7 +25,7 @@ Deno.test("lock", async () => {
   const results1: number[] = [];
   const f = withLock(
     () =>
-      retry(async () => {
+      keepTryingEvery50ms(async () => {
         await sleep(50);
         if (lockObj.locked) {
           return false;
@@ -94,7 +94,7 @@ Deno.test("lock with exception", async () => {
 
   const func = withLock(
     () =>
-      retry(() => {
+      keepTryingEvery50ms(() => {
         if (locked) return false;
         locked = true;
         return locked;

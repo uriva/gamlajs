@@ -18,7 +18,9 @@ export const withLock = <Function extends AsyncFunction>(
     }
   }) as Function;
 
-export const retry = async (f: () => boolean | Promise<boolean>) => {
+export const keepTryingEvery50ms = async (
+  f: () => boolean | Promise<boolean>,
+) => {
   while (!(await f())) {
     await sleep(50);
   }
@@ -26,7 +28,7 @@ export const retry = async (f: () => boolean | Promise<boolean>) => {
 
 export const makeLockWithId =
   <Key>(set: (_: Key) => boolean | Promise<boolean>) => (id: Key) =>
-    retry(() => set(id));
+    keepTryingEvery50ms(() => set(id));
 
 export const withLockByInput = <Function extends AsyncFunction>(
   argsToLockId: (..._: Parameters<Function>) => string,
@@ -77,7 +79,7 @@ const throttleByWeight = <Function extends AsyncFunction>(
   let lockObj = 0;
   return withLock(
     (...task: Parameters<Function>) =>
-      retry(() => {
+      keepTryingEvery50ms(() => {
         if (lockObj < maxParallelism) {
           lockObj += weight(...task);
           return true;
@@ -106,7 +108,7 @@ export const rateLimit = <Function extends AsyncFunction>(
   let history: { timestamp: number; weight: number }[] = [];
   return withLock(
     (...task: Parameters<Function>) =>
-      retry(() => {
+      keepTryingEvery50ms(() => {
         history = history.filter(({ timestamp }) =>
           timestamp > Date.now() - timeWindowMs
         );

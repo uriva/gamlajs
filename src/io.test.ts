@@ -1,7 +1,11 @@
-import { batch, timeout } from "./io.ts";
+import { batch, retry, timeout } from "./io.ts";
 import { equals, prop } from "./operator.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import {
+  assertEquals,
+  assertRejects,
+} from "https://deno.land/std@0.174.0/testing/asserts.ts";
+
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";
 import { mapCat } from "./map.ts";
@@ -132,4 +136,21 @@ Deno.test("timeout triggers if not ended in time", async () => {
     failed,
   );
   await sleep(100); // Wait for the interval to finish.
+});
+
+Deno.test("retry", async () => {
+  let c = 0;
+  const succeedOn3rdAttempt = async (x: number) => {
+    await sleep(0);
+    if (c < 2) {
+      c++;
+      throw new Error();
+    }
+    return x;
+  };
+  await retry(0, 2, succeedOn3rdAttempt)(23);
+  c = 0;
+  await assertRejects(async () => {
+    await retry(0, 1, succeedOn3rdAttempt)(23);
+  });
 });

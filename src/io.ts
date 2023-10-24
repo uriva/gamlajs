@@ -1,10 +1,11 @@
 import { juxt, pairRight, stack } from "./juxt.ts";
 import { prop, spread } from "./operator.ts";
 
-import { ElementOf } from "./typing.ts";
+import { AsyncFunction, ElementOf } from "./typing.ts";
 import { applySpec } from "./mapping.ts";
 import { map } from "./map.ts";
 import { pipe } from "./composition.ts";
+import { sleep } from "./time.ts";
 
 type Executor<TaskInput, Output> = (_: TaskInput[]) => Promise<Output>;
 
@@ -116,3 +117,20 @@ export const timeout = <Args extends unknown[], Output>(
       resolve(x);
     });
   });
+
+export const retry = <F extends AsyncFunction>(
+  waitMs: number,
+  times: number,
+  f: F,
+): F =>
+  // @ts-expect-error cannot infer
+  times
+    ? async (...x: Parameters<F>) => {
+      try {
+        return await f(...x);
+      } catch (e) {
+        console.error(`failed. retries left: ${times}`, e);
+        return sleep(waitMs).then(() => retry(waitMs, times - 1, f)(...x));
+      }
+    }
+    : f;
