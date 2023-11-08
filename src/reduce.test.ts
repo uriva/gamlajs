@@ -12,11 +12,7 @@ Deno.test("reduce", () => {
 });
 
 Deno.test("min", () => {
-  assertEquals(min<number>((x) => x)([4, 1, 2, 3]), 1);
-});
-
-Deno.test("max async", () => {
-  assertEquals(max<number>((x) => wrapPromise(x))([4, 1, 2, 3]), 4);
+  assertEquals(min((x) => x)([4, 1, 2, 3]), 1);
 });
 
 Deno.test("reduce async", async () => {
@@ -29,11 +25,15 @@ Deno.test("reduce async", async () => {
 });
 
 Deno.test("min", () => {
-  assertEquals(min<number>((x) => x)([4, 1, 2, 3]), 1);
+  assertEquals(min((x) => x)([4, 1, 2, 3]), 1);
 });
 
-Deno.test("max async", () => {
-  assertEquals(max<number>((x) => wrapPromise(x))([4, 1, 2, 3]), 4);
+Deno.test("max async", async () => {
+  assertEquals(await (max((x) => wrapPromise(x))([4, 1, 2, 3])), 4);
+});
+
+Deno.test("min async", async () => {
+  assertEquals(await (min((x) => wrapPromise(x))([4, 1, 2, 3])), 1);
 });
 
 Deno.test("max call stack is not a limit on array size", () => {
@@ -42,5 +42,5 @@ Deno.test("max call stack is not a limit on array size", () => {
   for (let i = 0; i < size; i++) {
     bigArray.push(i);
   }
-  assertEquals(max<number>((x) => x)(bigArray), size - 1);
+  assertEquals(max((x) => x)(bigArray), size - 1);
 });
