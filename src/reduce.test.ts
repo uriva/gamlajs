@@ -44,3 +44,6 @@ Deno.test("max call stack is not a limit on array size", () => {
   }
   assertEquals(max((x) => x)(bigArray), size - 1);
 });
+
+const _1: number = min((x: number) => x)([1, 2, 3, 4]);
+const _2: number = min((x: number) => x)([1, 2, 3, 4]);

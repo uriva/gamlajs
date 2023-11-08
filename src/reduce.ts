@@ -1,4 +1,4 @@
-import { Func, ReturnTypeUnwrapped } from "./typing.ts";
+import { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
 
 const reduceHelper = <
   State,
@@ -33,14 +33,19 @@ export const reduce = <Function extends (state: any, element: any) => any>(
 
 export const min = <F extends Func>(key: F) => (xs: Parameters<F>[0][]) =>
   reduceHelper(
-    (s: Parameters<F>[0], x: Parameters<F>[0]) => {
+    (
+      s: Parameters<F>[0],
+      x: Parameters<F>[0],
+    ): F extends AsyncFunction ? Promise<Parameters<F>[0]>
+      : Parameters<F>[0] => {
       const keyS = key(s);
       const keyX = key(x);
-      return (keyS instanceof Promise || keyX instanceof Promise)
+      return ((keyS instanceof Promise || keyX instanceof Promise)
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? s : x)
         : key(s) < key(x)
         ? s
-        : x;
+        : x) as F extends AsyncFunction ? Promise<Parameters<F>[0]>
+          : Parameters<F>[0];
     },
     xs[0],
     xs,
@@ -49,14 +54,19 @@ export const min = <F extends Func>(key: F) => (xs: Parameters<F>[0][]) =>
 
 export const max = <F extends Func>(key: F) => (xs: Parameters<F>[0][]) =>
   reduceHelper(
-    (s: Parameters<F>[0], x: Parameters<F>[0]) => {
+    (
+      s: Parameters<F>[0],
+      x: Parameters<F>[0],
+    ): F extends AsyncFunction ? Promise<Parameters<F>[0]>
+      : Parameters<F>[0] => {
       const keyS = key(s);
       const keyX = key(x);
-      return (keyS instanceof Promise || keyX instanceof Promise)
+      return ((keyS instanceof Promise || keyX instanceof Promise)
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? x : s)
         : key(s) < key(x)
         ? x
-        : s;
+        : s) as F extends AsyncFunction ? Promise<Parameters<F>[0]>
+          : Parameters<F>[0];
     },
     xs[0],
     xs,
