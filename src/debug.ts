@@ -37,11 +37,6 @@ export const sideLogBefore = <F extends Func>(f: F): F => {
   }) as F;
 };
 
-export const sideLogTable = sideEffect(console.table);
-// deno-lint-ignore no-explicit-any
-export const logWith = <T>(...x: any[]) =>
-  sideEffect<T>((y) => console.log(...x, y));
-
 const getTimestampMilliseconds = () => new Date().getTime();
 
 export const timeit = <F extends Func>(

@@ -1,10 +1,17 @@
-import { complement, compose, identity, pipe } from "./composition.ts";
+import {
+  complement,
+  compose,
+  identity,
+  pipe,
+  sideEffect,
+} from "./composition.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
 import { AsyncFunction } from "./typing.ts";
+import { sleep } from "./time.ts";
 
 Deno.test("pipe with async functions", async () => {
   assertEquals(
@@ -85,3 +92,25 @@ const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
 //   // @ts-expect-error first function does not match second
 //   pipe((x: number) => x, f);
 // };
+
+Deno.test("side effect", () => {
+  assertEquals(sideEffect((x) => console.log(x))(7), 7);
+});
+
+Deno.test("side effect order of runs", async () => {
+  const runOrder: string[] = [];
+  const f = async (x: number) => {
+    await sleep(1);
+    runOrder.push("f");
+    return x;
+  };
+  const g = async (x: number) => {
+    await sleep(0);
+    runOrder.push("g");
+    return x;
+  };
+  // Check it keeps type.
+  const sideEffectF: typeof f = sideEffect(f);
+  assertEquals(await pipe(sideEffectF, g)(7), 7);
+  assertEquals(runOrder, ["f", "g"]);
+});

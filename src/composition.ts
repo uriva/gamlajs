@@ -1,11 +1,19 @@
 import { reverse } from "./array.ts";
-import { AnyAsync, Func, Last, ReturnTypeUnwrapped } from "./typing.ts";
+import {
+  AnyAsync,
+  AsyncFunction,
+  Func,
+  Last,
+  ReturnTypeUnwrapped,
+} from "./typing.ts";
 
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 import { currentLocation } from "./trace.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
+// deno-lint-ignore no-explicit-any
+type UnaryFnUntyped = (a: any) => any;
 type Arg<F extends Func> = Parameters<F>[0];
 // deno-lint-ignore no-explicit-any
 type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
@@ -81,10 +89,14 @@ export const complement = <F extends Func>(
   // @ts-expect-error compiler cannot dynamically infer
   pipe(f, not);
 
-export const sideEffect = <T>(f: (_: T) => void) => (x: T) => {
-  f(x);
-  return x;
-};
+export const sideEffect =
+  <F extends UnaryFnUntyped>(f: F) =>
+  (x: Parameters<F>[0]): F extends AsyncFunction ? Promise<Parameters<F>[0]>
+    : Parameters<F>[0] => {
+    const result = f(x);
+    // @ts-expect-error compiler cannot dynamically infer
+    return (result instanceof Promise) ? result.then(() => x) : x;
+  };
 
 export const wrapSideEffect = <Args extends unknown[], Result>(
   cleanup: (...args: Args) => void | Promise<void>,
