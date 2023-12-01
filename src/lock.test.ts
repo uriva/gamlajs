@@ -142,16 +142,15 @@ Deno.test("throttle", async () => {
   const exit = () => {
     insideNow--;
   };
-
   const mapFn = async (x: number) => {
     enter();
     await sleep(0.01);
     exit();
     return x;
   };
-
-  await map(throttle(1, mapFn))([1, 2, 3]);
-  assertEquals(maxConcurrent, 1);
+  const maxParallelism = 1;
+  await map(throttle(maxParallelism, mapFn))([1, 2, 3]);
+  assertEquals(maxConcurrent, maxParallelism);
 });
 
 Deno.test("rate limiter by # calls", async () => {
