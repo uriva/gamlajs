@@ -5,6 +5,7 @@ import {
   spy,
 } from "https://deno.land/std@0.195.0/testing/mock.ts";
 
+import { assertEquals } from "https://deno.land/std@0.195.0/assert/assert_equals.ts";
 import { assertThrows } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { sleep } from "./time.ts";
 
@@ -45,8 +46,22 @@ Deno.test("asyncTimeit with args", async () => {
 
 Deno.test("assert", () => {
   const err = "not greater than 7";
+  const condition = (x: number) => x > 7;
   assertThrows(() => {
-    assert((x: number) => x > 7, err)(3);
+    assert(condition, err)(3);
   });
-  assert((x: number) => x > 7, err)(10);
+  assert(condition, err)(10);
+});
+
+Deno.test("assert async", async () => {
+  const err = "not greater than 7";
+  const condition = (x: number) => Promise.resolve(x > 7);
+  let thrown = false;
+  try {
+    await assert(condition, err)(3);
+  } catch (_) {
+    thrown = true;
+  }
+  assertEquals(thrown, true);
+  await assert(condition, err)(10);
 });

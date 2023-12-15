@@ -1,7 +1,8 @@
 import { Func, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { currentLocation } from "./trace.ts";
-import { sideEffect } from "./composition.ts";
+import { pairRight } from "./juxt.ts";
+import { pipe } from "./composition.ts";
 
 export const sideLog = <T>(x: T) => {
   console.log(currentLocation(3), x);
@@ -62,7 +63,14 @@ export const timeit = <F extends Func>(
     return result;
   }) as F;
 
-export const assert = <T>(condition: (_: T) => boolean, errorMessage: string) =>
-  sideEffect((x: T) => {
-    if (!condition(x)) throw new Error(errorMessage);
-  });
+export const assert = <T>(
+  condition: (_: T) => boolean | Promise<boolean>,
+  errorMessage: string,
+) =>
+  pipe(
+    pairRight(condition),
+    ([value, passed]) => {
+      if (!passed) throw new Error(errorMessage);
+      return value;
+    },
+  );
