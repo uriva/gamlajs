@@ -9,7 +9,23 @@ export const sideLog = <T>(x: T) => {
   return x;
 };
 
-export const sideLogAfter = <F extends Func>(f: F): F => {
+export const logAround = <F extends Func>(f: F): F => {
+  const codeLocation = currentLocation(3);
+  return ((...xs) => {
+    console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
+    const output = f(...xs);
+    if (output instanceof Promise) {
+      return output.then((x) => {
+        console.log(codeLocation, x);
+        return x;
+      }) as ReturnType<F>;
+    }
+    console.log(codeLocation, output);
+    return output;
+  }) as F;
+};
+
+export const logAfter = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
     const output = f(...xs);
@@ -24,7 +40,7 @@ export const sideLogAfter = <F extends Func>(f: F): F => {
   }) as F;
 };
 
-export const sideLogBefore = <F extends Func>(f: F): F => {
+export const logBefore = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
     console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
