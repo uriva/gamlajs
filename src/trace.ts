@@ -9,10 +9,7 @@ const frameToString = ({ line, file, column }: StackFrame) =>
 const parseStackLine = (stackLine: string): StackFrame | null => {
   const matches = /\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/.exec(stackLine) ||
     /(.+)@(.+):(\d+):(\d+)/g.exec(stackLine); // Safari style
-  if (!matches) {
-    console.error(`could not figure out stack line ${stackLine}`);
-    return null;
-  }
+  if (!matches) return null;
   const [, , file, line, column] = matches;
   return { file, line: parseInt(line), column: parseInt(column) };
 };
