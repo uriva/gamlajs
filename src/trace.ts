@@ -7,9 +7,8 @@ const frameToString = ({ line, file, column }: StackFrame) =>
   `${file}:${line}:${column}`;
 
 const parseStackLine = (stackLine: string): StackFrame | null => {
-  const matches = RegExp(/\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/).exec(
-    stackLine,
-  );
+  const matches = /\s+at\s+(.+\s)?\(?(.+):(\d+):(\d+)\)?/.exec(stackLine) ||
+    /(.+)@(.+):(\d+):(\d+)/g.exec(stackLine); // Safari style
   if (!matches) {
     console.error(`could not figure out stack line ${stackLine}`);
     return null;
