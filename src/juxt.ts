@@ -46,6 +46,8 @@ export const juxt = <Fs extends Func[]>(...fs: Fs) =>
 export const pairRight = <F extends Func>(f: F) =>
   juxt(identity<ParamOf<F>>, f);
 
+export const pairLeft = <F extends Func>(f: F) => juxt(f, identity<ParamOf<F>>);
+
 export const stack = <Functions extends Func[]>(
   ...functions: Functions
 ): (
