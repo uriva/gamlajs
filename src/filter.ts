@@ -1,9 +1,9 @@
-import { head, second } from "./array.ts";
-import { complement, pipe } from "./composition.ts";
 import { AsyncFunction, Func, ParamOf } from "./typing.ts";
+import { complement, pipe } from "./composition.ts";
+import { head, second } from "./array.ts";
 
-import { pairRight } from "./juxt.ts";
 import { map } from "./map.ts";
+import { pairRight } from "./juxt.ts";
 
 export const filter = <F extends Func>(f: F): (
   _: ParamOf<F>[],
@@ -20,9 +20,8 @@ export const find = <Fn extends Func>(predicate: Fn) =>
 
 export const remove = <F extends Func>(
   f: F,
-): F extends AsyncFunction
-  ? (x: Parameters<F>[0][]) => Promise<Parameters<F>[0][]>
-  : (x: Parameters<F>[0][]) => Parameters<F>[0][] =>
+): F extends AsyncFunction ? (x: ParamOf<F>[]) => Promise<ParamOf<F>[]>
+  : (x: ParamOf<F>[]) => ParamOf<F>[] =>
   // @ts-expect-error compiler cannot infer
   filter(complement(f));
 

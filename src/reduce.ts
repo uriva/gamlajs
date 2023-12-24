@@ -1,4 +1,4 @@
-import { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
+import { AsyncFunction, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 const reduceHelper = <
   State,
@@ -31,42 +31,42 @@ export const reduce = <Function extends (state: any, element: any) => any>(
 ) =>
 (xs: Parameters<Function>[1][]) => reduceHelper(reducer, initial(), xs, 0);
 
-export const min = <F extends Func>(key: F) => (xs: Parameters<F>[0][]) =>
+export const min = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
   reduceHelper(
     (
-      s: Parameters<F>[0],
-      x: Parameters<F>[0],
-    ): F extends AsyncFunction ? Promise<Parameters<F>[0]>
-      : Parameters<F>[0] => {
+      s: ParamOf<F>,
+      x: ParamOf<F>,
+    ): F extends AsyncFunction ? Promise<ParamOf<F>>
+      : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
       return ((keyS instanceof Promise || keyX instanceof Promise)
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? s : x)
         : key(s) < key(x)
         ? s
-        : x) as F extends AsyncFunction ? Promise<Parameters<F>[0]>
-          : Parameters<F>[0];
+        : x) as F extends AsyncFunction ? Promise<ParamOf<F>>
+          : ParamOf<F>;
     },
     xs[0],
     xs,
     1,
   );
 
-export const max = <F extends Func>(key: F) => (xs: Parameters<F>[0][]) =>
+export const max = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
   reduceHelper(
     (
-      s: Parameters<F>[0],
-      x: Parameters<F>[0],
-    ): F extends AsyncFunction ? Promise<Parameters<F>[0]>
-      : Parameters<F>[0] => {
+      s: ParamOf<F>,
+      x: ParamOf<F>,
+    ): F extends AsyncFunction ? Promise<ParamOf<F>>
+      : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
       return ((keyS instanceof Promise || keyX instanceof Promise)
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? x : s)
         : key(s) < key(x)
         ? x
-        : s) as F extends AsyncFunction ? Promise<Parameters<F>[0]>
-          : Parameters<F>[0];
+        : s) as F extends AsyncFunction ? Promise<ParamOf<F>>
+          : ParamOf<F>;
     },
     xs[0],
     xs,

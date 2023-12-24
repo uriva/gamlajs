@@ -4,6 +4,7 @@ import {
   AsyncFunction,
   Func,
   Last,
+  ParamOf,
   ReturnTypeUnwrapped,
 } from "./typing.ts";
 
@@ -14,15 +15,14 @@ import { currentLocation } from "./trace.ts";
 type UnaryFn<A, R> = (a: A) => R;
 // deno-lint-ignore no-explicit-any
 type UnaryFnUntyped = (a: any) => any;
-type Arg<F extends Func> = Parameters<F>[0];
 // deno-lint-ignore no-explicit-any
 type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
 
 // Return F1 if its return type is assignable to F2's argument type, otherwise
 // return the required function type for the error message.
 type ValidCompose<F1 extends Func, F2 extends Func> = Res<F1> extends
-  (Arg<F2> | Promise<Arg<F2>>) ? F1
-  : (...arg: Parameters<F1>) => Arg<F2>;
+  (ParamOf<F2> | Promise<ParamOf<F2>>) ? F1
+  : (...arg: Parameters<F1>) => ParamOf<F2>;
 
 // For each function, validate the composition with its successor.
 type ValidPipe<FS extends Func[]> = FS extends
@@ -91,8 +91,8 @@ export const complement = <F extends Func>(
 
 export const sideEffect =
   <F extends UnaryFnUntyped>(f: F) =>
-  (x: Parameters<F>[0]): F extends AsyncFunction ? Promise<Parameters<F>[0]>
-    : Parameters<F>[0] => {
+  (x: ParamOf<F>): F extends AsyncFunction ? Promise<ParamOf<F>>
+    : ParamOf<F> => {
     const result = f(x);
     // @ts-expect-error compiler cannot dynamically infer
     return (result instanceof Promise) ? result.then(() => x) : x;

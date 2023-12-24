@@ -1,6 +1,12 @@
 import { all, any, concat, zip } from "./array.ts";
 import { identity, pipe } from "./composition.ts";
-import { AnyAsync, Func, ReturnTypeUnwrapped, Union } from "./typing.ts";
+import {
+  AnyAsync,
+  Func,
+  ParamOf,
+  ReturnTypeUnwrapped,
+  Union,
+} from "./typing.ts";
 
 import { map } from "./map.ts";
 
@@ -23,33 +29,34 @@ type juxtCatOutput<Functions extends Func[]> = Functions extends
   AnyAsync<Functions> ? Promise<ArrayOfOneOf<AwaitedResults<Functions>>>
   : ArrayOfOneOf<Results<Functions>>;
 
-export const juxt =
-  <Functions extends Func[]>(...fs: Functions) =>
-  (...x: Parameters<Functions[0]>): JuxtOutput<Functions> => {
-    const result = [];
-    let anyAsync = false;
-    for (const f of fs) {
-      result.push(f(...x));
-      anyAsync = anyAsync || result[result.length - 1] instanceof Promise;
-    }
-    // @ts-expect-error reason=ts does not understand me :_(
-    return anyAsync ? Promise.all(result) : result;
-  };
+export const juxt = <Fs extends Func[]>(...fs: Fs) =>
+(
+  ...x: Parameters<Fs[0]>
+): JuxtOutput<Fs> => {
+  const result = [];
+  let anyAsync = false;
+  for (const f of fs) {
+    result.push(f(...x));
+    anyAsync = anyAsync || result[result.length - 1] instanceof Promise;
+  }
+  // @ts-expect-error reason=ts does not understand me :_(
+  return anyAsync ? Promise.all(result) : result;
+};
 
-export const pairRight = <Function extends Func>(f: Function) =>
-  juxt(identity<Parameters<Function>[0]>, f);
+export const pairRight = <F extends Func>(f: F) =>
+  juxt(identity<ParamOf<F>>, f);
 
 export const stack = <Functions extends Func[]>(
   ...functions: Functions
 ): (
-  _: { [i in keyof Functions]: Parameters<Functions[i]>[0] },
+  _: { [i in keyof Functions]: ParamOf<Functions[i]> },
 ) => JuxtOutput<Functions> =>
   // @ts-expect-error reason: too complex
   pipe((values) => zip([functions, values]), map(([f, x]) => f(x)));
 
-export const juxtCat = <Functions extends Func[]>(
-  ...fs: Functions
-): (..._: Parameters<Functions[0]>) => juxtCatOutput<Functions> =>
+export const juxtCat = <Fs extends Func[]>(
+  ...fs: Fs
+): (..._: Parameters<Fs[0]>) => juxtCatOutput<Fs> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
