@@ -11,6 +11,8 @@ export const replace =
 
 export const capitalize = (s: string) => s[0].toLocaleUpperCase() + s.slice(1);
 
+export const trimWhitesapce = (x: string) => x.trim();
+
 export const trim = (characters: string[]) => (str: string) => {
   const charactersSet = new Set(characters);
   let start = 0;
