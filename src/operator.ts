@@ -7,8 +7,7 @@ export const not = (x: any) => !x;
 export const prop = <T>() => <K extends keyof T>(key: K) => (x: T): T[K] =>
   x[key];
 
-type Primitive = number | string | null | undefined | boolean;
-export const equals = (x: Primitive) => (y: Primitive) => x === y;
+export const equals = <T>(x: T) => (y: T) => x === y;
 export const greater = (x: number) => (y: number) => y > x;
 export const smaller = (x: number) => (y: number) => y < x;
 export const greaterEquals = (x: number) => (y: number) => y >= x;
