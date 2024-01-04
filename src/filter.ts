@@ -17,12 +17,27 @@ export const filter = <F extends Func>(f: F): (
 
 export const find = <F extends Func>(
   predicate: F,
-): (
-  xs: ParamOf<F>[],
-) => F extends AsyncFunction ? Promise<ParamOf<F> | undefined>
-  : ParamOf<F> | undefined =>
-  // @ts-expect-error compiler cannot infer
-  pipe(filter(predicate), head);
+) =>
+(xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<ParamOf<F> | undefined>
+  : ParamOf<F> | undefined => {
+  const asyncResults: Promise<ParamOf<F>>[] = [];
+  for (const x of xs) {
+    const result = predicate(x);
+    if (result instanceof Promise) {
+      asyncResults.push(
+        result.then((predicateResult) =>
+          new Promise((resolve, reject) =>
+            predicateResult ? resolve(x) : reject(new Error("failed check"))
+          )
+        ),
+      );
+    } else if (result) return x;
+  }
+  // @ts-expect-error ts cannot infer
+  return (asyncResults.length)
+    ? Promise.any(asyncResults).catch(() => undefined)
+    : undefined;
+};
 
 export const remove = <F extends Func>(
   f: F,

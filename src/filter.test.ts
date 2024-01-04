@@ -39,12 +39,20 @@ Deno.test("async filter", async () => {
   );
 });
 
-Deno.test("find", async () => {
+Deno.test("find async", async () => {
   assertEquals(
     await find((arg: number) => wrapPromise(arg % 2 === 0))([1, 2, 3, 4, 5, 6]),
     2,
   );
+  assertEquals(
+    await find((arg: number) => wrapPromise(arg > 7))([1, 2, 3, 4, 5, 6]),
+    undefined,
+  );
+});
+
+Deno.test("find sync", () => {
   assertEquals(find((arg: number) => arg > 7)([1, 2, 3, 4, 5, 6]), undefined);
+  assertEquals(find((arg: number) => arg > 2)([1, 2, 3, 4, 5, 6]), 3);
 });
 
 const _numOrUndefined: number | undefined = find((x: number) => x > 0)([
