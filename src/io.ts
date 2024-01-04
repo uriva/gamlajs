@@ -97,22 +97,23 @@ export const batch = <
   );
 };
 
-export const timeout = <Args extends unknown[], Output>(
+export const timeout = <F extends AsyncFunction>(
   ms: number,
-  fallback: (..._: Args) => Output | Promise<Output>,
-  f: (..._: Args) => Promise<Output>,
-) =>
-(...args: Args): Promise<Output> =>
-  new Promise((resolve) => {
+  f: F,
+): F =>
+// @ts-expect-error ts cannot infer
+(...args: Parameters<F>) =>
+  new Promise((resolve, reject) => {
     let wasResolved = false;
-    setTimeout(() => {
+    let rejected = false;
+    const timer = setTimeout(() => {
       if (wasResolved) return;
-      const result = fallback(...args);
-      if (result instanceof Promise) result.then(resolve);
-      else resolve(result);
+      rejected = true;
+      reject(new Error(`Timed out after ${ms} ms`));
     }, ms);
-    const result = f(...args);
-    result.then((x) => {
+    f(...args).then((x: Awaited<ReturnType<F>>) => {
+      if (rejected) return;
+      clearTimeout(timer);
       wasResolved = true;
       resolve(x);
     });

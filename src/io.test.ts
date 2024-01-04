@@ -112,11 +112,7 @@ Deno.test("timeout doesn't trigger if ended in time", async () => {
   assertEquals(
     await timeout(
       10,
-      () => failed,
-      () =>
-        new Promise((resolve) => {
-          resolve(success);
-        }),
+      () => Promise.resolve(success),
     )(),
     success,
   );
@@ -127,12 +123,11 @@ Deno.test("timeout triggers if not ended in time", async () => {
   assertEquals(
     await timeout(
       10,
-      () => failed,
-      () =>
-        new Promise<string>((resolve) => {
-          setTimeout(() => resolve(success), 50);
-        }),
-    )(),
+      async () => {
+        await sleep(50);
+        return success;
+      },
+    )().catch(() => failed),
     failed,
   );
   await sleep(100); // Wait for the interval to finish.
