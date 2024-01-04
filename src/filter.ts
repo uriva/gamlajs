@@ -15,7 +15,13 @@ export const filter = <F extends Func>(f: F): (
     map(head),
   );
 
-export const find = <Fn extends Func>(predicate: Fn) =>
+export const find = <F extends Func>(
+  predicate: F,
+): (
+  xs: ParamOf<F>[],
+) => F extends AsyncFunction ? Promise<ParamOf<F> | undefined>
+  : ParamOf<F> | undefined =>
+  // @ts-expect-error compiler cannot infer
   pipe(filter(predicate), head);
 
 export const remove = <F extends Func>(

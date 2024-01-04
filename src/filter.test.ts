@@ -47,6 +47,12 @@ Deno.test("find", async () => {
   assertEquals(find((arg: number) => arg > 7)([1, 2, 3, 4, 5, 6]), undefined);
 });
 
+const _numOrUndefined: number | undefined = find((x: number) => x > 0)([
+  1,
+  2,
+  3,
+]);
+
 Deno.test("intersectBy", () => {
   assertEquals(
     intersectBy(prop<{ id: number }>()("id"))([
