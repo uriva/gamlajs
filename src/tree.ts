@@ -9,3 +9,14 @@ export const reduceTree = <Tree, R>(
     tree,
     map(reduceTree(getChildren, reduce))(getChildren(tree)) as R[],
   );
+
+export const findInTree =
+  <T>(predicate: (t: T) => boolean, children: (t: T) => T[]) =>
+  (t: T): null | T => {
+    if (predicate(t)) return t;
+    for (const child of children(t)) {
+      const result = findInTree(predicate, children)(child);
+      if (result) return result;
+    }
+    return null;
+  };
