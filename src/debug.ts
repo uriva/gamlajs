@@ -90,3 +90,10 @@ export const assert = <T>(
       return value;
     },
   );
+
+export const coerce = <T>(x: T | undefined | null): T => {
+  if (x === undefined || x === null) {
+    throw new Error(`Got ${x} where value was expected.`);
+  }
+  return x;
+};
