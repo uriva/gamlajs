@@ -119,19 +119,27 @@ export const timeout = <F extends AsyncFunction>(
     });
   });
 
-export const retry = <F extends AsyncFunction>(
-  waitMs: number,
-  times: number,
-  f: F,
-): F =>
-  // @ts-expect-error cannot infer
-  times
-    ? async (...x: Parameters<F>) => {
-      try {
-        return await f(...x);
-      } catch (e) {
-        console.error(`failed. retries left: ${times}`, e);
-        return sleep(waitMs).then(() => retry(waitMs, times - 1, f)(...x));
+export const conditionalRetry =
+  // deno-lint-ignore no-explicit-any
+  (predicate: (e: Error) => any) =>
+  <F extends AsyncFunction>(
+    waitMs: number,
+    times: number,
+    f: F,
+  ): F =>
+    // @ts-expect-error cannot infer
+    times
+      ? async (...x: Parameters<F>) => {
+        try {
+          return await f(...x);
+        } catch (e) {
+          if (!predicate(e)) throw e;
+          console.error(`failed. retries left: ${times}`, e);
+          return sleep(waitMs).then(() =>
+            conditionalRetry(predicate)(waitMs, times - 1, f)(...x)
+          );
+        }
       }
-    }
-    : f;
+      : f;
+
+export const retry = conditionalRetry(() => true);
