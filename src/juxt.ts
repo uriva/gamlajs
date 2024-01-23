@@ -1,4 +1,4 @@
-import { all, any, concat, zip } from "./array.ts";
+import { allmap, anymap, concat, zip } from "./array.ts";
 import { identity, pipe } from "./composition.ts";
 import {
   AnyAsync,
@@ -62,18 +62,20 @@ export const juxtCat = <Fs extends Func[]>(
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
-export const alljuxt = <Functions extends Func[]>(
-  ...fs: Functions
-): (
-  ..._: Parameters<Functions[0]>
-) => Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean =>
-  // @ts-expect-error too complex
-  pipe(juxt(...fs), all);
+export const alljuxt = <Fs extends Func[]>(
+  ...fs: Fs
+) =>
+(
+  ...xs: Parameters<Fs[0]>
+): Fs extends AnyAsync<Fs> ? Promise<boolean> : boolean =>
+  // @ts-expect-error cannot infer
+  allmap((f) => f(...xs))(fs);
 
-export const anyjuxt = <Functions extends Func[]>(
-  ...fs: Functions
-): (
-  ..._: Parameters<Functions[0]>
-) => Functions extends AnyAsync<Functions> ? Promise<boolean> : boolean =>
-  // @ts-expect-error too complex
-  pipe(juxt(...fs), any);
+export const anyjuxt = <Fs extends Func[]>(
+  ...fs: Fs
+) =>
+(
+  ...xs: Parameters<Fs[0]>
+): Fs extends AnyAsync<Fs> ? Promise<boolean> : boolean =>
+  // @ts-expect-error cannot infer
+  anymap((f) => f(...xs))(fs);
