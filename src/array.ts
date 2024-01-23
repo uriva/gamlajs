@@ -1,6 +1,50 @@
-export const anymap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.some(f);
+import { AsyncFunction, Func, ParamOf } from "./typing.ts";
+
+const firstTrue = <T>(promises: Promise<T>[]) => {
+  const newPromises = promises.map((p) =>
+    new Promise(
+      (resolve, reject) => p.then((v) => v && resolve(true), reject),
+    )
+  );
+  newPromises.push(Promise.all(promises).then(() => false));
+  return Promise.race(newPromises);
+};
+
+export const anymap =
+  <F extends Func>(f: F) =>
+  (xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<boolean>
+    : boolean => {
+    const promises = [];
+    for (const x of xs) {
+      const result = f(x);
+      if (result instanceof Promise) {
+        promises.push(result);
+        // @ts-expect-error cannot infer
+      } else if (result) return true;
+    }
+    // @ts-expect-error cannot infer
+    return (promises.length) ? firstTrue(promises) : false;
+  };
+
 export const any = <T>(a: T[]) => a.some((x) => x);
-export const allmap = <X>(f: (x: X) => boolean) => (xs: X[]) => xs.every(f);
+
+export const allmap =
+  <F extends Func>(f: F) =>
+  (xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<boolean>
+    : boolean => {
+    const promises = [];
+    for (const x of xs) {
+      const result = f(x);
+      if (result instanceof Promise) {
+        promises.push(result);
+        // @ts-expect-error cannot infer
+      } else if (!result) return false;
+    }
+    // @ts-expect-error cannot infer
+    return !promises.length ||
+      firstTrue(promises.map((x) => x.then((x) => !x))).then((x) => !x);
+  };
+
 export const all = <T>(a: T[]) => a.every((x) => x);
 export const join = (str: string) => (x: (string | number)[]) => x.join(str);
 export const length = <T>(array: T[]) => array.length;

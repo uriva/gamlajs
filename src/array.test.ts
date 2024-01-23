@@ -1,3 +1,4 @@
+import { allmap } from "./array.ts";
 import {
   all,
   any,
@@ -19,6 +20,7 @@ import {
 } from "./array.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { isValidRegExp } from "./string.ts";
 
 const _: number[] = concat([[1, 2, 3], [0, 0, 0]]);
 
@@ -114,6 +116,17 @@ Deno.test("anymap", () => {
   assertEquals(anymap((x: number) => x > 2)([1, 2, 3]), true);
 });
 
+Deno.test("anymap async", async () => {
+  assertEquals(
+    await anymap((x: number) => Promise.resolve(x > 7))([1, 2, 3]),
+    false,
+  );
+  assertEquals(
+    await anymap((x: number) => Promise.resolve(x > 2))([1, 2, 3]),
+    true,
+  );
+});
+
 Deno.test("any", () => {
   assertEquals(any([true, true, false]), true);
 });
@@ -123,8 +136,19 @@ Deno.test("all", () => {
 });
 
 Deno.test("allmap", () => {
-  assertEquals(anymap((x: number) => x > 7)([1, 2, 3]), false);
-  assertEquals(anymap((x: number) => x > 0)([1, 2, 3]), true);
+  assertEquals(allmap((x: number) => x > 0)([1, 2, 3]), true);
+  assertEquals(allmap((x: number) => x > 1)([1, 2, 3]), false);
+});
+
+Deno.test("allmap async", async () => {
+  assertEquals(
+    await allmap((x: number) => Promise.resolve(x > 0))([1, 2, 3]),
+    true,
+  );
+  assertEquals(
+    await allmap((x: number) => Promise.resolve(x > 1))([1, 2, 3]),
+    false,
+  );
 });
 
 Deno.test("take", () => {
