@@ -106,10 +106,11 @@ export const timeout = <F extends AsyncFunction>(
   new Promise((resolve, reject) => {
     let wasResolved = false;
     let rejected = false;
+    const error = new Error(`Timed out after ${ms} ms`);
     const timer = setTimeout(() => {
       if (wasResolved) return;
       rejected = true;
-      reject(new Error(`Timed out after ${ms} ms`));
+      reject(error);
     }, ms);
     f(...args).then((x: Awaited<ReturnType<F>>) => {
       if (rejected) return;
