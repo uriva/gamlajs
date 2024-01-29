@@ -117,7 +117,7 @@ export const timeout = <F extends AsyncFunction>(
       clearTimeout(timer);
       wasResolved = true;
       resolve(x);
-    });
+    }).catch(reject);
   });
 
 export const conditionalRetry =
