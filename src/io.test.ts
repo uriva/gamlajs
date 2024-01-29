@@ -1,10 +1,7 @@
 import { batch, retry, timeout } from "./io.ts";
 import { equals, prop } from "./operator.ts";
 
-import {
-  assertEquals,
-  assertRejects,
-} from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals, assertRejects } from "std-assert";
 
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";

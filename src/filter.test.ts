@@ -1,6 +1,6 @@
 import { filter, find, intersectBy, remove } from "./filter.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { prop } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
 

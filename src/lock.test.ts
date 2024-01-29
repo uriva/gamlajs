@@ -1,7 +1,7 @@
 import {
   assert,
   assertEquals,
-} from "https://deno.land/std@0.174.0/testing/asserts.ts";
+} from "std-assert";
 import {
   keepTryingEvery50ms,
   makeLockWithId,

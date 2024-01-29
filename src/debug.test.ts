@@ -1,12 +1,11 @@
-import { assert, timeit } from "./debug.ts";
 import {
   assertSpyCall,
   assertSpyCalls,
   spy,
-} from "https://deno.land/std@0.195.0/testing/mock.ts";
+} from "https://deno.land/std@0.213.0/testing/mock.ts";
+import { assert, timeit } from "./debug.ts";
 
-import { assertEquals } from "https://deno.land/std@0.195.0/assert/assert_equals.ts";
-import { assertThrows } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals, assertThrows } from "std-assert";
 import { sleep } from "./time.ts";
 
 Deno.test("timeit", () => {

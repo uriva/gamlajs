@@ -1,4 +1,4 @@
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { prop } from "./operator.ts";
 import { reduceTree } from "./tree.ts";
 import { sum } from "./math.ts";

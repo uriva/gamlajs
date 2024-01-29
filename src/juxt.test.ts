@@ -1,6 +1,6 @@
 import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { pipe } from "./composition.ts";
 import { map } from "./map.ts";
 import { multiply } from "./math.ts";

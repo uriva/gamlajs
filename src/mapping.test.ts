@@ -11,7 +11,7 @@ import {
   wrapObject,
 } from "./mapping.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { head } from "./array.ts";
 import { wrapPromise } from "./promise.ts";
 

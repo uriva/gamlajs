@@ -6,7 +6,7 @@ import {
   sideEffect,
 } from "./composition.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";

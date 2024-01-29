@@ -1,7 +1,7 @@
 import { complement, pipe } from "./src/composition.ts";
 
 import { anyjuxt } from "./src/juxt.ts";
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { equals } from "./src/operator.ts";
 import { filter } from "./src/filter.ts";
 import { reduce } from "./src/reduce.ts";

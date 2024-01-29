@@ -17,10 +17,9 @@ await build({
       type: "git",
       url: "git+https://github.com/uriva/gamlajs.git",
     },
-    bugs: {
-      url: "https://github.com/uriva/gamlajs/issues",
-    },
+    bugs: { url: "https://github.com/uriva/gamlajs/issues" },
   },
+  importMap: "deno.json",
   postBuild() {
     Deno.copyFileSync("./LICENSE", outDir + "/LICENSE");
     Deno.copyFileSync("./README.md", outDir + "/README.md");

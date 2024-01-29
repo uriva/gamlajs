@@ -1,6 +1,6 @@
 import { between, modulo, prop, spread } from "./operator.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 
 Deno.test("between", () => {
   assertEquals(between(1, 2)(1), true);

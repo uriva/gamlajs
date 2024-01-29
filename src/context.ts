@@ -1,11 +1,10 @@
 import { AsyncLocalStorage } from "node:async_hooks";
+import { Func } from "./typing.ts";
+
 const localStorage = new AsyncLocalStorage();
 
 const getContext = <Context>(defaultContext: Context): Context =>
   (localStorage.getStore() as Context | undefined) ?? defaultContext;
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Func = (..._: any[]) => any;
 
 export const withContext =
   <Context, F extends Func>(context: Context, y: F) => (...xs: Parameters<F>) =>

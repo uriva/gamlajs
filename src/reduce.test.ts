@@ -1,6 +1,6 @@
 import { max, min, reduce } from "./reduce.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
+import { assertEquals } from "std-assert";
 import { wrapPromise } from "./promise.ts";
 
 Deno.test("reduce", () => {

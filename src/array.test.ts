@@ -1,4 +1,5 @@
-import { assert } from "../dist/esm/deps/deno.land/std@0.195.0/assert/assert.js";
+import { assert, assertEquals } from "std-assert";
+
 import {
   all,
   allmap,
@@ -20,7 +21,6 @@ import {
   zip,
 } from "./array.ts";
 
-import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
 import { sample } from "./index.ts";
 
 const _: number[] = concat([[1, 2, 3], [0, 0, 0]]);
