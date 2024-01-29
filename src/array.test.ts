@@ -1,6 +1,7 @@
-import { allmap } from "./array.ts";
+import { assert } from "../dist/esm/deps/deno.land/std@0.195.0/assert/assert.js";
 import {
   all,
+  allmap,
   any,
   anymap,
   concat,
@@ -20,7 +21,7 @@ import {
 } from "./array.ts";
 
 import { assertEquals } from "https://deno.land/std@0.174.0/testing/asserts.ts";
-import { isValidRegExp } from "./string.ts";
+import { sample } from "./index.ts";
 
 const _: number[] = concat([[1, 2, 3], [0, 0, 0]]);
 
@@ -153,6 +154,12 @@ Deno.test("allmap async", async () => {
 
 Deno.test("take", () => {
   assertEquals(take(3)([1, 2, 3, 5]), [1, 2, 3]);
+});
+
+Deno.test("sample", () => {
+  const elements = [1, 2, 3, 4];
+  assertEquals(new Set(sample(5)(elements)), new Set([1, 2, 3, 4]));
+  assert(elements.includes(sample<number>(1)(elements)[0]));
 });
 
 Deno.test("drop", () => {

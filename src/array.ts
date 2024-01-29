@@ -143,6 +143,14 @@ export const contains = <T>(x: T) => (array: T[]) => array.includes(x);
 export const includedIn = <T>(array: T[]) => (x: T) => array.includes(x);
 
 export const take = <T>(n: number) => (xs: T[]) => xs.slice(0, n);
+
+export const sample = <T>(n: number) => (xs: T[]) =>
+  xs.slice()
+    .map((value, index) => [Math.random(), value, index] as [number, T, number])
+    .sort(([a], [b]) => a - b)
+    .slice(0, Math.min(n, xs.length))
+    .map(([, value]) => value);
+
 export const drop = <T>(n: number) => (xs: T[]) => xs.slice(n);
 
 export const enumerate = <T>(xs: T[]): [number, T][] =>
