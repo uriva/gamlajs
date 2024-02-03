@@ -9,7 +9,7 @@ const getContext = <Context>(defaultContext: Context): Context =>
 export const withContext =
   <Context, F extends Func>(context: Context, y: F) => (...xs: Parameters<F>) =>
     new Promise((resolve) =>
-      localStorage.run(context, () => {
+      localStorage.run({ ...getContext(context), ...context }, () => {
         y(...xs).then(resolve);
       })
     );
