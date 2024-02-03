@@ -3,15 +3,17 @@ import { Func } from "./typing.ts";
 
 const localStorage = new AsyncLocalStorage();
 
-const getContext = <Context>(defaultContext: Context): Context =>
-  (localStorage.getStore() as Context | undefined) ?? defaultContext;
-
 export const withContext =
-  <Context, F extends Func>(context: Context, y: F) => (...xs: Parameters<F>) =>
-    new Promise((resolve) =>
-      localStorage.run({ ...getContext(context), ...context }, () => {
-        y(...xs).then(resolve);
-      })
+  <Context, F extends Func>(context: Context, f: F): F =>
+  // @ts-expect-error cannot infer
+  (...xs) =>
+    new Promise((resolve, reject) =>
+      localStorage.run(
+        { ...(localStorage.getStore() ?? {}), ...context },
+        () => {
+          f(...xs).then(resolve).catch(reject);
+        },
+      )
     );
 
 export const getContextEntry = <Context>(defaultContext: Context) =>
@@ -19,4 +21,4 @@ export const getContextEntry = <Context>(defaultContext: Context) =>
 // @ts-expect-error not sure
 (...xs) =>
   // @ts-expect-error not sure
-  getContext(defaultContext)[k](...xs);
+  (localStorage.getStore()?.[k] ?? defaultContext[k])(...xs);

@@ -33,3 +33,15 @@ Deno.test("nested context", async () => {
   const result = await withContext(b, nestedStuff)();
   assertEquals(result, 4);
 });
+
+Deno.test("partial implementation", async () => {
+  const get = getContextEntry({ a: () => 2, b: () => 3 });
+  const override = { a: () => 1 };
+  const f = withContext(override, async (): Promise<[number, number]> => {
+    await sleep(0);
+    return [get("a")(), get("b")()];
+  });
+  // Check typing as well
+  const result: [number, number] = await f();
+  assertEquals(result, [1, 3]);
+});
