@@ -14,10 +14,11 @@ Deno.test("context works as expected", async () => {
 });
 
 Deno.test("new api for context works as expected", async () => {
-  const { inject, access } = context(() => 1, () => 2);
+  const { inject, access } = context((): string => "nothing injected");
+  const withString = inject(() => "injected");
   const f = () => Promise.resolve(access());
-  assertEquals(await inject(f)(), 1);
-  assertEquals(await f(), 2);
+  assertEquals(await withString(f)(), "injected");
+  assertEquals(await f(), "nothing injected");
 });
 
 Deno.test("nested context", async () => {

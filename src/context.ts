@@ -24,8 +24,8 @@ export const getContextEntry = <Context>(defaultContext: Context) =>
   // @ts-expect-error not sure
   (localStorage.getStore()?.[k] ?? defaultContext[k])(...xs);
 
-export const context = <F extends Func>(fn: F, fallbackFn: F) =>
+export const context = <F extends Func>(fallbackFn: F) =>
   letIn(crypto.randomUUID(), (id) => ({
-    inject: withContext({ [id]: fn }),
+    inject: (fn: F) => withContext({ [id]: fn }),
     access: getContextEntry({ [id]: fallbackFn })(id),
   }));
