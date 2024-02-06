@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
-import { Func } from "./typing.ts";
+import { randomUUID } from "node:crypto";
 import { letIn } from "./operator.ts";
+import { Func } from "./typing.ts";
 
 const localStorage = new AsyncLocalStorage();
 
@@ -25,7 +26,7 @@ export const getContextEntry = <Context>(defaultContext: Context) =>
   (localStorage.getStore()?.[k] ?? defaultContext[k])(...xs);
 
 export const context = <F extends Func>(fallbackFn: F) =>
-  letIn(crypto.randomUUID(), (id) => ({
+  letIn(randomUUID(), (id) => ({
     inject: (fn: F) => withContext({ [id]: fn }),
     access: getContextEntry({ [id]: fallbackFn })(id),
   }));
