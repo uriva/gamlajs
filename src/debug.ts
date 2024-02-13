@@ -97,3 +97,29 @@ export const coerce = <T>(x: T | undefined | null): T => {
   }
   return x;
 };
+
+type AugmentReturnType<F extends Func, T> = (
+  ...inputs: Parameters<F>
+) => ReturnType<F> | T;
+
+export const tryCatch = <F extends Func, T>(
+  f: F,
+  fallback: (e: Error, ...xs: Parameters<F>) => T,
+) =>
+  ((...x: Parameters<F>) => {
+    try {
+      const result = f(...x);
+      return result instanceof Promise
+        ? result.catch((e) => {
+          return fallback(e, ...x);
+        })
+        : result;
+    } catch (e) {
+      return fallback(e, ...x);
+    }
+  }) as AugmentReturnType<F, T>;
+
+export const catchWithNull = <F extends Func>(
+  f: F,
+): (...aruments: Parameters<F>) => ReturnType<F> | null =>
+  tryCatch(f, () => null);

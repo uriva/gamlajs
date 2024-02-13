@@ -7,6 +7,8 @@ import { assert, timeit } from "./debug.ts";
 
 import { assertEquals, assertThrows } from "std-assert";
 import { sleep } from "./time.ts";
+import { tryCatch } from "./debug.ts";
+import { resolve } from "https://deno.land/std@0.140.0/path/win32.ts";
 
 Deno.test("timeit", () => {
   const logger = (x: string) => console.log(x);
@@ -63,4 +65,32 @@ Deno.test("assert async", async () => {
   }
   assertEquals(thrown, true);
   await assert(condition, err)(10);
+});
+
+Deno.test("tryCatch", () => {
+  const f = (x: number) => {
+    x = x + 3;
+    // @ts-expect-error should throw
+    return (7 + x.does.not.exist);
+  };
+  assertThrows(() => {
+    f(3);
+  });
+  assertEquals(tryCatch(f, () => null)(3), null);
+});
+
+Deno.test("tryCatch async", async () => {
+  const f = (x: number) =>
+    new Promise((resolve) => {
+      x = x + 3;
+      // @ts-expect-error should throw
+      resolve(7 + x.does.not.exist);
+    });
+  try {
+    await f(3);
+    assertEquals(false, true);
+  } catch {
+    // Thrown successfully.
+  }
+  assertEquals(await tryCatch(f, () => null)(3), null);
 });
