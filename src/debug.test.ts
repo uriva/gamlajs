@@ -6,9 +6,8 @@ import {
 import { assert, timeit } from "./debug.ts";
 
 import { assertEquals, assertThrows } from "std-assert";
-import { sleep } from "./time.ts";
 import { tryCatch } from "./debug.ts";
-import { resolve } from "https://deno.land/std@0.140.0/path/win32.ts";
+import { sleep } from "./time.ts";
 
 Deno.test("timeit", () => {
   const logger = (x: string) => console.log(x);
