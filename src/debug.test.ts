@@ -3,10 +3,9 @@ import {
   assertSpyCalls,
   spy,
 } from "https://deno.land/std@0.213.0/testing/mock.ts";
-import { assert, timeit } from "./debug.ts";
+import { assert, timeit, tryCatch } from "./debug.ts";
 
 import { assertEquals, assertThrows } from "std-assert";
-import { tryCatch } from "./debug.ts";
 import { sleep } from "./time.ts";
 
 Deno.test("timeit", () => {
