@@ -7,7 +7,7 @@ export const wrapPromise = <T>(x: T): Promise<T> => Promise.resolve(x);
 
 // deno-lint-ignore no-explicit-any
 export const isPromise = (x: any): x is Promise<any> =>
-  !!x.then && !!x.catch && !!x.finally;
+  !!x?.then && !!x?.catch && !!x?.finally;
 
 type NullaryFunction = () => void | Promise<void>;
 

@@ -2,6 +2,7 @@ import { AsyncFunction, Unary } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
+import { isPromise } from "./promise.ts";
 
 // deno-lint-ignore no-explicit-any
 export const map = <Function extends (_: any) => any>(f: Function) =>
