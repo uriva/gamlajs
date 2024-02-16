@@ -143,4 +143,8 @@ export const conditionalRetry =
       }
       : f;
 
-export const retry = conditionalRetry(() => true);
+export const retry = <F extends AsyncFunction>(
+  waitMs: number,
+  times: number,
+  f: F,
+) => conditionalRetry(() => true)(waitMs, times, f);
