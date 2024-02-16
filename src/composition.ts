@@ -43,21 +43,23 @@ const pipeWithoutStack = <Fs extends Func[]>(
       Fs
     >;
 
+const augmentException = (codeLocation: string) => (e: Error) => {
+  e.message += "\n" + codeLocation;
+  return e;
+};
+
 const errorBoundry = <F extends Func>(f: F) => {
-  const codeLocation = currentLocation(4);
+  const augment = augmentException(currentLocation(4));
   return ((...x) => {
     try {
       const result = f(...x);
-      if (result instanceof Promise) {
-        return result.catch((e) => {
-          console.error(codeLocation);
-          throw e;
-        });
-      }
-      return result;
+      return (result instanceof Promise)
+        ? result.catch((e) => {
+          throw augment(e);
+        })
+        : result;
     } catch (e) {
-      console.error(codeLocation);
-      throw e;
+      throw augment(e);
     }
   }) as F;
 };

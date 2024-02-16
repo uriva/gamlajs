@@ -45,7 +45,7 @@ Deno.test("zip", () => {
 });
 
 Deno.test("zip different types", () => {
-  assertEquals(zip<[number, string]>([[1, 2, 'a'], ["a", "b", "c"]]), [
+  assertEquals(zip<[number, string]>([[1, 2, 3], ["a", "b", "c"]]), [
     [1, "a"],
     [2, "b"],
     [3, "c"],

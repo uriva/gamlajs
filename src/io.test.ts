@@ -1,7 +1,7 @@
 import { batch, retry, timeout } from "./io.ts";
 import { equals, prop } from "./operator.ts";
 
-import { assertEquals, assertRejects } from "std-assert";
+import { assert, assertEquals, assertRejects } from "std-assert";
 
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";
@@ -64,10 +64,11 @@ Deno.test("batch condition", async () => {
 });
 
 Deno.test("batch with exceptions", async () => {
+  const errorMessage = "error!";
   const f = batch(
     () => "key",
     1,
-    () => Promise.reject("error!"),
+    () => Promise.reject(new Error(errorMessage)),
     pipe(length, equals(5)),
   );
 
@@ -76,7 +77,7 @@ Deno.test("batch with exceptions", async () => {
     await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
   } catch (err) {
     hadError = true;
-    assertEquals(err, "error!");
+    assert(err.message.startsWith("error!"));
   }
   assertEquals(hadError, true);
 });
