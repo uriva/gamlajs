@@ -1,12 +1,12 @@
 import { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
 
-export const withLock = <Function extends AsyncFunction>(
-  lock: (...task: Parameters<Function>) => void | Promise<void>,
-  unlock: (...task: Parameters<Function>) => void | Promise<void>,
-  f: Function,
-): Function =>
-  (async (...args: Parameters<Function>) => {
+export const withLock = <F extends AsyncFunction>(
+  lock: (...task: Parameters<F>) => void | Promise<void>,
+  unlock: (...task: Parameters<F>) => void | Promise<void>,
+  f: F,
+): F =>
+  (async (...args: Parameters<F>) => {
     await lock(...args);
     try {
       const result = await f(...args);
@@ -16,7 +16,7 @@ export const withLock = <Function extends AsyncFunction>(
       await unlock(...args);
       throw e;
     }
-  }) as Function;
+  }) as F;
 
 export const keepTryingEvery50ms = async (
   f: () => boolean | Promise<boolean>,
