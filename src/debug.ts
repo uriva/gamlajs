@@ -3,6 +3,7 @@ import { Func, ReturnTypeUnwrapped } from "./typing.ts";
 import { currentLocation } from "./trace.ts";
 import { pairRight } from "./juxt.ts";
 import { pipe } from "./composition.ts";
+import { isPromise } from "./promise.ts";
 
 export const sideLog = <T>(x: T) => {
   console.log(currentLocation(3), x);
@@ -14,7 +15,7 @@ export const logAround = <F extends Func>(f: F): F => {
   return ((...xs) => {
     console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
     const output = f(...xs);
-    if (output instanceof Promise) {
+    if (isPromise(output)) {
       return output.then((x) => {
         console.log(codeLocation, x);
         return x;
@@ -29,7 +30,7 @@ export const logAfter = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
     const output = f(...xs);
-    if (output instanceof Promise) {
+    if (isPromise(output)) {
       return output.then((x) => {
         console.log(codeLocation, x);
         return x;
@@ -45,7 +46,7 @@ export const logBefore = <F extends Func>(f: F): F => {
   return ((...xs) => {
     console.log(codeLocation, xs.length === 1 ? xs[0] : xs);
     const output = f(...xs);
-    if (output instanceof Promise) {
+    if (isPromise(output)) {
       return output.then((x) => {
         return x;
       }) as ReturnType<F>;
@@ -67,7 +68,7 @@ export const timeit = <F extends Func>(
   ((...x: Parameters<F>) => {
     const started = getTimestampMilliseconds();
     const result = f(...x);
-    if (result instanceof Promise) {
+    if (isPromise(result)) {
       return result.then((result) => {
         const elapsed = getTimestampMilliseconds() - started;
         handler(elapsed, x, result);
@@ -109,7 +110,7 @@ export const tryCatch = <F extends Func, T>(
   ((...x: Parameters<F>) => {
     try {
       const result = f(...x);
-      return result instanceof Promise
+      return isPromise(result)
         ? result.catch((e) => {
           return fallback(e, ...x);
         })

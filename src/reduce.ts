@@ -1,3 +1,4 @@
+import { isPromise } from "./promise.ts";
 import { AsyncFunction, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 const reduceHelper = <
@@ -14,7 +15,7 @@ const reduceHelper = <
 ): ReturnType<Reducer> => {
   let current = s;
   for (let i = firstIndex; i < xs.length; i++) {
-    if (current instanceof Promise) {
+    if (isPromise(current)) {
       return current.then((s: State) =>
         reduceHelper(reducer, s, xs, i)
       ) as ReturnType<Reducer>;
@@ -40,7 +41,7 @@ export const min = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
       : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
-      return ((keyS instanceof Promise || keyX instanceof Promise)
+      return ((isPromise(keyS) || isPromise(keyX))
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? s : x)
         : key(s) < key(x)
         ? s
@@ -61,7 +62,7 @@ export const max = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
       : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
-      return ((keyS instanceof Promise || keyX instanceof Promise)
+      return ((isPromise(keyS) || isPromise(keyX))
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? x : s)
         : key(s) < key(x)
         ? x

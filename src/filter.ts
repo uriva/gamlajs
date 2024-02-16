@@ -4,6 +4,7 @@ import { head, second } from "./array.ts";
 
 import { map } from "./map.ts";
 import { pairRight } from "./juxt.ts";
+import { isPromise } from "./promise.ts";
 
 export const filter = <F extends Func>(f: F): (
   _: ParamOf<F>[],
@@ -23,7 +24,7 @@ export const find = <F extends Func>(
   const asyncResults: Promise<ParamOf<F>>[] = [];
   for (const x of xs) {
     const result = predicate(x);
-    if (result instanceof Promise) {
+    if (isPromise(result)) {
       asyncResults.push(
         result.then((predicateResult) =>
           new Promise((resolve, reject) =>

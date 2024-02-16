@@ -3,6 +3,7 @@ import { AnyAsync, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
 import { filter } from "./filter.ts";
+import { isPromise } from "./promise.ts";
 
 export const ifElse =
   <Predicate extends Func, If extends Func, Else extends Func>(
@@ -16,7 +17,7 @@ export const ifElse =
     ? Promise<ReturnTypeUnwrapped<If> | ReturnTypeUnwrapped<Else>>
     : ReturnType<If> | ReturnType<Else> => {
     const result = predicate(...x);
-    return result instanceof Promise
+    return isPromise(result)
       ? result.then((predicateResult) =>
         predicateResult ? fTrue(...x) : fFalse(...x)
       )

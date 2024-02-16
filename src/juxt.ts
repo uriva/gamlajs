@@ -9,6 +9,7 @@ import {
 } from "./typing.ts";
 
 import { map } from "./map.ts";
+import { isPromise } from "./index.ts";
 
 type Results<Functions extends Func[]> = {
   [i in keyof Functions]: ReturnTypeUnwrapped<Functions[i]>;
@@ -37,7 +38,7 @@ export const juxt = <Fs extends Func[]>(...fs: Fs) =>
   let anyAsync = false;
   for (const f of fs) {
     result.push(f(...x));
-    anyAsync = anyAsync || result[result.length - 1] instanceof Promise;
+    anyAsync = anyAsync || isPromise(result[result.length - 1]);
   }
   // @ts-expect-error reason=ts does not understand me :_(
   return anyAsync ? Promise.all(result) : result;

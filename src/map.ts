@@ -14,9 +14,7 @@ export const map = <Function extends (_: any) => any>(f: Function) =>
     results.push(f(x));
   }
   // @ts-expect-error ts cannot reason about this dynamic ternary
-  return (results.some((x) => x instanceof Promise)
-    ? Promise.all(results)
-    : results);
+  return results.some(isPromise) ? Promise.all(results) : results;
 };
 
 export const mapCat = <T, G>(

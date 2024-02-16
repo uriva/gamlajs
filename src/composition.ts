@@ -11,6 +11,7 @@ import {
 import { not } from "./operator.ts";
 import { reduce } from "./reduce.ts";
 import { currentLocation } from "./trace.ts";
+import { isPromise } from "./promise.ts";
 
 type UnaryFn<A, R> = (a: A) => R;
 // deno-lint-ignore no-explicit-any
@@ -54,7 +55,7 @@ const errorBoundry = <F extends Func>(f: F) => {
   return ((...x) => {
     try {
       const result = f(...x);
-      return (result instanceof Promise)
+      return (isPromise(result))
         ? result.catch((e) => {
           if (e === undefined) {
             console.error(`undefined error within ${location}`);
@@ -106,7 +107,7 @@ export const sideEffect =
     : ParamOf<F> => {
     const result = f(x);
     // @ts-expect-error compiler cannot dynamically infer
-    return (result instanceof Promise) ? result.then(() => x) : x;
+    return (isPromise(result)) ? result.then(() => x) : x;
   };
 
 export const wrapSideEffect = <Args extends unknown[], Result>(
@@ -115,18 +116,16 @@ export const wrapSideEffect = <Args extends unknown[], Result>(
 (f: (...args: Args) => Result) =>
 (...args: Args) => {
   const result = f(...args);
-  if (result instanceof Promise) {
+  if (isPromise(result)) {
     return result.then((result: Awaited<Result>) => {
       const cleanUpResult = cleanup(...args);
-      return cleanUpResult instanceof Promise
+      return isPromise(cleanUpResult)
         ? cleanUpResult.then(() => result)
         : result;
     });
   } else {
     const cleanUpResult = cleanup(...args);
-    return cleanUpResult instanceof Promise
-      ? cleanUpResult.then(() => result)
-      : result;
+    return isPromise(cleanUpResult) ? cleanUpResult.then(() => result) : result;
   }
 };
 
