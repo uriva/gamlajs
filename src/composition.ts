@@ -49,16 +49,25 @@ const augmentException = (codeLocation: string) => (e: Error) => {
 };
 
 const errorBoundry = <F extends Func>(f: F) => {
-  const augment = augmentException(currentLocation(4));
+  const location = currentLocation(4);
+  const augment = augmentException(location);
   return ((...x) => {
     try {
       const result = f(...x);
       return (result instanceof Promise)
         ? result.catch((e) => {
+          if (e === undefined) {
+            console.error(`undefined error within ${location}`);
+            throw e;
+          }
           throw augment(e);
         })
         : result;
     } catch (e) {
+      if (e === undefined) {
+        console.error(`undefined error within ${location}`);
+        throw e;
+      }
       throw augment(e);
     }
   }) as F;
