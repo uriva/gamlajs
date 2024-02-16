@@ -44,7 +44,7 @@ const pipeWithoutStack = <Fs extends Func[]>(
     >;
 
 const augmentException = (codeLocation: string) => (e: Error) => {
-  e.message += "\n" + codeLocation;
+  e.message = (e.message ? (e.message + "\n") : "") + codeLocation;
   return e;
 };
 
