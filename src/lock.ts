@@ -9,12 +9,9 @@ export const withLock = <F extends AsyncFunction>(
   (async (...args: Parameters<F>) => {
     await lock(...args);
     try {
-      const result = await f(...args);
+      return await f(...args);
+    } finally {
       await unlock(...args);
-      return result;
-    } catch (e) {
-      await unlock(...args);
-      throw e;
     }
   }) as F;
 
