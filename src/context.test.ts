@@ -1,19 +1,7 @@
 import { assertEquals } from "std-assert";
-import { context, getContextEntry, withContext } from "./context.ts";
-import { sleep } from "./time.ts";
+import { context } from "./context.ts";
 
-Deno.test("context works as expected", async () => {
-  const c = { someFunction: () => 1 };
-  const result = await withContext(c)(async (): Promise<number> => {
-    await sleep(0);
-    return getContextEntry<typeof c>({ someFunction: () => 2 })(
-      "someFunction",
-    )();
-  })();
-  assertEquals(result, 1);
-});
-
-Deno.test("new api for context works as expected", async () => {
+Deno.test("inject and access", async () => {
   const { inject, access } = context((): string => "nothing injected");
   const withString = inject(() => "injected");
   const f = () => Promise.resolve(access());
@@ -21,29 +9,13 @@ Deno.test("new api for context works as expected", async () => {
   assertEquals(await f(), "nothing injected");
 });
 
-Deno.test("nested context", async () => {
-  const a = { someFunction: () => 1 };
-  const b = { someOtherFunction: () => 3 };
-  const nestedStuff = withContext(a)(async () => {
-    await sleep(0);
-    return getContextEntry<typeof a>({ someFunction: () => 2 })(
-      "someFunction",
-    )() + getContextEntry<typeof b>({
-      someOtherFunction: () => 2,
-    })("someOtherFunction")();
-  });
-  const result = await withContext(b)(nestedStuff)();
-  assertEquals(result, 4);
-});
-
-Deno.test("partial implementation", async () => {
-  const get = getContextEntry({ a: () => 2, b: () => 3 });
-  const override = { a: () => 1 };
-  const f = withContext(override)(async (): Promise<[number, number]> => {
-    await sleep(0);
-    return [get("a")(), get("b")()];
-  });
-  // Check typing as well
-  const result: [number, number] = await f();
-  assertEquals(result, [1, 3]);
+Deno.test("override", async () => {
+  const { inject, access } = context((): string => "nothing injected");
+  const withStringX = inject(() => "X");
+  const withStringY = inject(() => "Y");
+  const f = () => Promise.resolve(access());
+  assertEquals(await withStringX(f)(), "X");
+  assertEquals(await withStringY(withStringX(f))(), "X");
+  assertEquals(await withStringX(withStringY(f))(), "Y");
+  assertEquals(await f(), "nothing injected");
 });
