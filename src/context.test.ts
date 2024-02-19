@@ -19,3 +19,18 @@ Deno.test("override", async () => {
   assertEquals(await withStringX(withStringY(f))(), "Y");
   assertEquals(await f(), "nothing injected");
 });
+
+Deno.test("use context within context", async () => {
+  const { inject: injectA, access: accessA } = context((): string =>
+    "nothing injected A"
+  );
+  const { inject: injectB, access: accessB } = context((): string =>
+    "nothing injected B"
+  );
+  const withA = injectA(() => "A");
+  const withAB = injectB(() => accessA() + "B");
+  const f = () => Promise.resolve(accessB());
+  assertEquals(await withA(f)(), "nothing injected B");
+  assertEquals(await withA(withAB(f))(), "AB");
+  assertEquals(await f(), "nothing injected B");
+});
