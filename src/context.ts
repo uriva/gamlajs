@@ -15,5 +15,7 @@ const withContext = <T>(storage: AsyncLocalStorage<T>, context: T) =>
 export const context = <F extends Func>(fallbackFn: F) =>
   letIn(new AsyncLocalStorage<F>(), (storage) => ({
     inject: (fn: F) => withContext(storage, fn),
-    access: (...xs: Parameters<F>) => (storage.getStore() ?? fallbackFn)(...xs),
+    // Cannot be made point free because has to call `storage.getStore` contextually.
+    access: ((...xs: Parameters<F>) =>
+      (storage.getStore() ?? fallbackFn)(...xs)) as F,
   }));
