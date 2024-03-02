@@ -92,3 +92,5 @@ Deno.test("tryCatch async", async () => {
   }
   assertEquals(await tryCatch(f, () => null)(3), null);
 });
+
+const _: () => Promise<string> = tryCatch(() => Promise.resolve(""), () => "");
