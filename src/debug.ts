@@ -120,7 +120,4 @@ export const tryCatch = <F extends Func, T>(
     }
   }) as AugmentReturnType<F, T>;
 
-export const catchWithNull = <F extends Func>(
-  f: F,
-): (...aruments: Parameters<F>) => ReturnType<F> | null =>
-  tryCatch(f, () => null);
+export const catchWithNull = <F extends Func>(f: F) => tryCatch(f, () => null);
