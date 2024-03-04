@@ -9,6 +9,7 @@ import { mapCat } from "./map.ts";
 import { repeat } from "./matrix.ts";
 import { wrapPromise } from "./promise.ts";
 import { sleep } from "./time.ts";
+import { timerCatcher } from "./io.ts";
 
 const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));
@@ -127,6 +128,33 @@ Deno.test("timeout triggers if not ended in time", async () => {
       },
     )().catch(() => failed),
     failed,
+  );
+  await sleep(100); // Wait for the interval to finish.
+});
+
+Deno.test("timeout can be caught", async () => {
+  const [timer, catcher] = timerCatcher();
+  const f = timer(10, async () => {
+    await sleep(50);
+    return success;
+  });
+  assertEquals(
+    await catcher(f, () => Promise.resolve(failed))(),
+    failed,
+  );
+  await sleep(100); // Wait for the interval to finish.
+});
+
+Deno.test("timeout catching is specifc", async () => {
+  const failed2 = {};
+  const [timer, catcher] = timerCatcher();
+  const f = timer(10, async () => {
+    await sleep(0);
+    throw new Error("unrelated error");
+  });
+  assertEquals(
+    await catcher(() => Promise.resolve(failed), f)().catch(() => failed2),
+    failed2,
   );
   await sleep(100); // Wait for the interval to finish.
 });

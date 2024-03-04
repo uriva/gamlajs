@@ -121,3 +121,29 @@ export const tryCatch = <F extends Func, T>(
   }) as AugmentReturnType<F, T>;
 
 export const catchWithNull = <F extends Func>(f: F) => tryCatch(f, () => null);
+
+export const catchSpecificError = (error: Error) =>
+// deno-lint-ignore no-explicit-any
+<F extends AsyncFunction, G extends (...args: Parameters<F>) => any>(
+  fallback: G,
+  f: F,
+): (...args: Parameters<F>) => ReturnType<F> | ReturnType<G> =>
+// @ts-expect-error cannot infer
+async (...xs: Parameters<F>) => {
+  try {
+    return await f(...xs);
+  } catch (e) {
+    console.log(e === error)
+    if (e === error) return fallback(...xs);
+    throw e;
+  }
+};
+
+export const throwerCatcher = () => {
+  const specificError = new Error();
+  const catcher = catchSpecificError(specificError);
+  const thrower = () => {
+    throw specificError;
+  };
+  return [thrower, catcher] as [typeof thrower, typeof catcher];
+};

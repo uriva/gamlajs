@@ -1,11 +1,12 @@
 import { juxt, pairRight, stack } from "./juxt.ts";
 import { prop, spread } from "./operator.ts";
 
-import { AsyncFunction, ElementOf } from "./typing.ts";
-import { applySpec } from "./mapping.ts";
-import { map } from "./map.ts";
 import { pipe } from "./composition.ts";
+import { catchSpecificError } from "./debug.ts";
+import { map } from "./map.ts";
+import { applySpec } from "./mapping.ts";
 import { sleep } from "./time.ts";
+import { AsyncFunction, ElementOf } from "./typing.ts";
 
 type Executor<TaskInput, Output> = (_: TaskInput[]) => Promise<Output>;
 
@@ -97,7 +98,15 @@ export const batch = <
   );
 };
 
-export const timeout = <F extends AsyncFunction>(
+export const timerCatcher = () => {
+  const error = new Error("Timed out");
+  const catcher = catchSpecificError(error);
+  const thrower = timeoutHelper(error);
+  return [thrower, catcher] as [typeof thrower, typeof catcher];
+};
+
+const timeoutHelper = (error: Error) =>
+<F extends AsyncFunction>(
   ms: number,
   f: F,
 ): F =>
@@ -106,7 +115,6 @@ export const timeout = <F extends AsyncFunction>(
   new Promise((resolve, reject) => {
     let wasResolved = false;
     let rejected = false;
-    const error = new Error(`Timed out after ${ms} ms`);
     const timer = setTimeout(() => {
       if (wasResolved) return;
       rejected = true;
@@ -119,6 +127,8 @@ export const timeout = <F extends AsyncFunction>(
       resolve(x);
     }).catch(reject);
   });
+
+export const timeout = timeoutHelper(new Error(`Timed out`));
 
 export const conditionalRetry =
   // deno-lint-ignore no-explicit-any
