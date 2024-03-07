@@ -133,7 +133,6 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
-    console.log(e === error)
     if (e === error) return fallback(...xs);
     throw e;
   }
