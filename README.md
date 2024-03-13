@@ -23,6 +23,8 @@ It has three main advantages over the native functional APIs and similar libs
 1. In case of exceptions you get a stack trace that logs your compositions too,
    so you can debug as usual.
 
+![Async polution](https://pbs.twimg.com/media/F6FP6mxXUAAJrDx?format=png&name=small)
+
 ## Use cases
 
 ### Basic Example
