@@ -122,7 +122,7 @@ export const tryCatch = <F extends Func, T>(
 
 export const catchWithNull = <F extends Func>(f: F) => tryCatch(f, () => null);
 
-export const catchSpecificError = (error: Error) =>
+export const catchErrorWithId = (id: string) =>
 // deno-lint-ignore no-explicit-any
 <F extends AsyncFunction, G extends (...args: Parameters<F>) => any>(
   fallback: G,
@@ -133,16 +133,51 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
-    if (e === error) return fallback(...xs);
+    if (e.id === id) return fallback(...xs);
     throw e;
   }
 };
 
+const makeErrorWithId = (id: string) => {
+  const err = new Error();
+  // @ts-expect-error changes the typing of `Error`
+  err.id = id;
+  return err;
+};
+
 export const throwerCatcher = () => {
-  const specificError = new Error();
-  const catcher = catchSpecificError(specificError);
+  const id = crypto.randomUUID();
+  const catcher = catchErrorWithId(id);
   const thrower = () => {
-    throw specificError;
+    throw makeErrorWithId(id);
+  };
+  return [thrower, catcher] as [typeof thrower, typeof catcher];
+};
+
+export const catchErrorWithIdAndValue = <T>(id: string) =>
+// deno-lint-ignore no-explicit-any
+<F extends AsyncFunction, G extends (value: T) => any>(
+  fallback: G,
+  f: F,
+): (...args: Parameters<F>) => ReturnType<F> | ReturnType<G> =>
+// @ts-expect-error cannot infer
+async (...xs: Parameters<F>) => {
+  try {
+    return await f(...xs);
+  } catch (e) {
+    if (e.id === id) return fallback(e.payload);
+    throw e;
+  }
+};
+
+export const throwerCatcherWithValue = <T>() => {
+  const id = crypto.randomUUID();
+  const catcher = catchErrorWithIdAndValue<T>(id);
+  const thrower = (value: T) => {
+    const e = makeErrorWithId(id);
+    // @ts-expect-error changes the typing of `Error`
+    e.payload = value;
+    throw e;
   };
   return [thrower, catcher] as [typeof thrower, typeof catcher];
 };

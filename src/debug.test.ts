@@ -7,6 +7,7 @@ import { assert, timeit, tryCatch } from "./debug.ts";
 
 import { assertEquals, assertThrows } from "std-assert";
 import { sleep } from "./time.ts";
+import { throwerCatcherWithValue } from "./index.ts";
 
 Deno.test("timeit", () => {
   const logger = (x: string) => console.log(x);
@@ -91,6 +92,20 @@ Deno.test("tryCatch async", async () => {
     // Thrown successfully.
   }
   assertEquals(await tryCatch(f, () => null)(3), null);
+});
+
+Deno.test("thrower catcher with value", async () => {
+  const [thrower, catcher] = throwerCatcherWithValue<string>();
+  const expectation = "hello";
+  let result = "";
+  await catcher((x: string) => {
+    result = x;
+    return Promise.resolve();
+  }, () => {
+    thrower(expectation);
+    return Promise.resolve();
+  })();
+  assertEquals(result, expectation);
 });
 
 const _: () => Promise<string> = tryCatch(() => Promise.resolve(""), () => "");

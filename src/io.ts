@@ -2,7 +2,6 @@ import { juxt, pairRight, stack } from "./juxt.ts";
 import { prop, spread } from "./operator.ts";
 
 import { pipe } from "./composition.ts";
-import { catchSpecificError } from "./debug.ts";
 import { map } from "./map.ts";
 import { applySpec } from "./mapping.ts";
 import { sleep } from "./time.ts";
@@ -96,6 +95,22 @@ export const batch = <
         }
       }),
   );
+};
+
+const catchSpecificError = (error: Error) =>
+// deno-lint-ignore no-explicit-any
+<F extends AsyncFunction, G extends (...args: Parameters<F>) => any>(
+  fallback: G,
+  f: F,
+): (...args: Parameters<F>) => ReturnType<F> | ReturnType<G> =>
+// @ts-expect-error cannot infer
+async (...xs: Parameters<F>) => {
+  try {
+    return await f(...xs);
+  } catch (e) {
+    if (e === error) return fallback(...xs);
+    throw e;
+  }
 };
 
 export const timerCatcher = () => {
