@@ -1,9 +1,10 @@
-import { juxt, pairRight, stack } from "./juxt.ts";
-import { prop, spread } from "./operator.ts";
-
+import crypto from "node:crypto";
+import stableHash from "npm:stable-hash";
 import { pipe } from "./composition.ts";
+import { juxt, pairRight, stack } from "./juxt.ts";
 import { map } from "./map.ts";
 import { applySpec } from "./mapping.ts";
+import { prop, spread } from "./operator.ts";
 import { sleep } from "./time.ts";
 import { AsyncFunction, ElementOf } from "./typing.ts";
 
@@ -173,3 +174,10 @@ export const retry = <F extends AsyncFunction>(
   times: number,
   f: F,
 ) => conditionalRetry(() => true)(waitMs, times, f);
+
+export const hash = <T>(x: T, maxLength: number) =>
+  // @ts-expect-error not sure why
+  crypto.createHash("MD5").update(stableHash(x)).digest("hex").substring(
+    0,
+    maxLength,
+  );
