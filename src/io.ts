@@ -176,7 +176,7 @@ export const retry = <F extends AsyncFunction>(
 ) => conditionalRetry(() => true)(waitMs, times, f);
 
 export const hash = <T>(x: T, maxLength: number) =>
-  // @ts-expect-error not sure why
+  // @ts-ignore-error not sure why, but this triggers an error in deno but no in node
   crypto.createHash("MD5").update(stableHash(x)).digest("hex").substring(
     0,
     maxLength,
