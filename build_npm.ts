@@ -7,7 +7,7 @@ await emptyDir(outDir);
 await build({
   entryPoints: ["./src/index.ts"],
   outDir,
-  shims: { deno: true },
+  shims: { deno: true, crypto: true },
   package: {
     name: "gamla",
     version: Deno.args[0],

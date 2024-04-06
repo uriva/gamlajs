@@ -1,4 +1,3 @@
-import { randomUUID } from "https://deno.land/std@0.110.0/node/crypto.ts";
 import { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
@@ -147,7 +146,7 @@ const makeErrorWithId = (id: string) => {
 };
 
 export const throwerCatcher = () => {
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   const catcher = catchErrorWithId(id);
   const thrower = () => {
     throw makeErrorWithId(id);
@@ -172,7 +171,7 @@ async (...xs: Parameters<F>) => {
 };
 
 export const throwerCatcherWithValue = <T>() => {
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   const catcher = catchErrorWithIdAndValue<T>(id);
   const thrower = (value: T) => {
     const e = makeErrorWithId(id);
