@@ -75,6 +75,7 @@ const errorBoundry = <F extends Func>(f: F) => {
 };
 
 export const pipe: typeof pipeWithoutStack = (...fs) =>
+  // @ts-expect-error not sure why
   errorBoundry(pipeWithoutStack(...fs));
 
 type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]

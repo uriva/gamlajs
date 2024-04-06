@@ -1,6 +1,5 @@
 import { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
 
-import { randomUUID } from "node:crypto";
 import { pipe } from "./composition.ts";
 import { pairRight } from "./juxt.ts";
 import { isPromise } from "./promise.ts";
@@ -147,7 +146,7 @@ const makeErrorWithId = (id: string) => {
 };
 
 export const throwerCatcher = () => {
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   const catcher = catchErrorWithId(id);
   const thrower = () => {
     throw makeErrorWithId(id);
@@ -172,7 +171,7 @@ async (...xs: Parameters<F>) => {
 };
 
 export const throwerCatcherWithValue = <T>() => {
-  const id = randomUUID();
+  const id = crypto.randomUUID();
   const catcher = catchErrorWithIdAndValue<T>(id);
   const thrower = (value: T) => {
     const e = makeErrorWithId(id);
