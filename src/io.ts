@@ -178,7 +178,7 @@ export const retry = <F extends AsyncFunction>(
 
 export const hash = <T>(x: T, maxLength: number) =>
   (createHash("MD5").update(
-    // @ts-expect-error not sure why
+    // @ts-ignore-error error in deno but not in node
     stableHash(x),
   ).digest("hex") as string).substring(
     0,
