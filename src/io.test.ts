@@ -1,15 +1,17 @@
-import { batch, retry, timeout } from "./io.ts";
-import { equals, prop } from "./operator.ts";
-
-import { assert, assertEquals, assertRejects } from "std-assert";
-
+import {
+  assert,
+  assertEquals,
+  assertNotEquals,
+  assertRejects,
+} from "std-assert";
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";
+import { batch, hash, retry, timeout, timerCatcher } from "./io.ts";
 import { mapCat } from "./map.ts";
 import { repeat } from "./matrix.ts";
+import { equals, prop } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
 import { sleep } from "./time.ts";
-import { timerCatcher } from "./io.ts";
 
 const sumOfThings = (numbers: number[]) =>
   wrapPromise(numbers.reduce((acc, current) => acc + current, 0));
@@ -174,4 +176,9 @@ Deno.test("retry", async () => {
   await assertRejects(async () => {
     await retry(0, 1, succeedOn3rdAttempt)(23);
   });
+});
+
+Deno.test("hash", () => {
+  assertEquals(hash("hello", 10), hash("hello", 10));
+  assertNotEquals(hash("hello there", 10), hash("hello", 10));
 });

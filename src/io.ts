@@ -1,3 +1,4 @@
+import { createHash } from "https://deno.land/std@0.177.0/node/crypto.ts";
 import stableHash from "npm:stable-hash";
 import { pipe } from "./composition.ts";
 import { juxt, pairRight, stack } from "./juxt.ts";
@@ -8,7 +9,6 @@ import { sleep } from "./time.ts";
 import { AsyncFunction, ElementOf } from "./typing.ts";
 
 type Executor<TaskInput, Output> = (_: TaskInput[]) => Promise<Output>;
-
 const executeTasks = <TaskInput, Output>(
   execute: Executor<TaskInput, Output>,
 ) =>
@@ -177,8 +177,10 @@ export const retry = <F extends AsyncFunction>(
 ) => conditionalRetry(() => true)(waitMs, times, f);
 
 export const hash = <T>(x: T, maxLength: number) =>
-  // @ts-ignore-error not sure why, but this triggers an error in deno but no in node
-  crypto.createHash("MD5").update(stableHash(x)).digest("hex").substring(
+  (createHash("MD5").update(
+    // @ts-expect-error not sure why
+    stableHash(x),
+  ).digest("hex") as string).substring(
     0,
     maxLength,
   );
