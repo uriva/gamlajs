@@ -1,7 +1,7 @@
 import { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
 
-export const withLock = <F extends AsyncFunction>(
+const withLock = <F extends AsyncFunction>(
   lock: (...task: Parameters<F>) => void | Promise<void>,
   unlock: (...task: Parameters<F>) => void | Promise<void>,
   f: F,
@@ -23,24 +23,6 @@ export const keepTryingEvery50ms = async (
   }
 };
 
-export const makeLockWithId =
-  <Key>(set: (_: Key) => boolean | Promise<boolean>) => (id: Key) =>
-    keepTryingEvery50ms(() => set(id));
-
-export const withLockByInput = <Function extends AsyncFunction>(
-  argsToLockId: (..._: Parameters<Function>) => string,
-  lock: (_: string) => Promise<void>,
-  unlock: (_: string) => Promise<void>,
-  f: Function,
-) =>
-(...args: Parameters<Function>) => {
-  const lockId = argsToLockId(...args);
-  return withLock(
-    () => lock(lockId),
-    () => unlock(lockId),
-    f,
-  )(...args);
-};
 export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
   type QueueElement = [
     Parameters<Function>,
@@ -67,33 +49,6 @@ export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
       lock.isLocked = false;
     });
 };
-
-const throttleByWeight = <Function extends AsyncFunction>(
-  maxParallelism: number,
-  weight: (...x: Parameters<Function>) => number,
-  f: Function,
-): Function => {
-  let lockObj = 0;
-  return withLock(
-    (...task: Parameters<Function>) =>
-      keepTryingEvery50ms(() => {
-        if (lockObj < maxParallelism) {
-          lockObj += weight(...task);
-          return true;
-        }
-        return false;
-      }),
-    (...task: Parameters<Function>) => {
-      lockObj -= weight(...task);
-    },
-    f,
-  );
-};
-
-export const throttle = <Function extends AsyncFunction>(
-  maxParallelism: number,
-  f: Function,
-) => throttleByWeight(maxParallelism, () => 1, f);
 
 export const rateLimit = <Function extends AsyncFunction>(
   maxCalls: number,
@@ -129,4 +84,46 @@ export const rateLimit = <Function extends AsyncFunction>(
     () => {},
     f,
   );
+};
+
+export const semaphore = (max: number) => {
+  let counter = 0;
+  const waiting: (() => void)[] = [];
+  const take = () => {
+    if (waiting.length > 0 && counter < max) {
+      counter++;
+      waiting.shift()!();
+    }
+  };
+  const acquire = () => {
+    if (counter < max) {
+      counter++;
+      return Promise.resolve();
+    }
+    return new Promise<void>((resolve) => {
+      waiting.push(resolve);
+    });
+  };
+  const release = () => {
+    counter--;
+    take();
+  };
+  return { acquire, release } satisfies {
+    acquire: () => Promise<void>;
+    release: () => void;
+  };
+};
+
+export const throttle = <Function extends AsyncFunction>(max: number) => {
+  const { acquire, release } = semaphore(max);
+  return (f: Function) => {
+    return async (...args: Parameters<Function>) => {
+      await acquire();
+      try {
+        return await f(...args);
+      } finally {
+        release();
+      }
+    };
+  };
 };
