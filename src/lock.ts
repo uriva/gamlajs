@@ -1,5 +1,5 @@
-import { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
+import { AsyncFunction } from "./typing.ts";
 
 const withLock = <F extends AsyncFunction>(
   lock: (...task: Parameters<F>) => void | Promise<void>,
@@ -86,7 +86,7 @@ export const rateLimit = <Function extends AsyncFunction>(
   );
 };
 
-export const semaphore = (max: number) => {
+const semaphore = (max: number) => {
   let counter = 0;
   const waiting: (() => void)[] = [];
   const take = () => {
@@ -114,16 +114,15 @@ export const semaphore = (max: number) => {
   };
 };
 
-export const throttle = <Function extends AsyncFunction>(max: number) => {
+export const throttle = (max: number) => {
   const { acquire, release } = semaphore(max);
-  return (f: Function) => {
-    return async (...args: Parameters<Function>) => {
-      await acquire();
-      try {
-        return await f(...args);
-      } finally {
-        release();
-      }
-    };
+  // @ts-expect-error too complex
+  return <F extends AsyncFunction>(f: F): F => async (...args) => {
+    await acquire();
+    try {
+      return await f(...args);
+    } finally {
+      release();
+    }
   };
 };
