@@ -35,3 +35,6 @@ export type Reducer<T, S> = (state: S, element: T) => S;
 export type ReturnTypeUnwrapped<F extends Func> = F extends AsyncFunction
   ? Awaited<ReturnType<F>>
   : ReturnType<F>;
+
+// deno-lint-ignore no-explicit-any
+export type UnaryFnUntyped = (input: any) => any;

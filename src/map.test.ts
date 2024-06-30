@@ -1,4 +1,4 @@
-import { map, mapCat } from "./map.ts";
+import { each, map, mapCat } from "./map.ts";
 
 import { assertEquals } from "std-assert";
 import { wrapPromise } from "./promise.ts";
@@ -15,6 +15,31 @@ import { wrapPromise } from "./promise.ts";
       await map((input: number) => wrapPromise(input * 2))(it),
       expected,
     );
+  });
+});
+
+[
+  [1, 2, 3],
+  [],
+].forEach((it, i) => {
+  Deno.test(`each with iterable ${i}`, () => {
+    const results: number[] = [];
+    each((input: number) => results.push(input))(it);
+    assertEquals(results, it);
+  });
+});
+
+[
+  [1, 2, 3],
+  [],
+].forEach((it, i) => {
+  Deno.test(`each async with iterable ${i}`, async () => {
+    const results: number[] = [];
+    await each((input: number): Promise<void> => {
+      results.push(input);
+      return Promise.resolve();
+    })(it);
+    assertEquals(results, it);
   });
 });
 

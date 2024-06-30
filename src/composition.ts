@@ -1,4 +1,8 @@
 import { reverse } from "./array.ts";
+import { not } from "./operator.ts";
+import { isPromise } from "./promise.ts";
+import { reduce } from "./reduce.ts";
+import { currentLocation } from "./trace.ts";
 import {
   AnyAsync,
   AsyncFunction,
@@ -6,16 +10,11 @@ import {
   Last,
   ParamOf,
   ReturnTypeUnwrapped,
+  UnaryFnUntyped,
 } from "./typing.ts";
 
-import { not } from "./operator.ts";
-import { reduce } from "./reduce.ts";
-import { currentLocation } from "./trace.ts";
-import { isPromise } from "./promise.ts";
-
 type UnaryFn<A, R> = (a: A) => R;
-// deno-lint-ignore no-explicit-any
-type UnaryFnUntyped = (a: any) => any;
+
 // deno-lint-ignore no-explicit-any
 type Res<F> = F extends UnaryFn<any, infer R> ? R : never;
 
