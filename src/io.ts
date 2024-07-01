@@ -1,4 +1,4 @@
-import { createHash } from "https://deno.land/std@0.177.0/node/crypto.ts";
+import sjcl from "npm:sjcl";
 import stableHash from "npm:stable-hash";
 import { pipe } from "./composition.ts";
 import { juxt, pairRight, stack } from "./juxt.ts";
@@ -176,11 +176,8 @@ export const retry = <F extends AsyncFunction>(
   f: F,
 ) => conditionalRetry(() => true)(waitMs, times, f);
 
+const sha256 = (x: string) => sjcl.codec.hex.fromBits(sjcl.hash.sha256.hash(x));
+
 export const hash = <T>(x: T, maxLength: number) =>
-  (createHash("MD5").update(
-    // @ts-ignore-error error in deno but not in node
-    stableHash(x),
-  ).digest("hex") as string).substring(
-    0,
-    maxLength,
-  );
+  // @ts-ignore-error error in deno but not in node
+  sha256(stableHash(x)).substring(0, maxLength);

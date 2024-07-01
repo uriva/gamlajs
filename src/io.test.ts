@@ -184,5 +184,5 @@ Deno.test("hash", () => {
 });
 
 Deno.test("hash stability across versions", () => {
-  assertEquals(hash("hello", 10), "5deaee1c13");
+  assertEquals(hash("hello", 10), "5aa762ae38");
 });
