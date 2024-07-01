@@ -9,6 +9,7 @@ await build({
   outDir,
   shims: { deno: true },
   package: {
+    dependencies: { "@types/sjcl": "1.0.34" },
     name: "gamla",
     version: Deno.args[0],
     description: "Functional programming with async and type safety",
