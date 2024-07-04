@@ -4,6 +4,7 @@ export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
   constructor(value);
 // deno-lint-ignore no-explicit-any
 export const not = (x: any) => !x;
+// Why prop is written like this: https://chatgpt.com/share/447fc150-948e-4f45-83f7-3ef9410affdd
 export const prop = <T>() => <K extends keyof T>(key: K) => (x: T): T[K] =>
   x[key];
 
