@@ -1,4 +1,4 @@
-import { head, second } from "./array.ts";
+import { enumerate, head, second } from "./array.ts";
 import { AnyAsync, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
@@ -56,3 +56,22 @@ export const cond =
       second,
       (f) => f(...x),
     )(predicatesAndResolvers);
+
+export const lazyCond =
+  <Fss extends [Func, Func][]>(predicatesAndResolvers: Fss) =>
+  (...args: Parameters<Fss[0][0]>): ReturnTypeOfSecondOfElements<Fss> => {
+    for (
+      const [i, [predicate, resolver]] of enumerate(predicatesAndResolvers)
+    ) {
+      const result = predicate(...args);
+      if (isPromise(result)) {
+        // deno-lint-ignore no-explicit-any
+        return result.then((awaitedResult: any) => {
+          if (awaitedResult) return resolver(...args);
+          return lazyCond(predicatesAndResolvers.slice(i + 1))(...args);
+        }) as ReturnTypeOfSecondOfElements<Fss>;
+      }
+      if (result) return resolver(...args);
+    }
+    throw new Error("Fallen through last condition");
+  };
