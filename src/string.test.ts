@@ -22,6 +22,10 @@ Deno.test("start end", () => {
   assertEquals(trim(["."])("OK."), "OK");
 });
 
+Deno.test("both sides", () => {
+  assertEquals(trim([".", "-"])("-OK."), "OK");
+});
+
 Deno.test("truncate", () => {
   assertEquals(truncate(3)("Test"), "Tes...");
 });

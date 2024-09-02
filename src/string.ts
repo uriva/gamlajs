@@ -23,7 +23,7 @@ export const trim = (characters: string[]) => (str: string) => {
   while (charactersSet.has(str[end])) {
     end -= 1;
   }
-  return str.substring(start, end - start + 1);
+  return str.substring(start, end + 1);
 };
 
 export const testRegExp = (regexp: RegExp) => (x: string) => regexp.test(x);
