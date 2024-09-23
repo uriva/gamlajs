@@ -1,4 +1,4 @@
-import { AsyncFunction, Func, ParamOf } from "./typing.ts";
+import type { AsyncFunction, Func, ParamOf } from "./typing.ts";
 import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 

@@ -1,5 +1,5 @@
 import { enumerate, head, second } from "./array.ts";
-import { AnyAsync, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
+import type { AnyAsync, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
 import { filter } from "./filter.ts";

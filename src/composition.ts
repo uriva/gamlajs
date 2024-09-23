@@ -3,7 +3,7 @@ import { not } from "./operator.ts";
 import { isPromise } from "./promise.ts";
 import { reduce } from "./reduce.ts";
 import { currentLocation } from "./trace.ts";
-import {
+import type {
   AnyAsync,
   AsyncFunction,
   Func,

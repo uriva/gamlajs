@@ -1,5 +1,5 @@
 import { isPromise } from "./promise.ts";
-import { AsyncFunction, Func, ParamOf } from "./typing.ts";
+import type { AsyncFunction, Func, ParamOf } from "./typing.ts";
 
 const firstTrue = <T>(promises: Promise<T>[]) => {
   const newPromises = promises.map((p) =>
@@ -36,7 +36,7 @@ export const allmap =
     const promises = [];
     for (const x of xs) {
       const result = f(x);
-      if (isPromise(result) ) {
+      if (isPromise(result)) {
         promises.push(result);
         // @ts-expect-error cannot infer
       } else if (!result) return false;

@@ -2,7 +2,8 @@
 
 ![Buckets to pipelines](https://www.ku.ac.ae/wp-content/uploads/2019/11/Oil-and-gas-pipelines-running-through-the-desert_resized.jpg)
 
-`gamla` is a zero-deps functional programming library for Javascript/Typescript.
+`gamla` is a zero-deps functional programming library for JavaScript/TypeScript,
+denoo and nodejs.
 
 ## Installation
 
@@ -17,13 +18,12 @@ This library allows you to write in typescript/javascript using composition.
 It has three main advantages over the native functional APIs and similar libs
 (`ramda` and `lodash`):
 
-1. It supports mixing async and sync functions
-1. It keeps typing information, so you get type safety when programming in
-   pipelines.
-1. In case of exceptions you get a stack trace that logs your compositions too,
-   so you can debug as usual.
-
-![Async polution](https://pbs.twimg.com/media/F6FP6mxXUAAJrDx?format=png&name=small)
+1. It helps you combine `async` functions with regular ones, without having to
+   change your code.
+1. As opposed to `ramda` and `lodash`, It keeps typing information, so you get
+   type safety when programming in pipelines.
+1. As opposed to `ramda` and `lodash`, you get a stack trace that logs your
+   compositions too, so you can debug as usual.
 
 ## Use cases
 
@@ -50,10 +50,14 @@ console.log(getNamesOfPeopleOlderThan25(people)); // "alice, carroll"
 
 ### Async programming
 
-Let's imagine you want to call a remote server for some information. Usually
-this means refactoring your entire program to async functions. Writing in
-pipelines let's you change whatever you want with no collateral refactoring
-needed.
+Now let's imagine you wanted to call a remote server for some information
+somewhere in this pipeline. Usually this means refactoring your entire program
+to async functions.
+
+![Async polution](https://pbs.twimg.com/media/F6FP6mxXUAAJrDx?format=png&name=small)
+
+But `pipe` is smart and allows you to change one function without the ones
+around it. No collateral refactoring is needed.
 
 ```ts
 // Call some remote server to get hobbies for a person.

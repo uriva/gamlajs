@@ -1,4 +1,4 @@
-import { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
+import type { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
 import { pairRight } from "./juxt.ts";

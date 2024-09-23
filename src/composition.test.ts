@@ -10,7 +10,7 @@ import { assertEquals } from "std-assert";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
-import { AsyncFunction } from "./typing.ts";
+import type { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
 
 Deno.test("pipe with async functions", async () => {
