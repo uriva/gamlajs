@@ -1,4 +1,4 @@
-import { AsyncFunction, Unary, UnaryFnUntyped } from "./typing.ts";
+import type { AsyncFunction, Unary, UnaryFnUntyped } from "./typing.ts";
 
 import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";

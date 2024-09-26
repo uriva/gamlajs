@@ -1,5 +1,5 @@
 import { isPromise } from "./promise.ts";
-import { AsyncFunction, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
+import type { AsyncFunction, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 const reduceHelper = <
   State,

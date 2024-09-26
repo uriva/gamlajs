@@ -1,5 +1,5 @@
 import { sleep } from "./time.ts";
-import { AsyncFunction } from "./typing.ts";
+import type { AsyncFunction } from "./typing.ts";
 
 const withLock = <F extends AsyncFunction>(
   lock: (...task: Parameters<F>) => void | Promise<void>,

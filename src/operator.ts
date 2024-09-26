@@ -1,4 +1,4 @@
-import { Func } from "./typing.ts";
+import type { Func } from "./typing.ts";
 
 export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
   constructor(value);

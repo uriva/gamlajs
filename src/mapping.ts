@@ -1,4 +1,4 @@
-import {
+import type {
   AsyncFunction,
   ElementOf,
   Func,

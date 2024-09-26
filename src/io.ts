@@ -6,7 +6,7 @@ import { map } from "./map.ts";
 import { applySpec } from "./mapping.ts";
 import { prop, spread } from "./operator.ts";
 import { sleep } from "./time.ts";
-import { AsyncFunction, ElementOf } from "./typing.ts";
+import type { AsyncFunction, ElementOf } from "./typing.ts";
 
 type Executor<TaskInput, Output> = (_: TaskInput[]) => Promise<Output>;
 const executeTasks = <TaskInput, Output>(
@@ -143,7 +143,7 @@ const timeoutHelper = (error: Error) =>
     }).catch(reject);
   });
 
-export const timeout = timeoutHelper(new Error(`Timed out`));
+export const timeout = timeoutHelper(new Error("Timed out"));
 
 export const conditionalRetry =
   // deno-lint-ignore no-explicit-any

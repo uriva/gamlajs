@@ -1,6 +1,6 @@
 import { allmap, anymap, concat, zip } from "./array.ts";
 import { identity, pipe } from "./composition.ts";
-import {
+import type {
   AnyAsync,
   Func,
   ParamOf,
