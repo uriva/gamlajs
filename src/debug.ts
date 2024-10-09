@@ -59,7 +59,7 @@ const getTimestampMilliseconds = () => new Date().getTime();
 
 export const timeit = <F extends Func>(
   handler: (
-    elapsed: number,
+    elapsedMilliseconds: number,
     args: Parameters<F>,
     result: ReturnTypeUnwrapped<F>,
   ) => void,
