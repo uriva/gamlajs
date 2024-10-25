@@ -116,7 +116,7 @@ export const tryCatch = <F extends Func, T>(
         })
         : result;
     } catch (e) {
-      return fallback(e, ...x);
+      return fallback(e as Error, ...x);
     }
   }) as AugmentReturnType<F, T>;
 
@@ -133,6 +133,7 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
+    // @ts-expect-error This code has a distinct type of `Error`
     if (e.id === id) return fallback(...xs);
     throw e;
   }
@@ -165,6 +166,7 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
+    // @ts-expect-error This code has a distinct type of `Error`
     if (e.id === id) return fallback(e.payload);
     throw e;
   }
@@ -175,7 +177,7 @@ export const throwerCatcherWithValue = <T>() => {
   const catcher = catchErrorWithIdAndValue<T>(id);
   const thrower = (value: T) => {
     const e = makeErrorWithId(id);
-    // @ts-expect-error changes the typing of `Error`
+    // @ts-expect-error This code has a distinct type of `Error`
     e.payload = value;
     throw e;
   };

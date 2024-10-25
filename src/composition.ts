@@ -68,7 +68,7 @@ const errorBoundry = <F extends Func>(f: F) => {
         console.error(`undefined error within ${location}`);
         throw e;
       }
-      throw augment(e);
+      throw augment(e as Error);
     }
   }) as F;
 };
