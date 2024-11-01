@@ -1,11 +1,7 @@
 {
   "deno.lint": true,
   "deno.enable": true,
-  "deno.unstable": true,
-  "search.exclude": {
-    "deno.lock": true,
-    "dist/**": true
-  },
+  "search.exclude": { "deno.lock": true, "dist/**": true },
   "editor.defaultFormatter": "denoland.vscode-deno",
   "[typescript]": {
     "editor.defaultFormatter": "denoland.vscode-deno"
