@@ -111,9 +111,7 @@ export const tryCatch = <F extends Func, T>(
     try {
       const result = f(...x);
       return isPromise(result)
-        ? result.catch((e) => {
-          return fallback(e, ...x);
-        })
+        ? result.catch((e) => fallback(e, ...x))
         : result;
     } catch (e) {
       return fallback(e as Error, ...x);
