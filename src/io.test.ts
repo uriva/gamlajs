@@ -80,7 +80,7 @@ Deno.test("batch with exceptions", async () => {
     await Promise.all([f(1), f(2), f(3), f(4), f(5)]);
   } catch (err) {
     hadError = true;
-    assert(err.message.startsWith("error!"));
+    assert((err as Error).message.startsWith("error!"));
   }
   assertEquals(hadError, true);
 });
