@@ -2,8 +2,6 @@ import { each, map, mapCat } from "./map.ts";
 
 import { assertEquals } from "std-assert";
 import { wrapPromise } from "./promise.ts";
-import { pipe } from "./composition.ts";
-import { assert } from "./debug.ts";
 
 [
   [
