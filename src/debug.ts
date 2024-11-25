@@ -131,7 +131,7 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
-    // @ts-expect-error This code has a distinct type of `Error`
+    // @ts-ignore-error This code has a distinct type of `Error` (doesn't trigger in node)
     if (e.id === id) return fallback(...xs);
     throw e;
   }
@@ -164,7 +164,7 @@ async (...xs: Parameters<F>) => {
   try {
     return await f(...xs);
   } catch (e) {
-    // @ts-expect-error This code has a distinct type of `Error`
+    // @ts-ignore-error This code has a distinct type of `Error` (doesn't trigger in node)
     if (e.id === id) return fallback(e.payload);
     throw e;
   }
