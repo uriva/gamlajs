@@ -48,7 +48,7 @@ const augmentException = (codeLocation: string) => (e: Error) => {
   return e;
 };
 
-const errorBoundry = <F extends Func>(f: F) => {
+export const errorBoundry = <F extends Func>(f: F) => {
   const location = currentLocation(4);
   const augment = augmentException(location);
   return ((...x) => {

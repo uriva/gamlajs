@@ -1,10 +1,10 @@
 import type { AsyncFunction, Unary, UnaryFnUntyped } from "./typing.ts";
 
-import { pipe } from "./composition.ts";
+import { errorBoundry, pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 import { isPromise } from "./promise.ts";
 
-export const map = <F extends UnaryFnUntyped>(f: F) =>
+const mapWithoutStack = <F extends UnaryFnUntyped>(f: F) =>
 (
   xs: Parameters<F>[0][],
 ): F extends AsyncFunction ? Promise<Awaited<ReturnType<F>>[]>
@@ -16,6 +16,9 @@ export const map = <F extends UnaryFnUntyped>(f: F) =>
   // @ts-expect-error ts cannot reason about this dynamic ternary
   return results.some(isPromise) ? Promise.all(results) : results;
 };
+
+export const map: typeof mapWithoutStack = (...fs) =>
+  errorBoundry(mapWithoutStack(...fs));
 
 export const each = <F extends UnaryFnUntyped>(f: F) =>
 // @ts-expect-error ts cannot reason about this
