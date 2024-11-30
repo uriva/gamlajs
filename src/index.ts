@@ -10,6 +10,7 @@ export * from "./map.ts";
 export * from "./mapping.ts";
 export * from "./math.ts";
 export * from "./matrix.ts";
+export * from "./object.ts";
 export * from "./operator.ts";
 export * from "./promise.ts";
 export * from "./reduce.ts";
