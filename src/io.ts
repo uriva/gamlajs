@@ -159,10 +159,7 @@ export const conditionalRetry =
         try {
           return await f(...x);
         } catch (e) {
-          const asError = e as Error;
-          asError.message =
-            `Failed after ${times} retries. Last error:\n${asError.message}`;
-          if (!predicate(asError)) throw asError;
+          if (!predicate(e as Error)) throw e;
           return sleep(waitMs).then(() =>
             conditionalRetry(predicate)(waitMs, times - 1, f)(...x)
           );
