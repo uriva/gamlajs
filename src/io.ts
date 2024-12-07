@@ -148,11 +148,7 @@ export const timeout = timeoutHelper(new Error("Timed out"));
 export const conditionalRetry =
   // deno-lint-ignore no-explicit-any
   (predicate: (e: Error) => any) =>
-  <F extends AsyncFunction>(
-    waitMs: number,
-    times: number,
-    f: F,
-  ): F =>
+  <F extends AsyncFunction>(waitMs: number, times: number, f: F): F =>
     // @ts-expect-error cannot infer
     times
       ? async (...x: Parameters<F>) => {
