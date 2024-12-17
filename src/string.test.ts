@@ -27,7 +27,7 @@ Deno.test("both sides", () => {
 });
 
 Deno.test("truncate", () => {
-  assertEquals(truncate(3)("Test"), "Tes...");
+  assertEquals(truncate(3)("Test"), "Tes");
 });
 
 Deno.test("testRegExp", () => {

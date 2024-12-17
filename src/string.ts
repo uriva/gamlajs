@@ -1,5 +1,5 @@
 export const truncate = (maxLength: number) => (input: string) =>
-  input.length > maxLength ? `${input.substring(0, maxLength)}...` : input;
+  input.length > maxLength ? input.substring(0, maxLength) : input;
 
 export const split = (x: string | RegExp) => (s: string) => s.split(x);
 
