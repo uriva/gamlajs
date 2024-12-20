@@ -43,32 +43,34 @@ const pipeWithoutStack = <Fs extends Func[]>(
       Fs
     >;
 
-const augmentException = (codeLocation: string) => (e: Error) => {
-  e.message = (e.message ? (e.message + "\n") : "") + codeLocation;
-  return e;
+// deno-lint-ignore no-explicit-any
+const augmentAndRethrowException = (location: string) => (e: any) => {
+  if (e === undefined) {
+    console.error(`undefined error within ${location}`);
+    throw e;
+  }
+  try {
+    e.message = (e.message ? (e.message + "\n") : "") + location;
+  } catch (augmentError) {
+    console.error(
+      `error within ${location}, gamla could not augment error stack`,
+      augmentError,
+      e,
+    );
+  }
+  throw e;
 };
 
 export const errorBoundry = <F extends Func>(f: F) => {
   const location = currentLocation(4);
-  const augment = augmentException(location);
   return ((...x) => {
     try {
       const result = f(...x);
       return (isPromise(result))
-        ? result.catch((e) => {
-          if (e === undefined) {
-            console.error(`undefined error within ${location}`);
-            throw e;
-          }
-          throw augment(e);
-        })
+        ? result.catch(augmentAndRethrowException(location))
         : result;
     } catch (e) {
-      if (e === undefined) {
-        console.error(`undefined error within ${location}`);
-        throw e;
-      }
-      throw augment(e as Error);
+      augmentAndRethrowException(location)(e);
     }
   }) as F;
 };
