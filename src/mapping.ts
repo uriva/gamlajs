@@ -179,6 +179,26 @@ export const mapTerminals =
       ? valMap(mapTerminals(terminalMapper))(obj)
       : terminalMapper(obj as Terminal);
 
+type Awaited<T> = T extends PromiseLike<infer U> ? U : T;
+
+type SpecType<T> = {
+  // deno-lint-ignore no-explicit-any
+  [K in keyof T]: T[K] extends (...args: any[]) => infer R ? Awaited<R>
+    : T[K] extends object ? SpecType<T[K]>
+    : never;
+};
+
+type IsAsync<T> = {
+  // deno-lint-ignore no-explicit-any
+  [K in keyof T]: T[K] extends (...args: any[]) => Promise<any> ? true
+    : T[K] extends object ? IsAsync<T[K]>
+    : false;
+}[keyof T] extends true ? true : false;
+
+type FinalSpecType<T> = IsAsync<T> extends true ? Promise<SpecType<T>>
+  : SpecType<T>;
+
 export const applySpec =
-  <Args extends unknown[]>(spec: Tree<(..._: Args) => unknown>) =>
-  (...args: Args) => mapTerminals(applyTo(...args))(spec);
+  <T>(spec: T) => (...args: unknown[]): FinalSpecType<T> =>
+    // @ts-expect-error too to bother.
+    mapTerminals(applyTo(...args))(spec);
