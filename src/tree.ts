@@ -20,3 +20,12 @@ export const findInTree =
     }
     return null;
   };
+
+export const findInTreeExhaustive =
+  <T>(predicate: (t: T) => boolean, children: (t: T) => T[]) => (t: T): T[] => {
+    const results = (predicate(t)) ? [t] : [];
+    for (const child of children(t)) {
+      results.push(...findInTreeExhaustive(predicate, children)(child));
+    }
+    return results;
+  };
