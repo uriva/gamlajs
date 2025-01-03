@@ -2,7 +2,5 @@
   "tasks": {
     "build": "deno run --allow-env --allow-read --allow-write --allow-net --allow-run build_npm.ts"
   },
-  "imports": {
-    "std-assert": "https://deno.land/std@0.213.0/assert/mod.ts"
-  }
+  "imports": { "std-assert": "https://deno.land/std@0.213.0/assert/mod.ts" }
 }
