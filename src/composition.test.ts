@@ -91,7 +91,7 @@ const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
 const _2: number = pipe(<T extends number>(x: T) => x, (y: number) => y)(1);
 
 // Generics extends Promise is considered async.
-const _3: number = await pipe(
+const _3: Promise<number> = pipe(
   <T extends number>(x: T) => Promise.resolve(x),
   (y: number) => y,
 )(1);
