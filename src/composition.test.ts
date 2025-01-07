@@ -87,11 +87,22 @@ const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
   pipe((x: T) => x, f);
 };
 
+// Generics does not make everything async.
+const _2: number = pipe(<T extends number>(x: T) => x, (y: number) => y)(1);
+
+// Generics extends Promise is considered async.
+const _3: number = await pipe(
+  <T extends number>(x: T) => Promise.resolve(x),
+  (y: number) => y,
+)(1);
+
 // failing typing tests:
 
-// const _2 = pipe(<T extends number>(x: T) => x, (y: number) => y)(1) + 7;
+// Generics can infer by the last function
+// const _4: number = pipe((y: number) => y, <T >(x: T) => x)(1);
 
-// const _3 = <Fn extends (x: string) => number>(f: Fn) => {
+// Generics understands contextual extends
+// const _5 = <Fn extends (x: string) => number>(f: Fn) => {
 //   // @ts-expect-error first function does not match second
 //   pipe((x: number) => x, f);
 // };
