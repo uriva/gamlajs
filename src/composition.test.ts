@@ -87,8 +87,11 @@ const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
   pipe((x: T) => x, f);
 };
 
-// limitation of type system
-// const _2 = <Fn extends (x: string) => number>(f: Fn) => {
+// failing typing tests:
+
+// const _2 = pipe(<T extends number>(x: T) => x, (y: number) => y)(1) + 7;
+
+// const _3 = <Fn extends (x: string) => number>(f: Fn) => {
 //   // @ts-expect-error first function does not match second
 //   pipe((x: number) => x, f);
 // };
