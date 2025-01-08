@@ -42,6 +42,7 @@ const pipeWithoutStack = <Fs extends Func[]>(
       Fs
     >;
 
+
 // deno-lint-ignore no-explicit-any
 const augmentAndRethrowException = (location: string) => (e: any) => {
   if (e === undefined) {

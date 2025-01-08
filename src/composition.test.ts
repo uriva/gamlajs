@@ -82,25 +82,28 @@ pipe(
   (x: string) => x,
 )("a").then();
 
-// Check generics work as well.
-const _1 = <T, Fn extends (x: T) => number>(f: Fn) => {
+const _generics1 = <T, Fn extends (x: T) => number>(f: Fn) => {
   pipe((x: T) => x, f);
 };
 
-// Generics does not make everything async.
-const _2: number = pipe(<T extends number>(x: T) => x, (y: number) => y)(1);
+const _generics2: number = pipe(
+  <T extends number>(x: T) => x,
+  (y: number) => y,
+)(1);
 
-// Generics extends Promise is considered async.
-const _3: Promise<number> = pipe(
+const _generics3: Promise<number> = pipe(
   <T extends number>(x: T) => Promise.resolve(x),
   (y: number) => y,
 )(1);
 
-const f = pipe(<T>(x: T) => x);
-f(8);
+const _generics4: number = pipe(<T>(x: T) => x)(8);
 
-// Generics inference
-const _4: number = pipe((y: number) => y, <T>(x: T) => x)(1);
+const _generics5: number = pipe((y: number) => y, <T>(x: T) => x)(1);
+
+const _generics6: number = pipe(
+  <T>(t: T) => t,
+  <T>(t: T) => t,
+)(1);
 
 // failing typing tests:
 

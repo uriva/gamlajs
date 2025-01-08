@@ -1,12 +1,13 @@
-import { Func } from "./typing.ts";
+import { Func, IsAsync } from "./typing.ts";
 
-type Identity<T> = (x: T) => T;
+type Identity = <K>(x: K) => K;
 
 type UnwrapPromise<T> = T extends Promise<infer U> ? U : T;
 
-type UnwrapPromiseFn<T extends Func> = (
-  ...args: Parameters<T>
-) => UnwrapPromise<ReturnType<T>>;
+type UnwrapPromiseFn<T extends Func> = true extends IsAsync<T> ? (
+    ...args: Parameters<T>
+  ) => UnwrapPromise<ReturnType<T>>
+  : T;
 
 type SimpleCompose<F, G> = G extends (...args: infer GArgs) => infer GReturn
   ? F extends (x: UnwrapPromise<GReturn>) => infer FReturn
@@ -14,8 +15,9 @@ type SimpleCompose<F, G> = G extends (...args: infer GArgs) => infer GReturn
   : never
   : never;
 
-type Compose<F, G> = F extends Identity<infer _>
-  ? G extends Identity<infer _> ? UnwrapPromiseFn<G> : SimpleCompose<F, G>
+type Compose<F extends Func, G extends Func> = F extends Identity
+  ? UnwrapPromiseFn<G>
+  : G extends Identity ? UnwrapPromiseFn<F>
   : SimpleCompose<F, G>;
 
 export type ComposeMany<Fs extends Func[]> = Fs extends [] ? never

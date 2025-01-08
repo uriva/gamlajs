@@ -4,6 +4,10 @@ export type Union<T extends any[]> = T[number];
 // deno-lint-ignore no-explicit-any
 export type AsyncFunction = (...args: any[]) => Promise<any>;
 
+export type IsAsync<T extends Func> = ReturnType<T> extends Promise<unknown>
+  ? true
+  : false;
+
 export type AnyAsync<Functions> = Functions extends [infer F, ...infer Rest]
   // deno-lint-ignore no-explicit-any
   ? F extends (...args: any[]) => infer R // Extract return type

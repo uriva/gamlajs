@@ -1,3 +1,4 @@
+import { pipe } from "./composition.ts";
 import { explode, product } from "./matrix.ts";
 
 import { assertEquals } from "std-assert";
