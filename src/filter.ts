@@ -1,14 +1,18 @@
-import type { Func, IsAsync, ParamOf } from "./typing.ts";
-import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
-
-import { map } from "./map.ts";
+import { complement, pipe } from "./composition.ts";
 import { pairRight } from "./juxt.ts";
+import { map } from "./map.ts";
 import { isPromise } from "./promise.ts";
+import type { Func, IsAsync, ParamOf } from "./typing.ts";
+
+type ConstrainedTyping<F extends Func> = F extends
+  ((value: ParamOf<F>) => value is infer S) ? S[]
+  : ParamOf<F>[];
 
 export const filter = <F extends Func>(f: F): (
   _: ParamOf<F>[],
-) => true extends IsAsync<F> ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
+) => true extends IsAsync<F> ? Promise<ConstrainedTyping<F>>
+  : ConstrainedTyping<F> =>
   // @ts-expect-error typing head is hard.
   pipe(
     map(pairRight(f)),

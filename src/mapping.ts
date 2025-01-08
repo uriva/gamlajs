@@ -1,5 +1,10 @@
+import { head, second, wrapArray } from "./array.ts";
+import { applyTo, identity, pipe } from "./composition.ts";
+import { filter } from "./filter.ts";
+import { stack } from "./juxt.ts";
+import { map } from "./map.ts";
+import { reduce } from "./reduce.ts";
 import type {
-  AsyncFunction,
   ElementOf,
   Func,
   IsAsync,
@@ -8,13 +13,6 @@ import type {
   ReturnTypeUnwrapped,
   Unary,
 } from "./typing.ts";
-import { applyTo, identity, pipe } from "./composition.ts";
-import { head, second, wrapArray } from "./array.ts";
-
-import { filter } from "./filter.ts";
-import { map } from "./map.ts";
-import { reduce } from "./reduce.ts";
-import { stack } from "./juxt.ts";
 
 export const wrapObject = <V>(key: string) => (value: V) => ({ [key]: value });
 
@@ -115,12 +113,7 @@ const onEntries = <
 
 export const entryMap = pipe(map, onEntries);
 
-export const entryFilter = <
-  Function extends (
-    // deno-lint-ignore no-explicit-any
-    ((kv: [any, any]) => any)
-  ),
->(f: Function) => onEntries(filter(f));
+export const entryFilter = pipe(filter, onEntries);
 
 type RecordKey = string | number | symbol;
 type EntryMap<

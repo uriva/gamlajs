@@ -1,5 +1,4 @@
 import type { IsAsync, Unary, UnaryFnUntyped } from "./typing.ts";
-
 import { errorBoundry, pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 import { isPromise } from "./promise.ts";

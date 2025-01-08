@@ -1,5 +1,7 @@
 import { allmap, anymap, concat, zip } from "./array.ts";
 import { identity, pipe } from "./composition.ts";
+import { isPromise } from "./promise.ts";
+import { map } from "./map.ts";
 import type {
   AnyAsync,
   Func,
@@ -7,9 +9,6 @@ import type {
   ReturnTypeUnwrapped,
   Union,
 } from "./typing.ts";
-
-import { map } from "./map.ts";
-import { isPromise } from "./index.ts";
 
 type Results<Functions extends Func[]> = {
   [i in keyof Functions]: ReturnTypeUnwrapped<Functions[i]>;

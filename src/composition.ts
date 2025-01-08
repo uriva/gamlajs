@@ -1,5 +1,5 @@
 import { reverse } from "./array.ts";
-import { ComposeMany } from "./composeTyping.ts";
+import type { ComposeMany } from "./composeTyping.ts";
 import { not } from "./operator.ts";
 import { isPromise } from "./promise.ts";
 import { reduce } from "./reduce.ts";
