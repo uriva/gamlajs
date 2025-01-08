@@ -9,9 +9,16 @@ type UnwrapPromiseFn<T extends Func> = true extends IsAsync<T> ? (
   ) => UnwrapPromise<ReturnType<T>>
   : T;
 
+type GenericGeneric<S> = <T extends S>(x: T) => T;
+
+// deno-lint-ignore no-explicit-any
+type IsGeneric<F extends Func, T = any> = F extends GenericGeneric<T> ? true
+  : false;
+
 type SimpleCompose<F, G> = G extends (...args: infer GArgs) => infer GReturn
   ? F extends (x: UnwrapPromise<GReturn>) => infer FReturn
-    ? (...args: GArgs) => UnwrapPromise<FReturn>
+    ? [true, true] extends [IsGeneric<G>, IsGeneric<F>] ? G
+    : (...args: GArgs) => UnwrapPromise<FReturn> // todo: does not preserve generics in case of generic identity.
   : never
   : never;
 

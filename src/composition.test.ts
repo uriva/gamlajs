@@ -10,8 +10,8 @@ import { assertEquals } from "std-assert";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";
-import type { AsyncFunction } from "./typing.ts";
 import { sleep } from "./time.ts";
+import type { AsyncFunction } from "./typing.ts";
 
 Deno.test("pipe with async functions", async () => {
   assertEquals(
@@ -105,10 +105,21 @@ const _generics6: number = pipe(
   <T>(t: T) => t,
 )(1);
 
+const _generics7: <T extends number>(t: T) => T = pipe(
+  <T extends number>(t: T) => t,
+  <T extends number>(t: T) => t,
+);
+
+const _generics8: <T extends number>(t: T) => T = pipe(
+  // @ts-expect-error no overlap
+  <T extends number>(t: T) => t,
+  <T extends string>(t: T) => t,
+);
+
 // failing typing tests:
 
 // Generics understands contextual extends
-// const _5 = <Fn extends (x: string) => number>(f: Fn) => {
+// const _generics9 = <Fn extends (x: string) => number>(f: Fn) => {
 //   // @ts-expect-error first function does not match second
 //   pipe((x: number) => x, f);
 // };
