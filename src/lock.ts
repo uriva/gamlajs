@@ -23,16 +23,16 @@ export const keepTryingEvery50ms = async (
   }
 };
 
-export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
+export const sequentialized = <F extends AsyncFunction>(f: F) => {
   type QueueElement = [
-    Parameters<Function>,
-    (_: Awaited<ReturnType<Function>>) => void,
+    Parameters<F>,
+    (_: Awaited<ReturnType<F>>) => void,
     // deno-lint-ignore no-explicit-any
     (_: any) => void,
   ];
   const queue: QueueElement[] = [];
   const lock = { isLocked: false };
-  return (...args: Parameters<Function>) =>
+  return (...args: Parameters<F>) =>
     // deno-lint-ignore no-async-promise-executor
     new Promise(async (resolve, reject) => {
       queue.push([args, resolve, reject]);
@@ -50,16 +50,16 @@ export const sequentialized = <Function extends AsyncFunction>(f: Function) => {
     });
 };
 
-export const rateLimit = <Function extends AsyncFunction>(
+export const rateLimit = <F extends AsyncFunction>(
   maxCalls: number,
   maxWeight: number,
   timeWindowMs: number,
-  weight: (...args: Parameters<Function>) => number,
-  f: Function,
-): Function => {
+  weight: (...args: Parameters<F>) => number,
+  f: F,
+): F => {
   let history: { timestamp: number; weight: number }[] = [];
   return withLock(
-    (...task: Parameters<Function>) =>
+    (...task: Parameters<F>) =>
       keepTryingEvery50ms(() => {
         history = history.filter(({ timestamp }) =>
           timestamp > Date.now() - timeWindowMs

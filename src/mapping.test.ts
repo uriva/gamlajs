@@ -14,6 +14,7 @@ import {
 import { assertEquals } from "std-assert";
 import { head } from "./array.ts";
 import { wrapPromise } from "./promise.ts";
+import { IsAsync } from "./typing.ts";
 
 Deno.test("keyFilter", () => {
   assertEquals(

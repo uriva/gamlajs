@@ -1,5 +1,9 @@
-import type { AsyncFunction, Func, ReturnTypeUnwrapped } from "./typing.ts";
-
+import type {
+  AsyncFunction,
+  Func,
+  IsAsync,
+  ReturnTypeUnwrapped,
+} from "./typing.ts";
 import { pipe } from "./composition.ts";
 import { pairRight } from "./juxt.ts";
 import { isPromise } from "./promise.ts";
@@ -101,7 +105,7 @@ export const coerce = <T>(x: T | undefined | null): T => {
 
 type AugmentReturnType<F extends Func, T> = (
   ...inputs: Parameters<F>
-) => ReturnType<F> | (F extends AsyncFunction ? Promise<Awaited<T>> : T);
+) => ReturnType<F> | (true extends IsAsync<F> ? Promise<Awaited<T>> : T);
 
 export const tryCatch = <F extends Func, T>(
   f: F,

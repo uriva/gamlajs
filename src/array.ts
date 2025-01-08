@@ -1,5 +1,5 @@
 import { isPromise } from "./promise.ts";
-import type { AsyncFunction, Func, ParamOf } from "./typing.ts";
+import type { Func, IsAsync, ParamOf } from "./typing.ts";
 
 const firstTrue = <T>(promises: Promise<T>[]) => {
   const newPromises = promises.map((p) =>
@@ -13,7 +13,7 @@ const firstTrue = <T>(promises: Promise<T>[]) => {
 
 export const anymap =
   <F extends Func>(f: F) =>
-  (xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<boolean>
+  (xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<boolean>
     : boolean => {
     const promises = [];
     for (const x of xs) {
@@ -31,7 +31,7 @@ export const any = <T>(a: T[]) => a.some((x) => x);
 
 export const allmap =
   <F extends Func>(f: F) =>
-  (xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<boolean>
+  (xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<boolean>
     : boolean => {
     const promises = [];
     for (const x of xs) {

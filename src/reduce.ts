@@ -1,5 +1,5 @@
 import { isPromise } from "./promise.ts";
-import type { AsyncFunction, Func, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
+import type { Func, IsAsync, ParamOf, ReturnTypeUnwrapped } from "./typing.ts";
 
 const reduceHelper = <
   State,
@@ -37,7 +37,7 @@ export const min = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
     (
       s: ParamOf<F>,
       x: ParamOf<F>,
-    ): F extends AsyncFunction ? Promise<ParamOf<F>>
+    ): true extends IsAsync<F> ? Promise<ParamOf<F>>
       : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
@@ -45,7 +45,7 @@ export const min = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? s : x)
         : key(s) < key(x)
         ? s
-        : x) as F extends AsyncFunction ? Promise<ParamOf<F>>
+        : x) as true extends IsAsync<F> ? Promise<ParamOf<F>>
           : ParamOf<F>;
     },
     xs[0],
@@ -58,7 +58,7 @@ export const max = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
     (
       s: ParamOf<F>,
       x: ParamOf<F>,
-    ): F extends AsyncFunction ? Promise<ParamOf<F>>
+    ): true extends IsAsync<F> ? Promise<ParamOf<F>>
       : ParamOf<F> => {
       const keyS = key(s);
       const keyX = key(x);
@@ -66,7 +66,7 @@ export const max = <F extends Func>(key: F) => (xs: ParamOf<F>[]) =>
         ? Promise.all([keyS, keyX]).then(([keyS, keyX]) => keyS < keyX ? x : s)
         : key(s) < key(x)
         ? x
-        : s) as F extends AsyncFunction ? Promise<ParamOf<F>>
+        : s) as true extends IsAsync<F> ? Promise<ParamOf<F>>
           : ParamOf<F>;
     },
     xs[0],

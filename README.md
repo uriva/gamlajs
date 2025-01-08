@@ -1455,7 +1455,7 @@ const error = greaterThanZero(-2); // throws an error with the message "Number m
 ```typescript
 filter<F extends Predicate>(f: F): (
   _: ParamOf<F>[],
-) => F extends AsyncFunction ? Promise<ParamOf<F>[]> : ParamOf<F>[]
+) => true extends IsAsync<F> ? Promise<ParamOf<F>[]> : ParamOf<F>[]
 ```
 
 This function takes in a predicate function `f` and returns a new function that

@@ -6,8 +6,8 @@ import { reduce } from "./reduce.ts";
 import { currentLocation } from "./trace.ts";
 import type {
   AnyAsync,
-  AsyncFunction,
   Func,
+  IsAsync,
   ParamOf,
   PromisifyFunction,
   UnaryFnUntyped,
@@ -41,7 +41,6 @@ const pipeWithoutStack = <Fs extends Func[]>(
     reduce((v, f: Func) => f(v), () => fs[0](...x))(fs.slice(1))) as Pipeline<
       Fs
     >;
-
 
 // deno-lint-ignore no-explicit-any
 const augmentAndRethrowException = (location: string) => (e: any) => {
@@ -104,10 +103,9 @@ export const complement = <F extends Func>(
 
 export const sideEffect =
   <F extends UnaryFnUntyped>(f: F) =>
-  (x: ParamOf<F>): F extends AsyncFunction ? Promise<ParamOf<F>>
+  (x: ParamOf<F>): true extends IsAsync<F> ? Promise<ParamOf<F>>
     : ParamOf<F> => {
     const result = f(x);
-    // @ts-expect-error compiler cannot dynamically infer
     return (isPromise(result)) ? result.then(() => x) : x;
   };
 

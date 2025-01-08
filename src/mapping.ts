@@ -2,6 +2,7 @@ import type {
   AsyncFunction,
   ElementOf,
   Func,
+  IsAsync,
   ParamOf,
   Reducer,
   ReturnTypeUnwrapped,
@@ -86,23 +87,23 @@ export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
 
 const onEntries = <
   // deno-lint-ignore no-explicit-any
-  Function extends (kvs: [any, any][]) => [any, any][] | Promise<[any, any][]>,
+  F extends (kvs: [any, any][]) => [any, any][] | Promise<[any, any][]>,
 >(
-  transformation: Function,
+  transformation: F,
 ): (
   Obj: Record<
-    ElementOf<ParamOf<Function>>[0],
-    ElementOf<ParamOf<Function>>[1]
+    ElementOf<ParamOf<F>>[0],
+    ElementOf<ParamOf<F>>[1]
   >,
-) => Function extends AsyncFunction ? Promise<
+) => IsAsync<F> extends true ? Promise<
     Record<
-      ElementOf<Awaited<ReturnType<Function>>>[0],
-      ElementOf<Awaited<ReturnType<Function>>>[1]
+      ElementOf<Awaited<ReturnType<F>>>[0],
+      ElementOf<Awaited<ReturnType<F>>>[1]
     >
   >
   : Record<
-    ElementOf<Awaited<ReturnType<Function>>>[0],
-    ElementOf<Awaited<ReturnType<Function>>>[1]
+    ElementOf<Awaited<ReturnType<F>>>[0],
+    ElementOf<Awaited<ReturnType<F>>>[1]
   > =>
   // @ts-expect-error: too hard
   pipe(
@@ -123,19 +124,19 @@ export const entryFilter = <
 
 type RecordKey = string | number | symbol;
 type EntryMap<
-  F,
+  F extends Func,
   OldKey extends RecordKey,
   OldValue,
   NewKey extends RecordKey,
   NewValue,
 > = (
   obj: Record<OldKey, OldValue>,
-) => F extends AsyncFunction ? Promise<Record<NewKey, NewValue>>
+) => true extends IsAsync<F> ? Promise<Record<NewKey, NewValue>>
   : Record<NewKey, NewValue>;
 
-type EntryFilter<F, Key extends RecordKey, Value> = (
+type EntryFilter<F extends Func, Key extends RecordKey, Value> = (
   obj: Record<Key, Value>,
-) => F extends AsyncFunction ? Awaited<Record<Key, Value>>
+) => true extends IsAsync<F> ? Awaited<Record<Key, Value>>
   : Record<Key, Value>;
 
 export const valFilter = <Key extends RecordKey, F extends Func>(
@@ -152,9 +153,7 @@ export const keyFilter = <Value, F extends Func>(
 
 export const valMap = <Key extends RecordKey, F extends Func>(
   f: F,
-): (
-  obj: Record<Key, ParamOf<F>>,
-) => EntryMap<F, Key, ParamOf<F>, Key, ReturnTypeUnwrapped<F>> =>
+): EntryMap<F, Key, ParamOf<F>, Key, ReturnTypeUnwrapped<F>> =>
   // @ts-expect-error can't infer typing here
   entryMap(stack(identity, f));
 
@@ -188,14 +187,14 @@ type SpecType<T> = {
     : never;
 };
 
-type IsAsync<T> = {
+type IsAsyncSpec<T> = {
   // deno-lint-ignore no-explicit-any
   [K in keyof T]: T[K] extends (...args: any[]) => Promise<any> ? true
-    : T[K] extends object ? IsAsync<T[K]>
+    : T[K] extends object ? IsAsyncSpec<T[K]>
     : false;
 }[keyof T] extends true ? true : false;
 
-type FinalSpecType<T> = IsAsync<T> extends true ? Promise<SpecType<T>>
+type FinalSpecType<T> = IsAsyncSpec<T> extends true ? Promise<SpecType<T>>
   : SpecType<T>;
 
 export const applySpec =

@@ -1,4 +1,4 @@
-import type { AsyncFunction, Func, ParamOf } from "./typing.ts";
+import type { Func, IsAsync, ParamOf } from "./typing.ts";
 import { complement, pipe } from "./composition.ts";
 import { head, second } from "./array.ts";
 
@@ -8,7 +8,7 @@ import { isPromise } from "./promise.ts";
 
 export const filter = <F extends Func>(f: F): (
   _: ParamOf<F>[],
-) => F extends AsyncFunction ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
+) => true extends IsAsync<F> ? Promise<ParamOf<F>[]> : ParamOf<F>[] =>
   // @ts-expect-error typing head is hard.
   pipe(
     map(pairRight(f)),
@@ -19,7 +19,7 @@ export const filter = <F extends Func>(f: F): (
 export const find = <F extends Func>(
   predicate: F,
 ) =>
-(xs: ParamOf<F>[]): F extends AsyncFunction ? Promise<ParamOf<F> | undefined>
+(xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<ParamOf<F> | undefined>
   : ParamOf<F> | undefined => {
   const asyncResults: Promise<ParamOf<F>>[] = [];
   for (const x of xs) {
@@ -42,7 +42,7 @@ export const find = <F extends Func>(
 
 export const remove = <F extends Func>(
   f: F,
-): F extends AsyncFunction ? (x: ParamOf<F>[]) => Promise<ParamOf<F>[]>
+): true extends IsAsync<F> ? (x: ParamOf<F>[]) => Promise<ParamOf<F>[]>
   : (x: ParamOf<F>[]) => ParamOf<F>[] =>
   // @ts-expect-error compiler cannot infer
   filter(complement(f));

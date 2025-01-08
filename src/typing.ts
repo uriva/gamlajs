@@ -42,7 +42,7 @@ export type ElementOf<T> = T extends (infer X)[] ? X : never;
 
 export type Reducer<T, S> = (state: S, element: T) => S;
 
-export type ReturnTypeUnwrapped<F extends Func> = F extends AsyncFunction
+export type ReturnTypeUnwrapped<F extends Func> = true extends IsAsync<F>
   ? Awaited<ReturnType<F>>
   : ReturnType<F>;
 

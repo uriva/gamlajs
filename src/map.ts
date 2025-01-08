@@ -1,4 +1,4 @@
-import type { AsyncFunction, Unary, UnaryFnUntyped } from "./typing.ts";
+import type { IsAsync, Unary, UnaryFnUntyped } from "./typing.ts";
 
 import { errorBoundry, pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
@@ -7,7 +7,7 @@ import { isPromise } from "./promise.ts";
 const mapWithoutStack = <F extends UnaryFnUntyped>(f: F) =>
 (
   xs: Parameters<F>[0][],
-): F extends AsyncFunction ? Promise<Awaited<ReturnType<F>>[]>
+): true extends IsAsync<F> ? Promise<Awaited<ReturnType<F>>[]>
   : ReturnType<F>[] => {
   const results = [];
   for (const x of xs) {
@@ -22,7 +22,7 @@ export const map: typeof mapWithoutStack = (...fs) =>
 
 export const each = <F extends UnaryFnUntyped>(f: F) =>
 // @ts-expect-error ts cannot reason about this
-(xs: Parameters<F>[0][]): F extends AsyncFunction ? Promise<void> : void => {
+(xs: Parameters<F>[0][]): true extends IsAsync<F> ? Promise<void> : void => {
   const results = [];
   for (const x of xs) {
     const result = f(x);
