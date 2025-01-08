@@ -44,3 +44,7 @@ export type ReturnTypeUnwrapped<F extends Func> = F extends AsyncFunction
 
 // deno-lint-ignore no-explicit-any
 export type UnaryFnUntyped = (input: any) => any;
+
+export type PromisifyFunction<F extends Func> = (
+  ...args: Parameters<F>
+) => Promise<ReturnType<F>>;

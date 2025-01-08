@@ -96,10 +96,13 @@ const _3: Promise<number> = pipe(
   (y: number) => y,
 )(1);
 
-// failing typing tests:
+const f = pipe(<T>(x: T) => x);
+f(8);
 
-// Generics can infer by the last function
-// const _4: number = pipe((y: number) => y, <T >(x: T) => x)(1);
+// Generics inference
+const _4: number = pipe((y: number) => y, <T>(x: T) => x)(1);
+
+// failing typing tests:
 
 // Generics understands contextual extends
 // const _5 = <Fn extends (x: string) => number>(f: Fn) => {

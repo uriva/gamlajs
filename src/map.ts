@@ -32,8 +32,5 @@ export const each = <F extends UnaryFnUntyped>(f: F) =>
   if (results.length) return Promise.all(results).then();
 };
 
-export const mapCat = <T, G>(
-  f: Unary<T, G>,
-) =>
-// @ts-expect-error ts cannot reason about this
-(x: T[]): G => pipe(map(f), reduce((a, b) => a.concat(b), () => []))(x);
+export const mapCat = <T, G>(f: Unary<T, G>) => (x: T[]): G =>
+  pipe(map(f), reduce((a, b) => a.concat(b), () => []))(x);

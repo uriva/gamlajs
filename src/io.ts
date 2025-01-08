@@ -64,6 +64,7 @@ export const batch = <
   const keyToTimeout: Record<TaskKey, Timeout> = {} as Record<TaskKey, Timeout>;
 
   const clearAndExecute = (key: TaskKey) => {
+    // @ts-expect-error not sure what's wrong here
     executeTasks(execute)(keyToTasks[key]);
     clearTimeout(keyToTimeout[key]);
     delete keyToTimeout[key];

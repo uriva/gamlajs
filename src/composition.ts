@@ -1,4 +1,5 @@
 import { reverse } from "./array.ts";
+import { ComposeMany } from "./composeTyping.ts";
 import { not } from "./operator.ts";
 import { isPromise } from "./promise.ts";
 import { reduce } from "./reduce.ts";
@@ -7,9 +8,8 @@ import type {
   AnyAsync,
   AsyncFunction,
   Func,
-  Last,
   ParamOf,
-  ReturnTypeUnwrapped,
+  PromisifyFunction,
   UnaryFnUntyped,
 } from "./typing.ts";
 
@@ -30,10 +30,9 @@ type ValidPipe<FS extends Func[]> = FS extends
   ? [ValidCompose<F1, F2>, ...ValidPipe<[F2, ...Rest]>] // tuple length >= 2
   : FS; // tuple length < 2
 
-type Pipeline<Fs extends Func[]> = (
-  ...x: Parameters<Fs[0]>
-) => Fs extends AnyAsync<Fs> ? Promise<ReturnTypeUnwrapped<Last<Fs>>>
-  : ReturnType<Last<Fs>>;
+type Pipeline<Fs extends Func[]> = Fs extends AnyAsync<Fs>
+  ? PromisifyFunction<ComposeMany<Fs>>
+  : ComposeMany<Fs>;
 
 const pipeWithoutStack = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
@@ -86,7 +85,6 @@ type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
 ): Fs extends ValidPipe<Reversed<Fs>> ? Pipeline<Reversed<Fs>> : never =>
-  // @ts-expect-error reason: TODO - fix typing
   pipe(...reverse(fs));
 
 export const after =
