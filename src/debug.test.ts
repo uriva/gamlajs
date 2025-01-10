@@ -8,6 +8,7 @@ import { assert, timeit, tryCatch } from "./debug.ts";
 import { assertEquals, assertThrows } from "std-assert";
 import { sleep } from "./time.ts";
 import { throwerCatcherWithValue } from "./index.ts";
+import { pipe } from "./composition.ts";
 
 Deno.test("timeit", () => {
   const logger = (x: string) => console.log(x);
@@ -52,6 +53,11 @@ Deno.test("assert", () => {
   });
   assert(condition, err)(10);
 });
+
+const _assertTyping: number = pipe(
+  (x: number) => x,
+  assert((x: number) => x > 3, "bla"),
+)(7);
 
 Deno.test("assert async", async () => {
   const err = "not greater than 7";

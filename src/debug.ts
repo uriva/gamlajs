@@ -2,12 +2,14 @@ import type {
   AsyncFunction,
   Func,
   IsAsync,
+  ParamOf,
   ReturnTypeUnwrapped,
 } from "./typing.ts";
-import { pipe } from "./composition.ts";
+import { pipe, sideEffect } from "./composition.ts";
 import { pairRight } from "./juxt.ts";
 import { isPromise } from "./promise.ts";
 import { currentLocation } from "./trace.ts";
+import { letIn } from "./operator.ts";
 
 export const sideLog = <T>(x: T) => {
   console.log(currentLocation(3), x);
@@ -84,13 +86,16 @@ export const timeit = <F extends Func>(
     return result;
   }) as F;
 
-export const assert = <T>(
-  condition: (_: T) => boolean | Promise<boolean>,
+export const assert = <F extends Func>(
+  condition: F,
   errorMessage: string,
-) =>
+): true extends IsAsync<F> ? ((t: ParamOf<F>) => Promise<ParamOf<F>>)
+  : ((t: ParamOf<F>) => ParamOf<F>) =>
+  // @ts-expect-error not sure
   pipe(
+    // @ts-expect-error not sure
     pairRight(condition),
-    ([value, passed]) => {
+    ([value, passed]: [ParamOf<F>, boolean]) => {
       if (!passed) throw new Error(errorMessage);
       return value;
     },
