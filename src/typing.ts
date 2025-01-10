@@ -51,4 +51,4 @@ export type UnaryFnUntyped = (input: any) => any;
 
 export type PromisifyFunction<F extends Func> = (
   ...args: Parameters<F>
-) => Promise<ReturnType<F>>;
+) => Promise<Awaited<ReturnType<F>>>;

@@ -116,6 +116,8 @@ const _generics8: <T extends number>(t: T) => T = pipe(
   <T extends string>(t: T) => t,
 );
 
+const _generics9: Promise<number> = pipe((x) => Promise.resolve(x))(8);
+
 // failing typing tests:
 
 // Generics understands contextual extends

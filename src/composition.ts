@@ -136,3 +136,5 @@ export const always = <T>(x: T) => () => x;
 export const identity = <T>(x: T) => x;
 
 export const thunk = <F extends Func>(f: () => F) => ((...x) => f()(...x)) as F;
+
+
