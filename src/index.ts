@@ -3,6 +3,7 @@ export * from "./composition.ts";
 export * from "./conditional.ts";
 export * from "./debug.ts";
 export * from "./filter.ts";
+export * from "./http.ts";
 export * from "./io.ts";
 export * from "./juxt.ts";
 export * from "./lock.ts";

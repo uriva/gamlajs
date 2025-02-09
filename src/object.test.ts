@@ -1,8 +1,9 @@
 import { assertEquals } from "std-assert";
 import { removeKey } from "./object.ts";
 
+type t = { a?: number; b: number };
+
 Deno.test("remove key", () => {
-  type t = { a?: number; b: number };
   assertEquals(
     removeKey<t>(
       "a",
@@ -10,3 +11,5 @@ Deno.test("remove key", () => {
     { b: 2 },
   );
 });
+
+const x = removeKey<t>("b")({ a: 1, b: 2 });

@@ -144,9 +144,9 @@ export const keyFilter = <Value, F extends Func>(
   // @ts-expect-error can't infer typing here
   entryFilter(pipe(head, f));
 
-export const valMap = <Key extends RecordKey, F extends Func>(
-  f: F,
-): EntryMap<F, Key, ParamOf<F>, Key, ReturnTypeUnwrapped<F>> =>
+export const valMap = <Key extends RecordKey, OldValue, NewValue>(
+  f: (old: OldValue) => NewValue | ((old: OldValue) => Promise<NewValue>),
+): EntryMap<typeof f, Key, OldValue, Key, NewValue> =>
   // @ts-expect-error can't infer typing here
   entryMap(stack(identity, f));
 
