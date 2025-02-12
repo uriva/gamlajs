@@ -76,7 +76,7 @@ Deno.test("tryCatch", () => {
   const f = (x: number) => {
     x = x + 3;
     // @ts-expect-error should throw
-    return (7 + x.does.not.exist);
+    return 7 + x.does.not.exist;
   };
   assertThrows(() => {
     f(3);
@@ -101,17 +101,30 @@ Deno.test("tryCatch async", async () => {
 });
 
 Deno.test("thrower catcher with value", async () => {
-  const [thrower, catcher] = throwerCatcherWithValue<string>();
+  const { thrower, catcher } = throwerCatcherWithValue<string>();
   const expectation = "hello";
   let result = "";
-  await catcher((x: string) => {
-    result = x;
-    return Promise.resolve();
-  }, () => {
+  const fAsync = (_: string) => {
     thrower(expectation);
-    return Promise.resolve();
-  })();
+    return Promise.resolve("bla");
+  };
+  const fAsyncCaught = catcher((x: string) => {
+    result = x;
+    return Promise.resolve(7);
+  })(fAsync);
+  const _value: string | number = await fAsyncCaught("input");
   assertEquals(result, expectation);
 });
 
+const { catcher } = throwerCatcherWithValue<string>();
+const f = catcher((_: string) => 7)((_: string) => {
+  return Promise.resolve("bla");
+});
+// @ts-expect-error detects bad type, should be a string | number
+const _badTyping: string = await f("hello");
+// @ts-expect-error detects bad type, should be a Promise<string|number
+const _detectAsync: string | number = f("hello there");
+const _nonNotAsync: number | null = catcher(() => null)((_: string) => 1)(
+  "hello",
+);
 const _: () => Promise<string> = tryCatch(() => Promise.resolve(""), () => "");

@@ -1,3 +1,7 @@
+import { pipe } from "./composition.ts";
+import { pairRight } from "./juxt.ts";
+import { isPromise } from "./promise.ts";
+import { currentLocation } from "./trace.ts";
 import type {
   AsyncFunction,
   Func,
@@ -5,11 +9,6 @@ import type {
   ParamOf,
   ReturnTypeUnwrapped,
 } from "./typing.ts";
-import { pipe, sideEffect } from "./composition.ts";
-import { pairRight } from "./juxt.ts";
-import { isPromise } from "./promise.ts";
-import { currentLocation } from "./trace.ts";
-import { letIn } from "./operator.ts";
 
 export const sideLog = <T>(x: T) => {
   console.log(currentLocation(3), x);
@@ -162,31 +161,42 @@ export const throwerCatcher = () => {
   return [thrower, catcher] as [typeof thrower, typeof catcher];
 };
 
-export const catchErrorWithIdAndValue = <T>(id: string) =>
-// deno-lint-ignore no-explicit-any
-<F extends AsyncFunction, G extends (value: T) => any>(
-  fallback: G,
-  f: F,
-): (...args: Parameters<F>) => ReturnType<F> | ReturnType<G> =>
-// @ts-expect-error cannot infer
-async (...xs: Parameters<F>) => {
-  try {
-    return await f(...xs);
-  } catch (e) {
-    // @ts-ignore-error This code has a distinct type of `Error` (doesn't trigger in node)
-    if (e.id === id) return fallback(e.payload);
-    throw e;
-  }
-};
+type EitherOutput<F extends Func, G extends Func> = F extends AsyncFunction
+  ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
+  : G extends AsyncFunction
+    ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
+  : (ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>);
+
+export const catchErrorWithIdAndValue =
+  (id: string) =>
+  <G extends Func>(fallback: G) =>
+  <F extends Func>(f: F) =>
+  (...xs: Parameters<F>): EitherOutput<F, G> => {
+    try {
+      const result = f(...xs);
+      if (isPromise(result)) {
+        // @ts-expect-error cannot infer
+        return result.catch((e) => {
+          if (e.id === id) return fallback(e.payload);
+          throw e;
+        });
+      }
+      return result;
+    } catch (e) {
+      // @ts-ignore-error This code has a distinct type of `Error` (doesn't trigger in node)
+      if (e.id === id) return fallback(e.payload);
+      throw e;
+    }
+  };
 
 export const throwerCatcherWithValue = <T>() => {
   const id = crypto.randomUUID();
-  const catcher = catchErrorWithIdAndValue<T>(id);
+  const catcher = catchErrorWithIdAndValue(id);
   const thrower = (value: T) => {
     const e = makeErrorWithId(id);
     // @ts-expect-error This code has a distinct type of `Error`
     e.payload = value;
     throw e;
   };
-  return [thrower, catcher] as [typeof thrower, typeof catcher];
+  return { thrower, catcher };
 };
