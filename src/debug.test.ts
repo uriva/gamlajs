@@ -120,8 +120,8 @@ const { catcher } = throwerCatcherWithValue<string>();
 const f = catcher((_: string) => 7)((_: string) => {
   return Promise.resolve("bla");
 });
-// @ts-expect-error detects bad type, should be a string | number
-const _badTyping: string = await f("hello");
+// @ts-expect-error detects bad type, should be a Promise<string | number>
+const _badTyping: Promise<string> = f("hello");
 // @ts-expect-error detects bad type, should be a Promise<string|number
 const _detectAsync: string | number = f("hello there");
 const _nonNotAsync: number | null = catcher(() => null)((_: string) => 1)(
