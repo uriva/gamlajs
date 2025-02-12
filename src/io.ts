@@ -1,4 +1,5 @@
-import { sha256 } from "npm:js-sha256";
+import { sha256 } from "jsr:@noble/hashes/sha2";
+import { encodeHex } from "jsr:@std/encoding/hex";
 import stableHash from "npm:stable-hash";
 import { pipe } from "./composition.ts";
 import { juxt, pairRight, stack } from "./juxt.ts";
@@ -172,4 +173,4 @@ export const retry = <F extends AsyncFunction>(
 
 export const hash = <T>(x: T, maxLength: number) =>
   // @ts-ignore-error error in deno but not in node
-  sha256.hex(stableHash(x)).substring(0, maxLength);
+  encodeHex(sha256(stableHash(x))).substring(0, maxLength);
