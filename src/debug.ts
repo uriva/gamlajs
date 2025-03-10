@@ -1,4 +1,3 @@
-import { any } from "./array.ts";
 import { pipe } from "./composition.ts";
 import { pairRight } from "./juxt.ts";
 import { isPromise } from "./promise.ts";
@@ -13,6 +12,11 @@ import type {
 
 export const sideLog = <T>(x: T) => {
   console.log(currentLocation(3), x);
+  return x;
+};
+
+export const sideLogJson = <T>(x: T) => {
+  console.log(currentLocation(3), JSON.stringify(x, null, 2));
   return x;
 };
 
