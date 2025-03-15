@@ -81,7 +81,7 @@ Deno.test("tryCatch", () => {
   assertThrows(() => {
     f(3);
   });
-  assertEquals(tryCatch(f, () => null)(3), null);
+  assertEquals(tryCatch((_e, _: number) => null)(f)(3), null);
 });
 
 Deno.test("tryCatch async", async () => {
@@ -97,7 +97,7 @@ Deno.test("tryCatch async", async () => {
   } catch {
     // Thrown successfully.
   }
-  assertEquals(await tryCatch(f, () => null)(3), null);
+  assertEquals(await tryCatch((_, _1: number) => null)(f)(3), null);
 });
 
 Deno.test("thrower catcher with value", async () => {
@@ -127,4 +127,4 @@ const _detectAsync: string | number = f("hello there");
 const _nonNotAsync: number | null = catcher(() => null)((_: string) => 1)(
   "hello",
 );
-const _: () => Promise<string> = tryCatch(() => Promise.resolve(""), () => "");
+const _: () => Promise<string> = tryCatch(() => "")(() => Promise.resolve(""));

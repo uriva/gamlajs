@@ -116,22 +116,23 @@ type AugmentReturnType<F extends Func, T> = (
   ...inputs: Parameters<F>
 ) => ReturnType<F> | (true extends IsAsync<F> ? Promise<Awaited<T>> : T);
 
-export const tryCatch = <F extends Func, T>(
-  f: F,
-  fallback: (e: Error, ...xs: Parameters<F>) => T,
-) =>
-  ((...x: Parameters<F>) => {
-    try {
-      const result = f(...x);
-      return isPromise(result)
-        ? result.catch((e) => fallback(e, ...x))
-        : result;
-    } catch (e) {
-      return fallback(e as Error, ...x);
-    }
-  }) as AugmentReturnType<F, T>;
+export const tryCatch =
+  // deno-lint-ignore no-explicit-any
+  <T, Params extends any[]>(fallback: (e: Error, ...xs: Params) => T) =>
+  // deno-lint-ignore no-explicit-any
+  <F extends (...xs: Params) => any>(f: F) =>
+    ((...x: Parameters<F>) => {
+      try {
+        const result = f(...x);
+        return isPromise(result)
+          ? result.catch((e) => fallback(e, ...x))
+          : result;
+      } catch (e) {
+        return fallback(e as Error, ...x);
+      }
+    }) as AugmentReturnType<F, T>;
 
-export const catchWithNull = <F extends Func>(f: F) => tryCatch(f, () => null);
+export const catchWithNull = tryCatch(() => null);
 
 const makeErrorWithId = (id: string) => {
   const err = new Error();
