@@ -13,7 +13,7 @@ jobs:
           deno-version: v2.2.10
       - uses: actions/setup-node@v3
         with:
-          node-version: v26.6.1
+          node-version: v23.6.1
           registry-url: "https://registry.npmjs.org"
       - run: deno task build ${GITHUB_REF#refs/*/}
       - run: npm publish
