@@ -5,6 +5,7 @@ import {
   allmap,
   any,
   anymap,
+  append,
   concat,
   contains,
   drop,
@@ -199,4 +200,8 @@ Deno.test("uniqueBy", () => {
     1,
     2,
   ]);
+});
+
+Deno.test("append", () => {
+  assertEquals(append(2)([1]), [1, 2]);
 });

@@ -159,3 +159,5 @@ export const enumerate = <T>(xs: T[]): [number, T][] =>
 
 export const slidingWindow = <T>(l: number) => (xs: T[]) =>
   xs.flatMap((_, i) => (i <= xs.length - l ? [xs.slice(i, i + l)] : []));
+
+export const append = <T>(element: T) => (arr: T[]) => [...arr, element];
