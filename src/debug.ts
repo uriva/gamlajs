@@ -3,7 +3,7 @@ import { pairRight } from "./juxt.ts";
 import { isPromise } from "./promise.ts";
 import { currentLocation } from "./trace.ts";
 import type {
-  AsyncFunction,
+  EitherOutput,
   Func,
   IsAsync,
   ParamOf,
@@ -140,12 +140,6 @@ const makeErrorWithId = (id: string) => {
   err.id = id;
   return err;
 };
-
-type EitherOutput<F extends Func, G extends Func> = F extends AsyncFunction
-  ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
-  : G extends AsyncFunction
-    ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
-  : (ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>);
 
 const handleAsyncOrSyncException = <T, E, F extends Func>(
   f: F,

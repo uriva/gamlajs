@@ -52,3 +52,9 @@ export type UnaryFnUntyped = (input: any) => any;
 export type PromisifyFunction<F extends Func> = (
   ...args: Parameters<F>
 ) => Promise<Awaited<ReturnType<F>>>;
+
+export type EitherOutput<F extends Func, G extends Func> = F extends
+  AsyncFunction ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
+  : G extends AsyncFunction
+    ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
+  : (ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>);
