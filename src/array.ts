@@ -161,3 +161,12 @@ export const slidingWindow = <T>(l: number) => (xs: T[]) =>
   xs.flatMap((_, i) => (i <= xs.length - l ? [xs.slice(i, i + l)] : []));
 
 export const append = <T>(element: T) => (arr: T[]) => [...arr, element];
+
+export const shuffle = <T>(array: T[]): T[] => {
+  const arr = array.slice();
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
