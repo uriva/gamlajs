@@ -78,13 +78,14 @@ Deno.test("throttle", async () => {
 
 Deno.test("rate limiter by # calls", async () => {
   const timeWindowMs = 1000;
-  const rateLimitedFunction = rateLimit(
-    2,
-    100,
+  const rateLimitedFunction = rateLimit({
+    maxCalls: 2,
+    maxWeight: 100,
     timeWindowMs,
-    (args: number) => args,
-    (value: number) => Promise.resolve(value),
-  );
+    weight: (args: number) => args,
+    f: (value: number) => Promise.resolve(value),
+    key: () => "testKey",
+  });
   const tasks = [5, 3, 10];
   const startTime = Date.now();
   assertEquals(await Promise.all(tasks.map(rateLimitedFunction)), tasks);
@@ -93,13 +94,14 @@ Deno.test("rate limiter by # calls", async () => {
 
 Deno.test("rate limiter by weight", async () => {
   const timeWindowMs = 1000;
-  const rateLimitedFunction = rateLimit(
-    3,
-    15,
+  const rateLimitedFunction = rateLimit({
+    maxCalls: 3,
+    maxWeight: 15,
     timeWindowMs,
-    (args: number) => args,
-    (value: number) => Promise.resolve(value),
-  );
+    weight: (args: number) => args,
+    key: () => "testKey",
+    f: (value: number) => Promise.resolve(value),
+  });
   const tasks = [5, 3, 10];
   const startTime = Date.now();
   assertEquals(await Promise.all(tasks.map(rateLimitedFunction)), tasks);
