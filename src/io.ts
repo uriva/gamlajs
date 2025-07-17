@@ -151,8 +151,8 @@ export const conditionalRetry =
   // deno-lint-ignore no-explicit-any
   (predicate: (e: Error) => any) =>
   <F extends AsyncFunction>(waitMs: number, times: number, f: F): F =>
-    // @ts-expect-error cannot infer
     times
+      // @ts-expect-error cannot infer
       ? async (...x: Parameters<F>) => {
         try {
           return await f(...x);

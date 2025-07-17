@@ -18,6 +18,7 @@ export const ifElse =
     : ReturnType<If> | ReturnType<Else> => {
     const result = predicate(...x);
     return isPromise(result)
+      // @ts-expect-error ts cannot reason about this.
       ? result.then((predicateResult) =>
         predicateResult ? fTrue(...x) : fFalse(...x)
       )

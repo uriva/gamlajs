@@ -38,9 +38,9 @@ export const find = <F extends Func>(
       );
     } else if (result) return x;
   }
-  // @ts-expect-error ts cannot infer
-  return (asyncResults.length)
+  return asyncResults.length
     ? Promise.any(asyncResults).catch(() => undefined)
+    // @ts-expect-error ts cannot reason about this.
     : undefined;
 };
 

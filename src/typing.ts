@@ -58,3 +58,6 @@ export type EitherOutput<F extends Func, G extends Func> = F extends
   : G extends AsyncFunction
     ? Promise<ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>>
   : (ReturnTypeUnwrapped<F> | ReturnTypeUnwrapped<G>);
+
+// deno-lint-ignore no-explicit-any
+export type UnaryAsync = (x: any) => Promise<any>;

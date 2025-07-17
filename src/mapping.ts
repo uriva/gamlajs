@@ -5,6 +5,7 @@ import { stack } from "./juxt.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import type {
+  AsyncFunction,
   ElementOf,
   Func,
   IsAsync,
@@ -12,6 +13,7 @@ import type {
   Reducer,
   ReturnTypeUnwrapped,
   Unary,
+  UnaryAsync,
 } from "./typing.ts";
 
 export const wrapObject = <V>(key: string) => (value: V) => ({ [key]: value });
@@ -194,3 +196,11 @@ export const applySpec =
   <T>(spec: T) => (...args: unknown[]): FinalSpecType<T> =>
     // @ts-expect-error too to bother.
     mapTerminals(applyTo(...args))(spec);
+
+export const sequentialMap =
+  <F extends UnaryAsync>(f: F) =>
+  async (xs: Parameters<F>[0][]): Promise<Awaited<ReturnType<F>>[]> => {
+    const result = [];
+    for (const x of xs) result.push(await f(x));
+    return result;
+  };

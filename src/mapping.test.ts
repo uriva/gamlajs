@@ -6,6 +6,7 @@ import {
   keyFilter,
   keyMap,
   mapTerminals,
+  sequentialMap,
   valFilter,
   valMap,
   wrapObject,
@@ -14,6 +15,7 @@ import {
 import { assertEquals } from "std-assert";
 import { head } from "./array.ts";
 import { wrapPromise } from "./promise.ts";
+import { sleep } from "./time.ts";
 
 Deno.test("keyFilter", () => {
   assertEquals(
@@ -112,4 +114,24 @@ Deno.test("edgesToGraph", () => {
     ]),
     { 1: new Set([2, 3]), 2: new Set([3]), 4: new Set([4]) },
   );
+});
+
+Deno.test("sequentialMap", async () => {
+  const sequentialDoubler = sequentialMap(
+    (x: number) => Promise.resolve(x * 2),
+  );
+  const result = await sequentialDoubler([1, 2, 3]);
+  assertEquals(result, [2, 4, 6]);
+});
+
+Deno.test("sequentialMap processes items sequentially", async () => {
+  const processOrder: number[] = [];
+  const asyncTracker = async (x: number): Promise<number> => {
+    processOrder.push(x);
+    await sleep(1);
+    return x * 2;
+  };
+  const sequentialTracker = sequentialMap(asyncTracker);
+  await sequentialTracker([1, 2, 3]);
+  assertEquals(processOrder, [1, 2, 3]);
 });
