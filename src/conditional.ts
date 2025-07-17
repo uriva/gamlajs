@@ -18,7 +18,7 @@ export const ifElse =
     : ReturnType<If> | ReturnType<Else> => {
     const result = predicate(...x);
     return isPromise(result)
-      // @ts-expect-error ts cannot reason about this.
+      // @ts-ignore ts cannot reason about this, error only in deno not in node.
       ? result.then((predicateResult) =>
         predicateResult ? fTrue(...x) : fFalse(...x)
       )
