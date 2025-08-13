@@ -12,6 +12,7 @@ import {
   enumerate,
   includedIn,
   init,
+  prepend,
   slidingWindow,
   sort,
   sortCompare,
@@ -204,4 +205,8 @@ Deno.test("uniqueBy", () => {
 
 Deno.test("append", () => {
   assertEquals(append(2)([1]), [1, 2]);
+});
+
+Deno.test("prepend", () => {
+  assertEquals(prepend(2)([1]), [2, 1]);
 });

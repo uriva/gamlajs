@@ -162,6 +162,8 @@ export const slidingWindow = <T>(l: number) => (xs: T[]) =>
 
 export const append = <T>(element: T) => (arr: T[]) => [...arr, element];
 
+export const prepend = <T>(element: T) => (arr: T[]) => [element, ...arr];
+
 export const shuffle = <T>(array: T[]): T[] => {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
