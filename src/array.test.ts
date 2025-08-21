@@ -97,6 +97,23 @@ Deno.test("sortKey", () => {
   );
 });
 
+Deno.test("sortKey async", async () => {
+  assertEquals(
+    await sortKey(({ a, b }: { a: number; b: number }) =>
+      Promise.resolve([a, b])
+    )([
+      { a: 1, b: 5 },
+      { a: 1, b: 4 },
+      { a: 0, b: 0 },
+    ]),
+    [
+      { a: 0, b: 0 },
+      { a: 1, b: 4 },
+      { a: 1, b: 5 },
+    ],
+  );
+});
+
 Deno.test("sortKey 2", () => {
   assertEquals(
     sortKey(({ id, n }: { id: string; n: number }) => [id !== "123", -n])([

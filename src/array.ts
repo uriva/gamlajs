@@ -131,8 +131,47 @@ export const sortCompare =
 
 export const sort = sortCompare(comparator);
 
-export const sortKey = <X>(key: (element: X) => Comparable) =>
-  sortCompare<X>((a, b) => comparator(key(a), key(b)));
+export const sortKey =
+  <F extends Func>(key: F) =>
+  (xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<ParamOf<F>[]>
+    : ParamOf<F>[] => {
+    // Compute keys for all elements, detect if any are promises
+    const keys: (Comparable | Promise<Comparable>)[] = [];
+    let hasPromise = false;
+    for (const x of xs as ParamOf<F>[]) {
+      const k = key(x as unknown as ParamOf<F>) as
+        | Comparable
+        | Promise<Comparable>;
+      if (isPromise(k)) hasPromise = true;
+      keys.push(k as Comparable | Promise<Comparable>);
+    }
+
+    // Synchronous path: no promises returned by key
+    if (!hasPromise) {
+      // @ts-expect-error cannot infer conditional return type
+      return sortCompare<ParamOf<F>>((a, b) =>
+        comparator(
+          key(a as unknown as ParamOf<F>) as Comparable,
+          key(b as unknown as ParamOf<F>) as Comparable,
+        )
+      )(xs as ParamOf<F>[]);
+    }
+
+    // Asynchronous path: wait for all keys to resolve then sort by resolved keys
+    return Promise.all(keys.map((k) => Promise.resolve(k))).then(
+      (resolvedKeys: Comparable[]) => {
+        const paired = (xs as ParamOf<F>[]).map((x, i) => ({
+          x,
+          key: resolvedKeys[i],
+        }));
+        paired.sort((p, q) =>
+          castToInt(comparator(p.key as Comparable, q.key as Comparable))
+        );
+        return paired.map((p) => p.x);
+      },
+    ) as unknown as (true extends IsAsync<F> ? Promise<ParamOf<F>[]>
+      : ParamOf<F>[]);
+  };
 
 export const range = (start: number, end: number) => {
   const result = [];
