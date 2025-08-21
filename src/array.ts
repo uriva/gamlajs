@@ -139,7 +139,7 @@ export const sortKey = <F extends Func>(
   const keys = xs.map(key);
   const hasPromise = keys.some(isPromise);
   return hasPromise
-    // @ts-expect-error cannot infer conditional return type
+    // @ts-ignore-error cannot infer conditional return type (error only in deno. not in node)
     ? Promise.all(keys).then(
       (resolvedKeys) => {
         const paired = xs.map((x, i) => ({ x, key: resolvedKeys[i] }));
@@ -147,7 +147,7 @@ export const sortKey = <F extends Func>(
         return paired.map((p) => p.x);
       },
     )
-    // @ts-expect-error cannot infer conditional return type
+    // @ts-ignore-error cannot infer conditional return type (error only in deno. not in node)
     : sortCompare<ParamOf<F>>((a, b) => comparator(key(a), key(b)))(xs);
 };
 
