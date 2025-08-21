@@ -173,5 +173,5 @@ export const retry = <F extends AsyncFunction>(
 ) => conditionalRetry(() => true)(waitMs, times, f);
 
 export const hash = <T>(x: T, maxLength: number) =>
-  // @ts-ignore-error error in deno but not in node
+  // @ts-ignore error in deno but not in node
   encodeHex(sha256(stableHash(x))).substring(0, maxLength);

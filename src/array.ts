@@ -138,8 +138,9 @@ export const sortKey = <F extends Func>(
   : ParamOf<F>[] => {
   const keys = xs.map(key);
   const hasPromise = keys.some(isPromise);
+  // @ts-ignore location of error in node
   return hasPromise
-    // @ts-ignore-error cannot infer conditional return type (error only in deno. not in node)
+    // @ts-ignore cannot infer conditional return type (location of error in deno)
     ? Promise.all(keys).then(
       (resolvedKeys) => {
         const paired = xs.map((x, i) => ({ x, key: resolvedKeys[i] }));
@@ -147,7 +148,7 @@ export const sortKey = <F extends Func>(
         return paired.map((p) => p.x);
       },
     )
-    // @ts-ignore-error cannot infer conditional return type (error only in deno. not in node)
+    // @ts-ignore cannot infer conditional return type (location of error in deno)
     : sortCompare<ParamOf<F>>((a, b) => comparator(key(a), key(b)))(xs);
 };
 

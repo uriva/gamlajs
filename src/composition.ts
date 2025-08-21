@@ -75,7 +75,7 @@ export const errorBoundry = <F extends Func>(f: F) => {
 };
 
 export const pipe: typeof pipeWithoutStack = (...fs) =>
-  // @ts-ignore-error error in deno but not in node
+  // @ts-ignore error in deno but not in node
   errorBoundry(pipeWithoutStack(...fs));
 
 type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
