@@ -1,4 +1,4 @@
-import { sha256 } from "jsr:@noble/hashes/sha2";
+import { sha256 } from "jsr:@noble/hashes@2.0.0/sha2.js";
 import { encodeHex } from "jsr:@std/encoding/hex";
 import stableHash from "npm:stable-hash";
 import { pipe } from "./composition.ts";
@@ -172,6 +172,9 @@ export const retry = <F extends AsyncFunction>(
   f: F,
 ) => conditionalRetry(() => true)(waitMs, times, f);
 
+type StableHashType<T> = (value: T) => string;
+
 export const hash = <T>(x: T, maxLength: number) =>
-  // @ts-ignore error in deno but not in node
-  encodeHex(sha256(stableHash(x))).substring(0, maxLength);
+  encodeHex(sha256(
+    new TextEncoder().encode((stableHash as unknown as StableHashType<T>)(x)),
+  )).substring(0, maxLength);
