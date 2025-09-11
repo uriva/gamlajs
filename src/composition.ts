@@ -65,7 +65,7 @@ export const errorBoundry = <F extends Func>(f: F) => {
   return ((...x) => {
     try {
       const result = f(...x);
-      return (isPromise(result))
+      return isPromise(result)
         ? result.catch(augmentAndRethrowException(location))
         : result;
     } catch (e) {
