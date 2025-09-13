@@ -1,6 +1,6 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { encodeHex } from "@std/encoding";
-import stableHash from "stable-hash";
+import { stableHash } from "stable-hash";
 import { pipe } from "./composition.ts";
 import { juxt, stack } from "./juxt.ts";
 import { map } from "./map.ts";
@@ -184,10 +184,9 @@ export const retry = <F extends AsyncFunction>(
   f: F,
 ): F => conditionalRetry(() => true)(waitMs, times, f);
 
-type StableHashType<T> = (value: T) => string;
-
 /** Stable JSON-like hash truncated to maxLength. */
 export const hash = <T>(x: T, maxLength: number): string =>
-  encodeHex(sha256(
-    new TextEncoder().encode((stableHash as unknown as StableHashType<T>)(x)),
-  )).substring(0, maxLength);
+  encodeHex(sha256(new TextEncoder().encode(stableHash(x)))).substring(
+    0,
+    maxLength,
+  );
