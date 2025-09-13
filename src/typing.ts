@@ -61,3 +61,6 @@ export type EitherOutput<F extends Func, G extends Func> = F extends
 
 // deno-lint-ignore no-explicit-any
 export type UnaryAsync = (x: any) => Promise<any>;
+
+export type MakeAsync<F extends Func> = F extends AsyncFunction ? F
+  : (...args: Parameters<F>) => Promise<ReturnType<F>>;
