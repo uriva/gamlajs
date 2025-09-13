@@ -2,6 +2,7 @@ import { wrapArray } from "./array.ts";
 import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 
+/** Repeat an element N times into an array. @example repeat('a',3) // ['a','a','a'] */
 export const repeat = <T>(element: T, times: number): T[] => {
   const result = [];
   for (let i = 0; i < times; i++) result.push(element);
@@ -15,6 +16,11 @@ type GroupOfHomogeneousArrays<Types extends any[]> = {
 
 type ProductOutput<Types> = { [K in keyof Types]: Types[K] }[];
 
+/**
+ * Cartesian product of arrays.
+ * @example
+ * product([[1,2],["a","b"]]) // [[1,'a'],[1,'b'],[2,'a'],[2,'b']]
+ */
 export const product = (reduce(
   (a, b) => a.flatMap((x: unknown[]) => b.map((y: unknown) => [...x, y])),
   () => [[]],
@@ -23,6 +29,11 @@ export const product = (reduce(
   arrays: GroupOfHomogeneousArrays<Types>,
 ) => ProductOutput<Types>;
 
+/**
+ * Expand positions of an input tuple into a Cartesian product.
+ * @example
+ * explode<[number,string]>(1)([1,['a','b']]) // [[1,'a'],[1,'b']]
+ */
 export const explode = <OutputType extends unknown[]>(
   ...positions: number[]
 ): (xs: unknown[]) => ProductOutput<OutputType> =>

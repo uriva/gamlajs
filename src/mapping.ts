@@ -16,10 +16,12 @@ import type {
   UnaryAsync,
 } from "./typing.ts";
 
+/** Wrap value into an object with a given key. */
 export const wrapObject = <V>(key: string) => (value: V) => ({ [key]: value });
 
 type Primitive = string | number | symbol;
 
+/** Group by multiple keys with a reducer. */
 export const groupByManyReduce = <T, S, K extends Primitive>(
   keys: (_: T) => K[],
   reducer: Reducer<T, S>,
@@ -35,6 +37,7 @@ export const groupByManyReduce = <T, S, K extends Primitive>(
   return result;
 };
 
+/** Count occurrences of values in an array. */
 export const count: <T extends string | number | symbol>(
   xs: T[],
 ) => Record<T, number> = reduce(
@@ -48,6 +51,7 @@ export const count: <T extends string | number | symbol>(
   () => ({}),
 );
 
+/** Group by a single key with a reducer. */
 export const groupByReduce = <T, S, K extends Primitive>(
   key: (_: T) => K,
   reducer: Reducer<T, S>,
@@ -56,6 +60,7 @@ export const groupByReduce = <T, S, K extends Primitive>(
   // @ts-expect-error reason: TODO - fix typing
   groupByManyReduce(pipe(key, wrapArray), reducer, initial);
 
+/** Group by multiple keys into arrays. */
 export const groupByMany = <T, K extends Primitive>(
   keys: (_: T) => K[],
 ): (xs: T[]) => Record<K, T[]> =>
@@ -68,12 +73,14 @@ export const groupByMany = <T, K extends Primitive>(
     () => [],
   );
 
+/** Add or overwrite an entry in an object. */
 export const addEntry =
   <Object, Value>(key: Primitive, value: Value) => (obj: Object) => ({
     ...obj,
     [key]: value,
   });
 
+/** Group by a key into arrays. */
 export const groupBy = <T, K extends Primitive>(
   f: Unary<T, K>,
 ): (xs: T[]) => Record<K, T[]> =>
@@ -82,6 +89,7 @@ export const groupBy = <T, K extends Primitive>(
 
 type Node = Primitive;
 type Edge = [Node, Node];
+/** Convert edge list into an adjacency map. */
 export const edgesToGraph: (xs: Edge[]) => Record<Node, Set<Node>> =
   groupByReduce<Edge, Set<Node>, Node>(
     head,
@@ -120,8 +128,10 @@ const onEntries = <
     Object.fromEntries,
   );
 
+/** Map over object entries using a key/value transforming function. */
 export const entryMap: Func = pipe(map, onEntries) as unknown as Func;
 
+/** Filter object entries by a predicate over [key,value]. */
 export const entryFilter: Func = pipe(filter, onEntries) as unknown as Func;
 
 type RecordKey = string | number | symbol;
@@ -141,19 +151,23 @@ type EntryFilter<F extends Func, Key extends RecordKey, Value> = (
 ) => true extends IsAsync<F> ? Awaited<Record<Key, Value>>
   : Record<Key, Value>;
 
+/** Filter object by value predicate. */
 export const valFilter = <Key extends RecordKey, F extends Func>(
   f: F,
 ): EntryFilter<F, Key, ParamOf<F>> => entryFilter(pipe(second, f));
 
+/** Filter object by key predicate. */
 export const keyFilter = <Value, F extends Func>(
   f: F,
 ): EntryFilter<F, ParamOf<F>, Value> => entryFilter(pipe(head, f));
 
+/** Map values in an object. */
 export const valMap = <Key extends RecordKey, OldValue, NewValue>(
   f: (old: OldValue) => NewValue | ((old: OldValue) => Promise<NewValue>),
 ): EntryMap<typeof f, Key, OldValue, Key, NewValue> =>
   entryMap(stack(identity, f));
 
+/** Map keys in an object. */
 export const keyMap = <Value, F extends Func>(
   f: F,
 ): EntryMap<F, ParamOf<F>, Value, ReturnTypeUnwrapped<F>, Value> =>
@@ -162,6 +176,7 @@ export const keyMap = <Value, F extends Func>(
 // Record is untyped but it should have a recursive definition.
 type Tree<Terminal> = Terminal | Tree<Terminal>[] | Record<Primitive, unknown>;
 
+/** Recursively map terminal values within an object/array tree. */
 export const mapTerminals =
   <Terminal extends (string | boolean | number | Func)>(
     terminalMapper: (_: Terminal) => unknown,
@@ -193,11 +208,13 @@ type IsAsyncSpec<T> = {
 type FinalSpecType<T> = IsAsyncSpec<T> extends true ? Promise<SpecType<T>>
   : SpecType<T>;
 
+/** Build a function from a spec tree of functions. */
 export const applySpec =
   <T>(spec: T) => (...args: unknown[]): FinalSpecType<T> =>
     // @ts-expect-error too to bother.
     mapTerminals(applyTo(...args))(spec);
 
+/** Map over array with async function sequentially. */
 export const sequentialMap =
   <F extends UnaryAsync>(f: F) =>
   async (xs: Parameters<F>[0][]): Promise<Awaited<ReturnType<F>>[]> => {

@@ -16,8 +16,8 @@ const reduceHelper = <
   let current = s;
   for (let i = firstIndex; i < xs.length; i++) {
     if (isPromise(current)) {
-      return current.then((s: State) =>
-        reduceHelper(reducer, s, xs, i)
+      return current.then((s) =>
+        reduceHelper(reducer, s as State, xs, i)
       ) as ReturnType<Reducer>;
     }
     current = reducer(current, xs[i]) as State;
@@ -25,6 +25,7 @@ const reduceHelper = <
   return current as ReturnType<Reducer>;
 };
 
+/** Reduce an array with an initial state (sync or async reducer). */
 // deno-lint-ignore no-explicit-any
 export const reduce = <F extends (state: any, element: any) => any>(
   reducer: F,
@@ -38,6 +39,11 @@ export const reduce = <F extends (state: any, element: any) => any>(
     ? Promise<ReturnTypeUnwrapped<F>>
     : ReturnTypeUnwrapped<F>;
 
+/**
+ * Get the minimal element by key function (supports async key).
+ * @example
+ * min((x:number)=>x)([3,1,2]) // 1
+ */
 export const min =
   <F extends Func>(key: F) =>
   (xs: ParamOf<F>[]): IsAsync<F> extends true ? Promise<ParamOf<F>>
@@ -64,6 +70,11 @@ export const min =
       1,
     );
 
+/**
+ * Get the maximal element by key function (supports async key).
+ * @example
+ * max((x:number)=>x)([3,1,2]) // 3
+ */
 export const max =
   <F extends Func>(key: F) =>
   (xs: ParamOf<F>[]): IsAsync<F> extends true ? Promise<ParamOf<F>>

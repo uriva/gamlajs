@@ -17,6 +17,11 @@ const parseStackLine = (stackLine: string): StackFrame | null => {
 const parseStackTrace = (trace: string, picker: (lines: string[]) => string) =>
   parseStackLine(picker(trace.split("\n")));
 
+/**
+ * Get file:line:column of the calling stack frame at given depth.
+ * @example
+ * currentLocation(2) // '/path/file.ts:10:5'
+ */
 export const currentLocation = (depth: number) => {
   const x = parseStackTrace(new Error().stack as string, (x) => x[depth]);
   return x ? frameToString(x) : "stack line could not be parsed";

@@ -9,16 +9,19 @@ import type {
   ReturnTypeUnwrapped,
 } from "./typing.ts";
 
+/** Log value with code location and return it. */
 export const sideLog = <T>(x: T): T => {
   console.log(currentLocation(3), x);
   return x;
 };
 
+/** Log JSONified value with code location and return it. */
 export const sideLogJson = <T>(x: T): T => {
   console.log(currentLocation(3), JSON.stringify(x, null, 2));
   return x;
 };
 
+/** Log inputs and outputs of a function. */
 export const logAround = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
@@ -35,6 +38,7 @@ export const logAround = <F extends Func>(f: F): F => {
   }) as F;
 };
 
+/** Log the output of a function. */
 export const logAfter = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
@@ -50,6 +54,7 @@ export const logAfter = <F extends Func>(f: F): F => {
   }) as F;
 };
 
+/** Log the input of a function. */
 export const logBefore = <F extends Func>(f: F): F => {
   const codeLocation = currentLocation(3);
   return ((...xs) => {
@@ -66,6 +71,7 @@ export const logBefore = <F extends Func>(f: F): F => {
 
 const getTimestampMilliseconds = () => new Date().getTime();
 
+/** Measure and report execution time of a function. */
 export const timeit = <F extends Func>(
   handler: (
     elapsedMilliseconds: number,
@@ -80,8 +86,9 @@ export const timeit = <F extends Func>(
     if (isPromise(result)) {
       return result.then((result) => {
         const elapsed = getTimestampMilliseconds() - started;
-        handler(elapsed, x, result);
-        return result;
+        const r = result as ReturnTypeUnwrapped<F>;
+        handler(elapsed, x, r);
+        return r as unknown as ReturnType<F>;
       });
     }
     const elapsed = getTimestampMilliseconds() - started;
@@ -89,6 +96,7 @@ export const timeit = <F extends Func>(
     return result;
   }) as F;
 
+/** Ensure condition holds; throw with message otherwise. */
 export const assert = <F extends Func>(
   condition: F,
   errorMessage: string,
@@ -110,6 +118,7 @@ export const assert = <F extends Func>(
   ) as true extends IsAsync<F> ? ((t: ParamOf<F>) => Promise<ParamOf<F>>)
     : ((t: ParamOf<F>) => ParamOf<F>);
 
+/** Throw if value is nullish, otherwise return it. */
 export const coerce = <T>(x: T | undefined | null): T => {
   if (x === undefined || x === null) {
     throw new Error(`Got ${x} where value was expected.`);
@@ -121,6 +130,7 @@ type AugmentReturnType<F extends Func, T> = (
   ...inputs: Parameters<F>
 ) => ReturnType<F> | (true extends IsAsync<F> ? Promise<Awaited<T>> : T);
 
+/** Wrap a function with a fallback on exception; supports async. */
 export const tryCatch =
   // deno-lint-ignore no-explicit-any
   <T, Params extends any[]>(fallback: (e: Error, ...xs: Params) => T) =>
@@ -137,6 +147,7 @@ export const tryCatch =
       }
     }) as AugmentReturnType<F, T>;
 
+/** Return null when function throws; works with async. */
 export const catchWithNull: <F extends Func>(
   f: F,
 ) => (

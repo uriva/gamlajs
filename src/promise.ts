@@ -1,17 +1,29 @@
-// Cannot be made point free.
+/**
+ * Wait for all promises to resolve.
+ * @example
+ * await promiseAll([Promise.resolve(1), Promise.resolve(2)]) // [1,2]
+ */
 export const promiseAll = (promises: Promise<unknown>[]): Promise<unknown[]> =>
   Promise.all(promises);
 
-// Cannot be made point free.
+/** Wrap a value in a resolved Promise. */
 export const wrapPromise = <T>(x: T): Promise<T> => Promise.resolve(x);
 
-// deno-lint-ignore no-explicit-any
-export const isPromise = (x: any): x is Promise<any> =>
-  typeof x?.then === "function" && typeof x?.catch === "function" &&
-  typeof x?.finally === "function";
+/** Type guard for Promise-like values. */
+export const isPromise = (x: unknown): x is Promise<unknown> => {
+  if (x == null) return false;
+  const obj = x as { then?: unknown; catch?: unknown; finally?: unknown };
+  return typeof obj.then === "function" && typeof obj.catch === "function" &&
+    typeof obj.finally === "function";
+};
 
 type NullaryFunction = () => void | Promise<void>;
 
+/**
+ * Execute nullary functions one after another, waiting between each.
+ * @example
+ * await doInSequence(() => console.log('a'), () => console.log('b'))
+ */
 export const doInSequence = (
   head: NullaryFunction,
   ...rest: NullaryFunction[]

@@ -9,6 +9,9 @@ type ConstrainedTyping<F extends Func> = F extends
   ((value: ParamOf<F>) => value is infer S) ? S[]
   : ParamOf<F>[];
 
+/** Filter an array by predicate; supports async and type guards.
+ * @example filter((x:number)=>x>1)([1,2,3]) // [2,3]
+ */
 export const filter = <F extends Func>(f: F): (
   _: ParamOf<F>[],
 ) => true extends IsAsync<F> ? Promise<ConstrainedTyping<F>>
@@ -20,6 +23,9 @@ export const filter = <F extends Func>(f: F): (
     map(head),
   );
 
+/** Find first element matching predicate (async supported).
+ * @example await find(async (x:number)=>x>1)([1,2,3]) // 2
+ */
 export const find = <F extends Func>(
   predicate: F,
 ) =>
@@ -45,6 +51,9 @@ export const find = <F extends Func>(
     : undefined;
 };
 
+/** Remove elements matching predicate.
+ * @example remove((x:number)=>x%2===0)([1,2,3]) // [1,3]
+ */
 export const remove = <F extends Func>(
   f: F,
 ): true extends IsAsync<F> ? (x: ParamOf<F>[]) => Promise<ParamOf<F>[]>
@@ -59,11 +68,17 @@ const toContainmentCheck = <T>(xs: T[]): (k: T) => boolean => {
   return (k: T): boolean => set.has(k);
 };
 
+/** Intersect arrays by a key function.
+ * @example intersectBy((x:{id:number})=>x.id)([[{id:1}],[{id:1},{id:2}]]) // [{id:1}]
+ */
 export const intersectBy =
   <T>(f: (x: T) => Primitive) => (arrays: T[][]): T[] =>
     arrays.reduce((current, next) =>
       current.filter(pipe(f, toContainmentCheck(next.map(f))))
     );
 
+/** Remove null values from an array and narrow the type.
+ * @example removeNulls([1,null,2]) // [1,2]
+ */
 export const removeNulls = <T>(x: (T | null)[]): Exclude<T, null>[] =>
   x.filter(<T>(x: T | null): x is Exclude<T, null> => x !== null);

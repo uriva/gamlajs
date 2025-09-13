@@ -45,6 +45,7 @@ type Task<TaskInput, Output> = {
  * Queues the `execute` function until the condition is met or `maxWaitTime` has passed.
  * Once one of the above happens we flush the queue and run the execute functions
  */
+/** Batch inputs by key and flush by size/time predicate. */
 export const batch = <
   TaskKey extends string | number | symbol,
   TaskInput,
@@ -114,6 +115,7 @@ async (...xs: Parameters<F>) => {
   }
 };
 
+/** Utilities to timeout a promise and catch only that timeout error. */
 export const timerCatcher = (): [
   (ms: number, f: AsyncFunction) => AsyncFunction,
   <F extends AsyncFunction, G extends (...args: Parameters<F>) => unknown>(
@@ -150,6 +152,7 @@ const timeoutHelper = (error: Error) =>
     }).catch(reject);
   });
 
+/** Wrap an async function with a timeout. */
 export const timeout: <F extends AsyncFunction>(
   ms: number,
   f: F,
@@ -174,6 +177,7 @@ export const conditionalRetry =
       }
       : f;
 
+/** Retry an async function a number of times with delay. */
 export const retry = <F extends AsyncFunction>(
   waitMs: number,
   times: number,
@@ -182,6 +186,7 @@ export const retry = <F extends AsyncFunction>(
 
 type StableHashType<T> = (value: T) => string;
 
+/** Stable JSON-like hash truncated to maxLength. */
 export const hash = <T>(x: T, maxLength: number): string =>
   encodeHex(sha256(
     new TextEncoder().encode((stableHash as unknown as StableHashType<T>)(x)),

@@ -34,6 +34,7 @@ type Pipeline<Fs extends Func[]> = Fs extends AnyAsync<Fs>
   ? PromisifyFunction<ComposeMany<Fs>>
   : ComposeMany<Fs>;
 
+/** Compose functions left-to-right; supports async seamlessly. */
 const pipeWithoutStack = <Fs extends Func[]>(
   ...fs: ValidPipe<Fs>
 ): Pipeline<Fs> =>
@@ -60,6 +61,7 @@ const augmentAndRethrowException = (location: string) => (e: any): never => {
   throw e;
 };
 
+/** Wrap a function to annotate thrown errors with call-site location. */
 export const errorBoundry = <F extends Func>(f: F): F => {
   const location = currentLocation(4);
   return ((...x): ReturnType<F> => {
@@ -76,6 +78,7 @@ export const errorBoundry = <F extends Func>(f: F): F => {
   }) as F;
 };
 
+/** Pipe functions left-to-right; errors get augmented with stack info. */
 export const pipe: typeof pipeWithoutStack = (...fs) =>
   // @ts-ignore error in deno but not in node
   errorBoundry(pipeWithoutStack(...fs));
@@ -84,11 +87,13 @@ type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
   ? [...Reversed<Rest>, Head]
   : [];
 
+/** Compose functions right-to-left (alias of reversed pipe). */
 export const compose = <Fs extends Func[]>(
   ...fs: Fs
 ): Fs extends ValidPipe<Reversed<Fs>> ? Pipeline<Reversed<Fs>> : never =>
   pipe(...reverse(fs));
 
+/** Create a function that runs g then f(g(...)). */
 export const after = <T>(f: UnaryFn<T, unknown>) =>
 <L extends unknown[]>(
   g: (...args: L) => T,
@@ -96,6 +101,7 @@ export const after = <T>(f: UnaryFn<T, unknown>) =>
   ...args: unknown[]
 ) => unknown);
 
+/** Create a function that runs f1 then f2 on the result. */
 export const before = <T>(f1: (...args: unknown[]) => T) =>
 (
   f2: (input: T) => unknown,
@@ -103,12 +109,14 @@ export const before = <T>(f1: (...args: unknown[]) => T) =>
   ...args: unknown[]
 ) => unknown);
 
+/** Logical NOT of a predicate function. */
 export const complement = <F extends Func>(
   f: F,
 ): (...x: Parameters<F>) => boolean =>
   // @ts-expect-error compiler cannot dynamically infer
   pipe(f, not);
 
+/** Run a side-effect, return the original input (works with async). */
 export const sideEffect =
   <F extends UnaryFnUntyped>(f: F) =>
   (x: ParamOf<F>): true extends IsAsync<F> ? Promise<ParamOf<F>>
@@ -117,6 +125,7 @@ export const sideEffect =
     return (isPromise(result)) ? result.then(() => x) : x;
   };
 
+/** Ensure cleanup runs after f resolves or returns. */
 export const wrapSideEffect = <Args extends unknown[], Result>(
   cleanup: (...args: Args) => void | Promise<void>,
 ) =>
@@ -124,7 +133,8 @@ export const wrapSideEffect = <Args extends unknown[], Result>(
 (...args: Args): Result | Promise<Awaited<Result>> => {
   const result = f(...args);
   if (isPromise(result)) {
-    return result.then((result: Awaited<Result>) => {
+    return result.then((r) => {
+      const result = r as Awaited<Result>;
       const cleanUpResult = cleanup(...args);
       return isPromise(cleanUpResult)
         ? cleanUpResult.then(() => result)
@@ -138,11 +148,15 @@ export const wrapSideEffect = <Args extends unknown[], Result>(
   }
 };
 
+/** Apply args to a function (useful in specs). */
 export const applyTo =
   <A extends unknown[]>(...args: A) => <R>(f: (...args: A) => R): R =>
     f(...args);
 
+/** Constant function returning x. */
 export const always = <T>(x: T): () => T => () => x;
+/** Return input as-is. */
 export const identity = <T>(x: T): T => x;
 
+/** Lazily resolve a function before first call. */
 export const thunk = <F extends Func>(f: () => F) => ((...x) => f()(...x)) as F;

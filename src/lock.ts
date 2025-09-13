@@ -1,6 +1,7 @@
 import { coerce } from "./debug.ts";
 import type { AsyncFunction, Func } from "./typing.ts";
 
+/** Serialize async function calls to run one at a time. */
 export const sequentialized = <F extends AsyncFunction>(
   f: F,
 ): (...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>> => {
@@ -91,6 +92,7 @@ type RateLimitParmas<F extends Func> = {
   f: F;
 };
 
+/** Rate-limit an async function by calls and weight per key. */
 export const rateLimit = <F extends AsyncFunction>(
   params: RateLimitParmas<F>,
 ): F => {
@@ -139,6 +141,7 @@ const semaphore = (max: number): {
   };
 };
 
+/** Limit concurrency of an async function to N at a time. */
 export const throttle = (max: number): <F extends AsyncFunction>(f: F) => F => {
   const { acquire, release } = semaphore(max);
   // @ts-expect-error too complex

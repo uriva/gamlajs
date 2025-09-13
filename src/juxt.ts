@@ -29,6 +29,7 @@ type juxtCatOutput<Functions extends Func[]> = Functions extends
   AnyAsync<Functions> ? Promise<ArrayOfOneOf<AwaitedResults<Functions>>>
   : ArrayOfOneOf<Results<Functions>>;
 
+/** Apply multiple functions to the same input(s) and collect results. */
 export const juxt = <Fs extends Func[]>(...fs: Fs) =>
 (
   ...x: Parameters<Fs[0]>
@@ -45,12 +46,15 @@ export const juxt = <Fs extends Func[]>(...fs: Fs) =>
 
 type PairOut<A, R> = R extends Promise<infer PR> ? Promise<[A, PR]> : [A, R];
 
+/** Pair input with f(input) on the right. */
 export const pairRight = <A, R>(f: (a: A) => R) => (a: A): PairOut<A, R> =>
   juxt(identity<A>, f)(a) as unknown as PairOut<A, R>;
 
+/** Pair f(input) with input on the right. */
 export const pairLeft = <A, R>(f: (a: A) => R) => (a: A): PairOut<A, R> =>
   juxt(f, identity<A>)(a) as unknown as PairOut<A, R>;
 
+/** Map an array of inputs by a parallel array of functions. */
 export const stack = <Functions extends Func[]>(
   ...functions: Functions
 ): (
@@ -59,12 +63,14 @@ export const stack = <Functions extends Func[]>(
   // @ts-expect-error reason: too complex
   pipe((values) => zip([functions, values]), map(([f, x]) => f(x)));
 
+/** Apply multiple functions and then concat their results. */
 export const juxtCat = <Fs extends Func[]>(
   ...fs: Fs
 ): (..._: Parameters<Fs[0]>) => juxtCatOutput<Fs> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
+/** True if all functions return truthy for the same args. */
 export const alljuxt = <Fs extends Func[]>(
   ...fs: Fs
 ) =>
@@ -74,6 +80,7 @@ export const alljuxt = <Fs extends Func[]>(
   // @ts-expect-error cannot infer
   allmap((f) => f(...xs))(fs);
 
+/** True if any function returns truthy for the same args. */
 export const anyjuxt = <Fs extends Func[]>(
   ...fs: Fs
 ) =>

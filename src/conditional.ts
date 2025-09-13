@@ -5,6 +5,7 @@ import { pipe } from "./composition.ts";
 import { filter } from "./filter.ts";
 import { isPromise } from "./promise.ts";
 
+/** Branch execution by predicate; supports async transparently. */
 export const ifElse =
   <Predicate extends Func, If extends Func, Else extends Func>(
     predicate: Predicate,
@@ -33,11 +34,13 @@ type WhenUnless<Predicate extends Func, Resolver extends Func> = (
   ? Promise<ParamOf<Predicate> | ReturnTypeUnwrapped<Resolver>>
   : ParamOf<Predicate> | ReturnType<Resolver>;
 
+/** Return input unless predicate is true, otherwise apply fFalse. */
 export const unless = <F extends Func, G extends Func>(
   predicate: F,
   fFalse: G,
 ): WhenUnless<F, G> => ifElse(predicate, (...x: Parameters<F>) => x[0], fFalse);
 
+/** Apply fTrue only when predicate holds, else return input. */
 export const when = <F extends Func, G extends Func>(
   predicate: F,
   fTrue: G,
@@ -47,17 +50,22 @@ type ReturnTypeOfSecondOfElements<Fs extends [Func, Func][]> = {
   [K in keyof Fs]: ReturnType<Fs[K][1]>;
 }[number];
 
+/** Choose the first matching [predicate, resolver]. */
 export const cond =
   <Fss extends [Func, Func][]>(predicatesAndResolvers: Fss) =>
   (...x: Parameters<Fss[0][0]>): ReturnTypeOfSecondOfElements<Fss> =>
     // @ts-expect-error cannot infer
     pipe(
-      filter(pipe(head, (predicate) => predicate(...x))),
+      // Cast head for TS to accept the composition chain
+      filter(pipe(head as unknown as (y: unknown) => unknown, (predicate) =>
+        (predicate as Func)(...x))),
       head,
       second,
-      (f) => f(...x),
+      (f) =>
+        f(...x),
     )(predicatesAndResolvers);
 
+/** Like cond but evaluates predicates lazily one by one. */
 export const lazyCond =
   <Fss extends [Func, Func][]>(predicatesAndResolvers: Fss) =>
   (...args: Parameters<Fss[0][0]>): ReturnTypeOfSecondOfElements<Fss> => {

@@ -16,9 +16,19 @@ const mapWithoutStack = <F extends UnaryFnUntyped>(f: F) =>
   return results.some(isPromise) ? Promise.all(results) : results;
 };
 
+/**
+ * Map over an array with a function, auto-flattening Promises.
+ * @example
+ * await map(async (x:number)=>x+1)([1,2]) // [2,3]
+ */
 export const map: typeof mapWithoutStack = (...fs) =>
   errorBoundry(mapWithoutStack(...fs));
 
+/**
+ * Run a function for each element (collects pending Promises if returned).
+ * @example
+ * await each(async (x:number)=>console.log(x))([1,2])
+ */
 export const each = <F extends UnaryFnUntyped>(f: F) =>
 (
   xs: Parameters<F>[0][],
@@ -36,5 +46,10 @@ export const each = <F extends UnaryFnUntyped>(f: F) =>
   return undefined as unknown as true extends IsAsync<F> ? Promise<void> : void;
 };
 
+/**
+ * Map and flatten one level (map then concat).
+ * @example
+ * mapCat((x:number)=>[x,x])([1,2]) // [1,1,2,2]
+ */
 export const mapCat = <T, G>(f: Unary<T, G>) => (x: T[]): G =>
   pipe(map(f), reduce((a, b) => a.concat(b), () => []))(x);
