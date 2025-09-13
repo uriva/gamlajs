@@ -26,22 +26,27 @@ const reduceHelper = <
 };
 
 // deno-lint-ignore no-explicit-any
-export const reduce = <Function extends (state: any, element: any) => any>(
-  reducer: Function,
-  initial: () => ReturnTypeUnwrapped<Function>,
+export const reduce = <F extends (state: any, element: any) => any>(
+  reducer: F,
+  initial: () => ReturnTypeUnwrapped<F>,
 ) =>
-(xs: Parameters<Function>[1][]): ReturnTypeUnwrapped<Function> =>
-  reduceHelper(reducer, initial(), xs, 0) as ReturnTypeUnwrapped<Function>;
+(
+  xs: Parameters<F>[1][],
+): IsAsync<F> extends true ? Promise<ReturnTypeUnwrapped<F>>
+  : ReturnTypeUnwrapped<F> =>
+  reduceHelper(reducer, initial(), xs, 0) as IsAsync<F> extends true
+    ? Promise<ReturnTypeUnwrapped<F>>
+    : ReturnTypeUnwrapped<F>;
 
 export const min =
   <F extends Func>(key: F) =>
-  (xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<ParamOf<F>>
+  (xs: ParamOf<F>[]): IsAsync<F> extends true ? Promise<ParamOf<F>>
     : ParamOf<F> =>
     reduceHelper(
       (
         s: ParamOf<F>,
         x: ParamOf<F>,
-      ): true extends IsAsync<F> ? Promise<ParamOf<F>>
+      ): IsAsync<F> extends true ? Promise<ParamOf<F>>
         : ParamOf<F> => {
         const keyS = key(s);
         const keyX = key(x);
@@ -51,7 +56,7 @@ export const min =
           )
           : key(s) < key(x)
           ? s
-          : x) as true extends IsAsync<F> ? Promise<ParamOf<F>>
+          : x) as IsAsync<F> extends true ? Promise<ParamOf<F>>
             : ParamOf<F>;
       },
       xs[0],
@@ -61,13 +66,13 @@ export const min =
 
 export const max =
   <F extends Func>(key: F) =>
-  (xs: ParamOf<F>[]): true extends IsAsync<F> ? Promise<ParamOf<F>>
+  (xs: ParamOf<F>[]): IsAsync<F> extends true ? Promise<ParamOf<F>>
     : ParamOf<F> =>
     reduceHelper(
       (
         s: ParamOf<F>,
         x: ParamOf<F>,
-      ): true extends IsAsync<F> ? Promise<ParamOf<F>>
+      ): IsAsync<F> extends true ? Promise<ParamOf<F>>
         : ParamOf<F> => {
         const keyS = key(s);
         const keyX = key(x);
@@ -77,7 +82,7 @@ export const max =
           )
           : key(s) < key(x)
           ? x
-          : s) as true extends IsAsync<F> ? Promise<ParamOf<F>>
+          : s) as IsAsync<F> extends true ? Promise<ParamOf<F>>
             : ParamOf<F>;
       },
       xs[0],

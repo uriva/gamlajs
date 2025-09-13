@@ -58,3 +58,9 @@ const _4: Promise<number> = max((x: number) => Promise.resolve(x))([
   3,
   4,
 ]);
+
+const _5: Promise<Record<string, number>> = reduce(
+  (x, y): Promise<Record<string, number>> =>
+    Promise.resolve({ ...x, [y]: (x[y] || 0) + 1 }),
+  () => ({}),
+)([1, 2, 3]);
