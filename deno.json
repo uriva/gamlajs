@@ -1,6 +1,6 @@
 {
   "name": "@uri/gamla",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "license": "MIT",
   "exports": "./src/index.ts",
   "imports": {
@@ -9,6 +9,6 @@
     "@noble/hashes": "jsr:@noble/hashes@2.0.0",
     "@std/encoding": "jsr:@std/encoding@0.224.0/hex",
     "@noble/hashes/sha2.js": "jsr:@noble/hashes@2.0.0/sha2.js",
-    "stable-hash": "npm:stable-hash@0.0.4"
+    "stable-hash": "npm:stable-hash@0.0.6"
   }
 }
