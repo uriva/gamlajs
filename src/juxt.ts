@@ -43,10 +43,13 @@ export const juxt = <Fs extends Func[]>(...fs: Fs) =>
   return anyAsync ? Promise.all(result) : result;
 };
 
-export const pairRight = <F extends Func>(f: F) =>
-  juxt(identity<ParamOf<F>>, f);
+type PairOut<A, R> = R extends Promise<infer PR> ? Promise<[A, PR]> : [A, R];
 
-export const pairLeft = <F extends Func>(f: F) => juxt(f, identity<ParamOf<F>>);
+export const pairRight = <A, R>(f: (a: A) => R) => (a: A): PairOut<A, R> =>
+  juxt(identity<A>, f)(a) as unknown as PairOut<A, R>;
+
+export const pairLeft = <A, R>(f: (a: A) => R) => (a: A): PairOut<A, R> =>
+  juxt(f, identity<A>)(a) as unknown as PairOut<A, R>;
 
 export const stack = <Functions extends Func[]>(
   ...functions: Functions

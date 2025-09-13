@@ -1,3 +1,5 @@
+import { assertEquals } from "@std/assert";
+import { head } from "./array.ts";
 import {
   addEntry,
   applySpec,
@@ -11,9 +13,6 @@ import {
   valMap,
   wrapObject,
 } from "./mapping.ts";
-
-import { assertEquals } from "std-assert";
-import { head } from "./array.ts";
 import { wrapPromise } from "./promise.ts";
 import { sleep } from "./time.ts";
 

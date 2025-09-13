@@ -1,5 +1,5 @@
 // Cannot be made point free.
-export const promiseAll = (promises: Promise<unknown>[]) =>
+export const promiseAll = (promises: Promise<unknown>[]): Promise<unknown[]> =>
   Promise.all(promises);
 
 // Cannot be made point free.

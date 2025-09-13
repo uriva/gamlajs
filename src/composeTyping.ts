@@ -1,4 +1,4 @@
-import { Func, IsAsync } from "./typing.ts";
+import type { Func, IsAsync } from "./typing.ts";
 
 type Identity = <K>(x: K) => K;
 

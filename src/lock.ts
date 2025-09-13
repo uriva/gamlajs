@@ -1,7 +1,9 @@
 import { coerce } from "./debug.ts";
 import type { AsyncFunction, Func } from "./typing.ts";
 
-export const sequentialized = <F extends AsyncFunction>(f: F) => {
+export const sequentialized = <F extends AsyncFunction>(
+  f: F,
+): (...args: Parameters<F>) => Promise<Awaited<ReturnType<F>>> => {
   type QueueElement = [
     Parameters<F>,
     (_: Awaited<ReturnType<F>>) => void,
@@ -10,7 +12,7 @@ export const sequentialized = <F extends AsyncFunction>(f: F) => {
   ];
   const queue: QueueElement[] = [];
   const lock = { isLocked: false };
-  return (...args: Parameters<F>) =>
+  return (...args: Parameters<F>): Promise<Awaited<ReturnType<F>>> =>
     // deno-lint-ignore no-async-promise-executor
     new Promise(async (resolve, reject) => {
       queue.push([args, resolve, reject]);
@@ -106,7 +108,10 @@ export const rateLimit = <F extends AsyncFunction>(
   }) as F;
 };
 
-const semaphore = (max: number) => {
+const semaphore = (max: number): {
+  acquire: () => Promise<void>;
+  release: () => void;
+} => {
   let counter = 0;
   const waiting: (() => void)[] = [];
   const take = () => {
@@ -134,7 +139,7 @@ const semaphore = (max: number) => {
   };
 };
 
-export const throttle = (max: number) => {
+export const throttle = (max: number): <F extends AsyncFunction>(f: F) => F => {
   const { acquire, release } = semaphore(max);
   // @ts-expect-error too complex
   return <F extends AsyncFunction>(f: F): F => async (...args) => {

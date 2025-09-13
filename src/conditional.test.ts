@@ -1,6 +1,5 @@
+import { assertEquals } from "@std/assert";
 import { cond, ifElse, unless, when } from "./conditional.ts";
-
-import { assertEquals } from "std-assert";
 import { pipe } from "./index.ts";
 import { wrapPromise } from "./promise.ts";
 

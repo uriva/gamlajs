@@ -1,7 +1,6 @@
-import { max, min, reduce } from "./reduce.ts";
-
-import { assertEquals } from "std-assert";
+import { assertEquals } from "@std/assert";
 import { wrapPromise } from "./promise.ts";
+import { max, min, reduce } from "./reduce.ts";
 
 Deno.test("reduce", () => {
   const additionReducer = (acc: number, item: number) => acc + item;

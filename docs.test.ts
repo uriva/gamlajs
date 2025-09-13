@@ -1,9 +1,8 @@
+import { assertEquals } from "@std/assert";
 import { complement, pipe } from "./src/composition.ts";
-
-import { anyjuxt } from "./src/juxt.ts";
-import { assertEquals } from "std-assert";
-import { equals } from "./src/operator.ts";
 import { filter } from "./src/filter.ts";
+import { anyjuxt } from "./src/juxt.ts";
+import { equals } from "./src/operator.ts";
 import { reduce } from "./src/reduce.ts";
 import { split } from "./src/string.ts";
 

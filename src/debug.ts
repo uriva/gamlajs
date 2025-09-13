@@ -1,5 +1,4 @@
-import { pipe } from "./composition.ts";
-import { pairRight } from "./juxt.ts";
+// (no-op)
 import { isPromise } from "./promise.ts";
 import { currentLocation } from "./trace.ts";
 import type {
@@ -10,12 +9,12 @@ import type {
   ReturnTypeUnwrapped,
 } from "./typing.ts";
 
-export const sideLog = <T>(x: T) => {
+export const sideLog = <T>(x: T): T => {
   console.log(currentLocation(3), x);
   return x;
 };
 
-export const sideLogJson = <T>(x: T) => {
+export const sideLogJson = <T>(x: T): T => {
   console.log(currentLocation(3), JSON.stringify(x, null, 2));
   return x;
 };
@@ -95,15 +94,21 @@ export const assert = <F extends Func>(
   errorMessage: string,
 ): true extends IsAsync<F> ? ((t: ParamOf<F>) => Promise<ParamOf<F>>)
   : ((t: ParamOf<F>) => ParamOf<F>) =>
-  // @ts-expect-error not sure
-  pipe(
-    // @ts-expect-error not sure
-    pairRight(condition),
-    ([value, passed]: [ParamOf<F>, boolean]) => {
-      if (!passed) throw new Error(errorMessage);
-      return value;
-    },
-  );
+  (
+    (x: ParamOf<F>) => {
+      const result = condition(x);
+      if (isPromise(result)) {
+        return result.then((passed) => {
+          if (!passed) throw new Error(errorMessage);
+          return x;
+        }) as unknown as true extends IsAsync<F> ? Promise<ParamOf<F>>
+          : ParamOf<F>;
+      }
+      if (!result) throw new Error(errorMessage);
+      return x as true extends IsAsync<F> ? Promise<ParamOf<F>> : ParamOf<F>;
+    }
+  ) as true extends IsAsync<F> ? ((t: ParamOf<F>) => Promise<ParamOf<F>>)
+    : ((t: ParamOf<F>) => ParamOf<F>);
 
 export const coerce = <T>(x: T | undefined | null): T => {
   if (x === undefined || x === null) {
@@ -132,7 +137,17 @@ export const tryCatch =
       }
     }) as AugmentReturnType<F, T>;
 
-export const catchWithNull = tryCatch(() => null);
+export const catchWithNull: <F extends Func>(
+  f: F,
+) => (
+  ...args: Parameters<F>
+) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null> =
+  // Provide explicit generic parameters to help inference
+  tryCatch<null, unknown[]>(() => null) as unknown as <F extends Func>(
+    f: F,
+  ) => (
+    ...args: Parameters<F>
+  ) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null>;
 
 const makeErrorWithId = (id: string) => {
   const err = new Error();
@@ -182,7 +197,14 @@ const catchErrorWithId =
       throw e;
     });
 
-export const throwerCatcher = () => {
+export const throwerCatcher: () => {
+  thrower: () => never;
+  catcher: <G extends Func>(
+    fallback: G,
+  ) => <F extends Func>(f: F) => (
+    ...xs: Parameters<F>
+  ) => EitherOutput<F, G>;
+} = () => {
   const id = crypto.randomUUID();
   const catcher = catchErrorWithId(id);
   const thrower = () => {
@@ -191,7 +213,14 @@ export const throwerCatcher = () => {
   return { thrower, catcher };
 };
 
-export const throwerCatcherWithValue = <T>() => {
+export const throwerCatcherWithValue = <T>(): {
+  thrower: (value: T) => never;
+  catcher: <G extends (value: T) => unknown>(
+    fallback: G,
+  ) => <F extends Func>(f: F) => (
+    ...xs: Parameters<F>
+  ) => EitherOutput<F, G>;
+} => {
   const id = crypto.randomUUID();
   const catcher = catchErrorWithIdAndValue<T>(id);
   const thrower = (value: T) => {

@@ -1,7 +1,6 @@
-import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
-
-import { assertEquals } from "std-assert";
+import { assertEquals } from "@std/assert";
 import { pipe } from "./composition.ts";
+import { alljuxt, anyjuxt, juxt, juxtCat, pairRight } from "./juxt.ts";
 import { map } from "./map.ts";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";

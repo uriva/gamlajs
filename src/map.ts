@@ -20,15 +20,20 @@ export const map: typeof mapWithoutStack = (...fs) =>
   errorBoundry(mapWithoutStack(...fs));
 
 export const each = <F extends UnaryFnUntyped>(f: F) =>
-// @ts-expect-error ts cannot reason about this
-(xs: Parameters<F>[0][]): true extends IsAsync<F> ? Promise<void> : void => {
+(
+  xs: Parameters<F>[0][],
+): true extends IsAsync<F> ? Promise<void> : void => {
   const results = [];
   for (const x of xs) {
     const result = f(x);
     if (isPromise(result)) results.push(result);
   }
-  // @ts-expect-error ts cannot reason about this dynamic ternary
-  if (results.length) return Promise.all(results).then();
+  if (results.length) {
+    return Promise.all(results).then() as unknown as true extends IsAsync<F>
+      ? Promise<void>
+      : void;
+  }
+  return undefined as unknown as true extends IsAsync<F> ? Promise<void> : void;
 };
 
 export const mapCat = <T, G>(f: Unary<T, G>) => (x: T[]): G =>

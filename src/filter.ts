@@ -54,15 +54,16 @@ export const remove = <F extends Func>(
 
 type Primitive = string | number | boolean | null | undefined;
 
-const toContainmentCheck = <T>(xs: T[]) => {
+const toContainmentCheck = <T>(xs: T[]): (k: T) => boolean => {
   const set = new Set(xs);
-  return (k: T) => set.has(k);
+  return (k: T): boolean => set.has(k);
 };
 
-export const intersectBy = <T>(f: (x: T) => Primitive) => (arrays: T[][]) =>
-  arrays.reduce((current, next) =>
-    current.filter(pipe(f, toContainmentCheck(next.map(f))))
-  );
+export const intersectBy =
+  <T>(f: (x: T) => Primitive) => (arrays: T[][]): T[] =>
+    arrays.reduce((current, next) =>
+      current.filter(pipe(f, toContainmentCheck(next.map(f))))
+    );
 
-export const removeNulls = <T>(x: (T | null)[]) =>
+export const removeNulls = <T>(x: (T | null)[]): Exclude<T, null>[] =>
   x.filter(<T>(x: T | null): x is Exclude<T, null> => x !== null);

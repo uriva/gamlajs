@@ -1,6 +1,5 @@
-import { assert, assertEquals } from "std-assert";
+import { assert, assertEquals } from "@std/assert";
 import { rateLimit, sequentialized, throttle } from "./lock.ts";
-
 import { map } from "./map.ts";
 import { sleep } from "./time.ts";
 

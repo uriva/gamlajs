@@ -3,7 +3,7 @@ import {
   assertEquals,
   assertNotEquals,
   assertRejects,
-} from "std-assert";
+} from "@std/assert";
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";
 import { batch, hash, retry, timeout, timerCatcher } from "./io.ts";

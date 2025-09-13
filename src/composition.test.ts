@@ -1,3 +1,4 @@
+import { assertEquals } from "@std/assert";
 import {
   complement,
   compose,
@@ -5,8 +6,6 @@ import {
   pipe,
   sideEffect,
 } from "./composition.ts";
-
-import { assertEquals } from "std-assert";
 import { multiply } from "./math.ts";
 import { not } from "./operator.ts";
 import { wrapPromise } from "./promise.ts";

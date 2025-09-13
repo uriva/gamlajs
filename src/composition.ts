@@ -43,7 +43,7 @@ const pipeWithoutStack = <Fs extends Func[]>(
     >;
 
 // deno-lint-ignore no-explicit-any
-const augmentAndRethrowException = (location: string) => (e: any) => {
+const augmentAndRethrowException = (location: string) => (e: any): never => {
   if (e === undefined) {
     console.error(`undefined error within ${location}`);
     throw e;
@@ -60,17 +60,19 @@ const augmentAndRethrowException = (location: string) => (e: any) => {
   throw e;
 };
 
-export const errorBoundry = <F extends Func>(f: F) => {
+export const errorBoundry = <F extends Func>(f: F): F => {
   const location = currentLocation(4);
-  return ((...x) => {
+  return ((...x): ReturnType<F> => {
     try {
       const result = f(...x);
-      return isPromise(result)
-        ? result.catch(augmentAndRethrowException(location))
-        : result;
+      return (isPromise(result)
+        ? (result.catch(augmentAndRethrowException(location)) as ReturnType<F>)
+        : result) as ReturnType<F>;
     } catch (e) {
       augmentAndRethrowException(location)(e);
     }
+    // Unreachable, but helps TS understand control flow
+    return undefined as never as ReturnType<F>;
   }) as F;
 };
 
@@ -87,13 +89,19 @@ export const compose = <Fs extends Func[]>(
 ): Fs extends ValidPipe<Reversed<Fs>> ? Pipeline<Reversed<Fs>> : never =>
   pipe(...reverse(fs));
 
-export const after =
-  <T>(f: UnaryFn<T, unknown>) => <L extends unknown[]>(g: (...args: L) => T) =>
-    pipe(g, f);
+export const after = <T>(f: UnaryFn<T, unknown>) =>
+<L extends unknown[]>(
+  g: (...args: L) => T,
+): (...args: L) => unknown => (pipe(g, f) as unknown as (
+  ...args: unknown[]
+) => unknown);
 
-export const before =
-  <T>(f1: (...args: unknown[]) => T) => (f2: (input: T) => unknown) =>
-    pipe(f1, f2);
+export const before = <T>(f1: (...args: unknown[]) => T) =>
+(
+  f2: (input: T) => unknown,
+): (...args: unknown[]) => unknown => (pipe(f1, f2) as unknown as (
+  ...args: unknown[]
+) => unknown);
 
 export const complement = <F extends Func>(
   f: F,
@@ -113,7 +121,7 @@ export const wrapSideEffect = <Args extends unknown[], Result>(
   cleanup: (...args: Args) => void | Promise<void>,
 ) =>
 (f: (...args: Args) => Result) =>
-(...args: Args) => {
+(...args: Args): Result | Promise<Awaited<Result>> => {
   const result = f(...args);
   if (isPromise(result)) {
     return result.then((result: Awaited<Result>) => {
@@ -124,15 +132,17 @@ export const wrapSideEffect = <Args extends unknown[], Result>(
     });
   } else {
     const cleanUpResult = cleanup(...args);
-    return isPromise(cleanUpResult) ? cleanUpResult.then(() => result) : result;
+    return isPromise(cleanUpResult)
+      ? (cleanUpResult.then(() => result) as Promise<Awaited<Result>>)
+      : result;
   }
 };
 
 export const applyTo =
-  <A extends unknown[]>(...args: A) => (f: (...args: A) => unknown) =>
+  <A extends unknown[]>(...args: A) => <R>(f: (...args: A) => R): R =>
     f(...args);
 
-export const always = <T>(x: T) => () => x;
-export const identity = <T>(x: T) => x;
+export const always = <T>(x: T): () => T => () => x;
+export const identity = <T>(x: T): T => x;
 
 export const thunk = <F extends Func>(f: () => F) => ((...x) => f()(...x)) as F;

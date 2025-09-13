@@ -2,18 +2,46 @@
   "version": "5",
   "specifiers": {
     "jsr:@noble/hashes@2.0.0": "2.0.0",
+    "jsr:@std/assert@1.0.14": "1.0.14",
+    "jsr:@std/assert@^1.0.13": "1.0.14",
     "jsr:@std/encoding@*": "1.0.10",
-    "npm:stable-hash@*": "0.0.6"
+    "jsr:@std/encoding@0.224.0": "0.224.0",
+    "jsr:@std/internal@^1.0.10": "1.0.10",
+    "jsr:@std/testing@1.0.15": "1.0.15",
+    "npm:stable-hash@*": "0.0.6",
+    "npm:stable-hash@0.0.4": "0.0.4",
+    "npm:stable-hash@^0.0.4": "0.0.4"
   },
   "jsr": {
     "@noble/hashes@2.0.0": {
       "integrity": "203b1a1d3a3de1e964e482fbe8196963e12d5dc63f280b42eae2fb74131001c8"
     },
+    "@std/assert@1.0.14": {
+      "integrity": "68d0d4a43b365abc927f45a9b85c639ea18a9fab96ad92281e493e4ed84abaa4",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/encoding@0.224.0": {
+      "integrity": "efb6dca97d3e9c31392bd5c8cfd9f9fc9decf5a1f4d1f78af7900a493bcf89b5"
+    },
     "@std/encoding@1.0.10": {
       "integrity": "8783c6384a2d13abd5e9e87a7ae0520a30e9f56aeeaa3bdf910a3eaaf5c811a1"
+    },
+    "@std/internal@1.0.10": {
+      "integrity": "e3be62ce42cab0e177c27698e5d9800122f67b766a0bea6ca4867886cbde8cf7"
+    },
+    "@std/testing@1.0.15": {
+      "integrity": "a490169f5ccb0f3ae9c94fbc69d2cd43603f2cffb41713a85f99bbb0e3087cbc",
+      "dependencies": [
+        "jsr:@std/assert@^1.0.13"
+      ]
     }
   },
   "npm": {
+    "stable-hash@0.0.4": {
+      "integrity": "sha512-LjdcbuBeLcdETCrPn9i8AYAZ1eCtu4ECAWtP7UleOiZ9LzVxRzzUZEoZ8zB24nhkQnDWyET0I+3sWokSDS3E7g=="
+    },
     "stable-hash@0.0.6": {
       "integrity": "sha512-0afH4mobqTybYZsXImQRLOjHV4gvOW+92HdUIax9t7a8d9v54KWykEuMVIcXhD9BCi+w3kS4x7O6fmZQ3JlG/g=="
     }
@@ -52,5 +80,14 @@
     "https://deno.land/std@0.213.0/assert/unreachable.ts": "38cfecb95d8b06906022d2f9474794fca4161a994f83354fd079cac9032b5145",
     "https://deno.land/std@0.213.0/fmt/colors.ts": "aeaee795471b56fc62a3cb2e174ed33e91551b535f44677f6320336aabb54fbb",
     "https://deno.land/std@0.213.0/testing/mock.ts": "4c35c9bc7d63cabceadf8fa1d0771104d754352c54054e11e068f9af08821234"
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@noble/hashes@2.0.0",
+      "jsr:@std/assert@1.0.14",
+      "jsr:@std/encoding@0.224.0",
+      "jsr:@std/testing@1.0.15",
+      "npm:stable-hash@0.0.4"
+    ]
   }
 }

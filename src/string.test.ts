@@ -1,3 +1,4 @@
+import { assertEquals } from "@std/assert";
 import {
   capitalize,
   isValidRegExp,
@@ -7,8 +8,6 @@ import {
   truncate,
   wrapString,
 } from "./string.ts";
-
-import { assertEquals } from "std-assert";
 
 Deno.test("capitalize", () => {
   assertEquals(capitalize("test"), "Test");

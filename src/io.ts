@@ -1,8 +1,8 @@
-import { sha256 } from "jsr:@noble/hashes@2.0.0/sha2.js";
-import { encodeHex } from "jsr:@std/encoding/hex";
-import stableHash from "npm:stable-hash";
+import { sha256 } from "@noble/hashes/sha2.js";
+import { encodeHex } from "@std/encoding";
+import stableHash from "stable-hash";
 import { pipe } from "./composition.ts";
-import { juxt, pairRight, stack } from "./juxt.ts";
+import { juxt, stack } from "./juxt.ts";
 import { map } from "./map.ts";
 import { applySpec } from "./mapping.ts";
 import { prop, spread } from "./operator.ts";
@@ -54,7 +54,9 @@ export const batch = <
   maxWaitMilliseconds: number,
   execute: Executor<TaskInput, Output>,
   condition: (_: TaskInput[]) => boolean,
-) => {
+): (
+  input: TaskInput,
+) => Promise<ElementOf<Output>> => {
   const keyToTasks: Record<TaskKey, Task<TaskInput, Output>[]> = {} as Record<
     TaskKey,
     Task<TaskInput, Output>[]
@@ -72,31 +74,28 @@ export const batch = <
     delete keyToTasks[key];
   };
 
-  return pipe(
-    // @ts-expect-error - suspected bug in ts
-    pairRight(keyFn),
-    ([input, key]: [TaskInput, TaskKey]): Promise<ElementOf<Output>> =>
-      new Promise((resolve, reject) => {
-        keyToTasks[key] = [
-          ...((keyToTasks[key] || []) as Task<TaskInput, Output>[]),
-          { resolve, reject, input },
-        ] as Task<TaskInput, Output>[];
-        if (
-          pipe(
-            map(prop<Task<TaskInput, Output>>()("input")),
-            condition,
-          )(keyToTasks[key])
-        ) {
-          clearAndExecute(key);
-        } else {
-          clearTimeout(keyToTimeout[key]);
-          keyToTimeout[key] = setTimeout(
-            () => clearAndExecute(key),
-            maxWaitMilliseconds,
-          );
-        }
-      }),
-  );
+  return (input: TaskInput): Promise<ElementOf<Output>> =>
+    new Promise((resolve, reject) => {
+      const key = keyFn(input);
+      keyToTasks[key] = [
+        ...((keyToTasks[key] || []) as Task<TaskInput, Output>[]),
+        { resolve, reject, input },
+      ] as Task<TaskInput, Output>[];
+      if (
+        pipe(
+          map(prop<Task<TaskInput, Output>>()("input")),
+          condition,
+        )(keyToTasks[key])
+      ) {
+        clearAndExecute(key);
+      } else {
+        clearTimeout(keyToTimeout[key]);
+        keyToTimeout[key] = setTimeout(
+          () => clearAndExecute(key),
+          maxWaitMilliseconds,
+        );
+      }
+    });
 };
 
 const catchSpecificError = (error: Error) =>
@@ -115,7 +114,13 @@ async (...xs: Parameters<F>) => {
   }
 };
 
-export const timerCatcher = () => {
+export const timerCatcher = (): [
+  (ms: number, f: AsyncFunction) => AsyncFunction,
+  <F extends AsyncFunction, G extends (...args: Parameters<F>) => unknown>(
+    fallback: G,
+    f: F,
+  ) => (...args: Parameters<F>) => ReturnType<F> | ReturnType<G>,
+] => {
   const error = new Error("Timed out");
   const catcher = catchSpecificError(error);
   const thrower = timeoutHelper(error);
@@ -145,7 +150,10 @@ const timeoutHelper = (error: Error) =>
     }).catch(reject);
   });
 
-export const timeout = timeoutHelper(new Error("Timed out"));
+export const timeout: <F extends AsyncFunction>(
+  ms: number,
+  f: F,
+) => F = timeoutHelper(new Error("Timed out"));
 
 export const conditionalRetry =
   // deno-lint-ignore no-explicit-any
@@ -170,11 +178,11 @@ export const retry = <F extends AsyncFunction>(
   waitMs: number,
   times: number,
   f: F,
-) => conditionalRetry(() => true)(waitMs, times, f);
+): F => conditionalRetry(() => true)(waitMs, times, f);
 
 type StableHashType<T> = (value: T) => string;
 
-export const hash = <T>(x: T, maxLength: number) =>
+export const hash = <T>(x: T, maxLength: number): string =>
   encodeHex(sha256(
     new TextEncoder().encode((stableHash as unknown as StableHashType<T>)(x)),
   )).substring(0, maxLength);

@@ -7,9 +7,7 @@ denoo and nodejs.
 
 ## Installation
 
-nodejs: `npm install gamla`
-
-deno: `import { pipe } from "https://deno.land/x/gamla/src/index.ts";`
+jsr:@uri/gamla
 
 ## Intro
 

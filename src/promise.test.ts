@@ -1,4 +1,4 @@
-import { assertEquals } from "std-assert";
+import { assertEquals } from "@std/assert";
 import { isPromise } from "./promise.ts";
 
 Deno.test("isPromise", () => {

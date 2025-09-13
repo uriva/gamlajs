@@ -1,5 +1,4 @@
-import { assert, assertEquals } from "std-assert";
-
+import { assert, assertEquals } from "@std/assert";
 import {
   all,
   allmap,
@@ -22,7 +21,6 @@ import {
   uniqueBy,
   zip,
 } from "./array.ts";
-
 import { sample } from "./index.ts";
 
 const _: number[] = concat([[1, 2, 3], [0, 0, 0]]);

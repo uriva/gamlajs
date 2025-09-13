@@ -1,6 +1,5 @@
+import { assertEquals } from "@std/assert";
 import { each, map, mapCat } from "./map.ts";
-
-import { assertEquals } from "std-assert";
 import { wrapPromise } from "./promise.ts";
 
 [

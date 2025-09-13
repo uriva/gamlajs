@@ -1,14 +1,9 @@
-import {
-  assertSpyCall,
-  assertSpyCalls,
-  spy,
-} from "https://deno.land/std@0.213.0/testing/mock.ts";
-import { assert, timeit, tryCatch } from "./debug.ts";
-
-import { assertEquals, assertThrows } from "std-assert";
-import { sleep } from "./time.ts";
-import { throwerCatcherWithValue } from "./index.ts";
+import { assertEquals, assertThrows } from "@std/assert";
+import { assertSpyCall, assertSpyCalls, spy } from "@std/testing/mock";
 import { pipe } from "./composition.ts";
+import { assert, timeit, tryCatch } from "./debug.ts";
+import { throwerCatcherWithValue } from "./index.ts";
+import { sleep } from "./time.ts";
 
 Deno.test("timeit", () => {
   const logger = (x: string) => console.log(x);

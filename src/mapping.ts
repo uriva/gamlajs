@@ -5,7 +5,7 @@ import { stack } from "./juxt.ts";
 import { map } from "./map.ts";
 import { reduce } from "./reduce.ts";
 import type {
-  AsyncFunction,
+  AsyncFunction as _AsyncFunction,
   ElementOf,
   Func,
   IsAsync,
@@ -25,7 +25,7 @@ export const groupByManyReduce = <T, S, K extends Primitive>(
   reducer: Reducer<T, S>,
   initial: () => S,
 ) =>
-(it: T[]) => {
+(it: T[]): Record<K, S> => {
   const result = {} as Record<K, S>;
   for (const x of it) {
     for (const key of keys(x)) {
@@ -35,7 +35,9 @@ export const groupByManyReduce = <T, S, K extends Primitive>(
   return result;
 };
 
-export const count = reduce(
+export const count: <T extends string | number | symbol>(
+  xs: T[],
+) => Record<T, number> = reduce(
   <T extends string | number | symbol>(
     counts: Record<T, number>,
     element: T,
@@ -54,7 +56,9 @@ export const groupByReduce = <T, S, K extends Primitive>(
   // @ts-expect-error reason: TODO - fix typing
   groupByManyReduce(pipe(key, wrapArray), reducer, initial);
 
-export const groupByMany = <T, K extends Primitive>(keys: (_: T) => K[]) =>
+export const groupByMany = <T, K extends Primitive>(
+  keys: (_: T) => K[],
+): (xs: T[]) => Record<K, T[]> =>
   groupByManyReduce(
     keys,
     (s: T[], x: T) => {
@@ -70,20 +74,23 @@ export const addEntry =
     [key]: value,
   });
 
-export const groupBy = <T, K extends Primitive>(f: Unary<T, K>) =>
+export const groupBy = <T, K extends Primitive>(
+  f: Unary<T, K>,
+): (xs: T[]) => Record<K, T[]> =>
   // @ts-expect-error reason: TODO - fix typing
   groupByMany<T, K>(pipe(f, wrapArray));
 
 type Node = Primitive;
 type Edge = [Node, Node];
-export const edgesToGraph = groupByReduce<Edge, Set<Node>, Node>(
-  head,
-  <Node, Edge extends [Node, Node]>(s: Set<Node>, [_, destination]: Edge) => {
-    s.add(destination);
-    return s;
-  },
-  () => new Set(),
-);
+export const edgesToGraph: (xs: Edge[]) => Record<Node, Set<Node>> =
+  groupByReduce<Edge, Set<Node>, Node>(
+    head,
+    <Node, Edge extends [Node, Node]>(s: Set<Node>, [_, destination]: Edge) => {
+      s.add(destination);
+      return s;
+    },
+    () => new Set(),
+  );
 
 const onEntries = <
   // deno-lint-ignore no-explicit-any
@@ -113,9 +120,9 @@ const onEntries = <
     Object.fromEntries,
   );
 
-export const entryMap = pipe(map, onEntries);
+export const entryMap: Func = pipe(map, onEntries) as unknown as Func;
 
-export const entryFilter = pipe(filter, onEntries);
+export const entryFilter: Func = pipe(filter, onEntries) as unknown as Func;
 
 type RecordKey = string | number | symbol;
 type EntryMap<
@@ -136,26 +143,20 @@ type EntryFilter<F extends Func, Key extends RecordKey, Value> = (
 
 export const valFilter = <Key extends RecordKey, F extends Func>(
   f: F,
-): EntryFilter<F, Key, ParamOf<F>> =>
-  // @ts-expect-error can't infer typing here
-  entryFilter(pipe(second, f));
+): EntryFilter<F, Key, ParamOf<F>> => entryFilter(pipe(second, f));
 
 export const keyFilter = <Value, F extends Func>(
   f: F,
-): EntryFilter<F, ParamOf<F>, Value> =>
-  // @ts-expect-error can't infer typing here
-  entryFilter(pipe(head, f));
+): EntryFilter<F, ParamOf<F>, Value> => entryFilter(pipe(head, f));
 
 export const valMap = <Key extends RecordKey, OldValue, NewValue>(
   f: (old: OldValue) => NewValue | ((old: OldValue) => Promise<NewValue>),
 ): EntryMap<typeof f, Key, OldValue, Key, NewValue> =>
-  // @ts-expect-error can't infer typing here
   entryMap(stack(identity, f));
 
 export const keyMap = <Value, F extends Func>(
   f: F,
 ): EntryMap<F, ParamOf<F>, Value, ReturnTypeUnwrapped<F>, Value> =>
-  // @ts-expect-error can't infer typing here
   entryMap(stack(f, identity));
 
 // Record is untyped but it should have a recursive definition.

@@ -2,7 +2,7 @@ import { wrapArray } from "./array.ts";
 import { pipe } from "./composition.ts";
 import { reduce } from "./reduce.ts";
 
-export const repeat = <T>(element: T, times: number) => {
+export const repeat = <T>(element: T, times: number): T[] => {
   const result = [];
   for (let i = 0; i < times; i++) result.push(element);
   return result;
@@ -23,7 +23,9 @@ export const product = (reduce(
   arrays: GroupOfHomogeneousArrays<Types>,
 ) => ProductOutput<Types>;
 
-export const explode = <OutputType extends unknown[]>(...positions: number[]) =>
+export const explode = <OutputType extends unknown[]>(
+  ...positions: number[]
+): (xs: unknown[]) => ProductOutput<OutputType> =>
   pipe(
     reduce(
       ({ index, result }, current) => {
@@ -34,4 +36,4 @@ export const explode = <OutputType extends unknown[]>(...positions: number[]) =>
     ),
     ({ result }) => result as GroupOfHomogeneousArrays<OutputType>,
     product<OutputType>,
-  );
+  ) as unknown as (xs: unknown[]) => ProductOutput<OutputType>;

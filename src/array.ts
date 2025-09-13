@@ -27,7 +27,8 @@ export const anymap =
     return (promises.length) ? firstTrue(promises) : false;
   };
 
-export const any = <T>(a: T[]) => a.some((x) => x);
+export const any = <T>(a: T[]): boolean =>
+  a.some((x) => x as unknown as boolean);
 
 export const allmap =
   <F extends Func>(f: F) =>
@@ -46,8 +47,10 @@ export const allmap =
       firstTrue(promises.map((x) => x.then((x) => !x))).then((x) => !x);
   };
 
-export const all = <T>(a: T[]) => a.every((x) => x);
-export const join = (str: string) => (x: (string | number)[]) => x.join(str);
+export const all = <T>(a: T[]): boolean =>
+  a.every((x) => x as unknown as boolean);
+export const join = (str: string) => (x: (string | number)[]): string =>
+  x.join(str);
 export const length = <T>(array: T[]) => array.length;
 
 // deno-lint-ignore no-explicit-any
@@ -64,9 +67,9 @@ export const uniqueBy = <T>(key: (x: T) => any) => (array: T[]): T[] => {
   return result;
 };
 
-export const unique = <T>(array: T[]) => Array.from(new Set(array));
+export const unique = <T>(array: T[]): T[] => Array.from(new Set(array));
 
-export const concat = <T>(array: T[][]) => {
+export const concat = <T>(array: T[][]): T[] => {
   const result = [];
   for (const xs of array) {
     for (const x of xs) {
@@ -80,10 +83,10 @@ export const reverse = <T>(
   array: T[],
 ): T[] => array.slice().reverse();
 
-export const tail = <T>(x: T[]) => x.slice(1);
+export const tail = <T>(x: T[]): T[] => x.slice(1);
 // deno-lint-ignore no-explicit-any
 export const head = <T extends (any[] | string)>(x: T): T[0] => x[0];
-export const init = <T>(x: T[]) => x.slice(0, -1);
+export const init = <T>(x: T[]): T[] => x.slice(0, -1);
 // deno-lint-ignore no-explicit-any
 export const second = <T extends (any[] | string)>(x: T): T[1] => x[1];
 // deno-lint-ignore no-explicit-any
@@ -126,10 +129,12 @@ const castToInt = (x: number | boolean) =>
   x === true ? 1 : x === false ? -1 : x;
 
 export const sortCompare =
-  <X>(comparator: (x: X, y: X) => number | boolean) => (xs: X[]) =>
+  <X>(comparator: (x: X, y: X) => number | boolean) => (xs: X[]): X[] =>
     xs.slice().sort((x, y) => castToInt(comparator(x, y)));
 
-export const sort = sortCompare(comparator);
+export function sort<X extends Comparable>(xs: X[]): X[] {
+  return sortCompare<X>(comparator as (x: X, y: X) => number)(xs);
+}
 
 export const sortKey = <F extends Func>(
   key: F & ((x: ParamOf<F>) => Comparable | Promise<Comparable>),
@@ -152,30 +157,31 @@ export const sortKey = <F extends Func>(
     : sortCompare<ParamOf<F>>((a, b) => comparator(key(a), key(b)))(xs);
 };
 
-export const range = (start: number, end: number) => {
+export const range = (start: number, end: number): number[] => {
   const result = [];
   for (let i = start; i < end; i++) result.push(i);
   return result;
 };
 
-export const contains = <T>(x: T) => (array: T[]) => array.includes(x);
-export const includedIn = <T>(array: T[]) => (x: T) => array.includes(x);
+export const contains = <T>(x: T) => (array: T[]): boolean => array.includes(x);
+export const includedIn = <T>(array: T[]) => (x: T): boolean =>
+  array.includes(x);
 
-export const take = <T>(n: number) => (xs: T[]) => xs.slice(0, n);
+export const take = <T>(n: number) => (xs: T[]): T[] => xs.slice(0, n);
 
-export const sample = <T>(n: number) => (xs: T[]) =>
+export const sample = <T>(n: number) => (xs: T[]): T[] =>
   xs.slice()
     .map((value, index) => [Math.random(), value, index] as [number, T, number])
     .sort(([a], [b]) => a - b)
     .slice(0, Math.min(n, xs.length))
     .map(([, value]) => value);
 
-export const drop = <T>(n: number) => (xs: T[]) => xs.slice(n);
+export const drop = <T>(n: number) => (xs: T[]): T[] => xs.slice(n);
 
 export const enumerate = <T>(xs: T[]): [number, T][] =>
   xs.map((x, i) => [i, x]);
 
-export const slidingWindow = <T>(l: number) => (xs: T[]) =>
+export const slidingWindow = <T>(l: number) => (xs: T[]): T[][] =>
   xs.flatMap((_, i) => (i <= xs.length - l ? [xs.slice(i, i + l)] : []));
 
 export const append = <T>(element: T) => (arr: T[]) => [...arr, element];

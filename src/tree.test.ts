@@ -1,7 +1,7 @@
-import { assertEquals } from "std-assert";
+import { assertEquals } from "@std/assert";
+import { sum } from "./math.ts";
 import { prop } from "./operator.ts";
 import { reduceTree } from "./tree.ts";
-import { sum } from "./math.ts";
 
 Deno.test("reduceTree", () => {
   type Tree = { payload: number; children: Tree[] };

@@ -1,23 +1,26 @@
 import type { Func } from "./typing.ts";
 
-export const letIn = <T, Output>(value: T, constructor: (input: T) => Output) =>
-  constructor(value);
+export const letIn = <T, Output>(
+  value: T,
+  constructor: (input: T) => Output,
+): Output => constructor(value);
 // deno-lint-ignore no-explicit-any
-export const not = (x: any) => !x;
+export const not = (x: any): boolean => !x;
 // Why prop is written like this: https://chatgpt.com/share/447fc150-948e-4f45-83f7-3ef9410affdd
 export const prop = <T>() => <K extends keyof T>(key: K) => (x: T): T[K] =>
   x[key];
 
-export const equals = <T>(x: T) => (y: T) => x === y;
-export const greater = (x: number) => (y: number) => y > x;
-export const smaller = (x: number) => (y: number) => y < x;
-export const greaterEquals = (x: number) => (y: number) => y >= x;
-export const smallerEquals = (x: number) => (y: number) => y <= x;
-export const between = (start: number, end: number) => (x: number) =>
+export const equals = <T>(x: T) => (y: T): boolean => x === y;
+export const greater = (x: number) => (y: number): boolean => y > x;
+export const smaller = (x: number) => (y: number): boolean => y < x;
+export const greaterEquals = (x: number) => (y: number): boolean => y >= x;
+export const smallerEquals = (x: number) => (y: number): boolean => y <= x;
+export const between = (start: number, end: number) => (x: number): boolean =>
   start <= x && x < end;
 // deno-lint-ignore no-explicit-any
 export const unspread = <Inputs extends any[]>(...stuff: Inputs): Inputs =>
   stuff;
-export const spread = <F extends Func>(f: F) => (x: Parameters<F>) =>
-  f(...x) as ReturnType<F>;
-export const modulo = (y: number) => (x: number) => x % y;
+export const spread =
+  <F extends Func>(f: F) => (x: Parameters<F>): ReturnType<F> =>
+    f(...x) as ReturnType<F>;
+export const modulo = (y: number) => (x: number): number => x % y;
