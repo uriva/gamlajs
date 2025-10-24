@@ -64,3 +64,10 @@ export type UnaryAsync = (x: any) => Promise<any>;
 
 export type MakeAsync<F extends Func> = F extends AsyncFunction ? F
   : (...args: Parameters<F>) => Promise<ReturnType<F>>;
+
+/** Constrains an array of functions to all accept the same arguments. */
+export type CompatibleInputs<Fs extends Func[], Args extends unknown[]> =
+  & Fs
+  & {
+    [K in keyof Fs]: Fs[K] extends (...args: Args) => unknown ? Fs[K] : never;
+  };

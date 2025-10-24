@@ -7,6 +7,7 @@ import type {
   Func,
   ParamOf,
   ReturnTypeUnwrapped,
+  CompatibleInputs,
   Union,
 } from "./typing.ts";
 
@@ -30,19 +31,20 @@ type juxtCatOutput<Functions extends Func[]> = Functions extends
   : ArrayOfOneOf<Results<Functions>>;
 
 /** Apply multiple functions to the same input(s) and collect results. */
-export const juxt = <Fs extends Func[]>(...fs: Fs) =>
-(
-  ...x: Parameters<Fs[0]>
-): JuxtOutput<Fs> => {
-  const result = [];
-  let anyAsync = false;
-  for (const f of fs) {
-    result.push(f(...x));
-    anyAsync = anyAsync || isPromise(result[result.length - 1]);
-  }
-  // @ts-expect-error reason=ts does not understand me :_(
-  return anyAsync ? Promise.all(result) : result;
-};
+export const juxt =
+  <Fs extends Func[], Args extends unknown[] = Parameters<Fs[0]>>(
+    ...fs: CompatibleInputs<Fs, Args>
+  ) =>
+  (...x: Args): JuxtOutput<Fs> => {
+    const result = [];
+    let anyAsync = false;
+    for (const f of fs) {
+      result.push(f(...x));
+      anyAsync = anyAsync || isPromise(result[result.length - 1]);
+    }
+    // @ts-expect-error reason=ts does not understand me :_(
+    return anyAsync ? Promise.all(result) : result;
+  };
 
 type PairOut<A, R> = R extends Promise<infer PR> ? Promise<[A, PR]> : [A, R];
 
@@ -66,10 +68,8 @@ export const stack = <Functions extends Func[]>(
 /** Apply multiple functions and then concat their results. */
 export const juxtCat = <
   Fs extends Func[],
-  Args extends unknown[] = Parameters<Fs[0]>
->(
-  ...fs: Fs & { [K in keyof Fs]: Fs[K] extends (...args: Args) => unknown ? Fs[K] : never }
-): (..._: Args) => juxtCatOutput<Fs> =>
+  Args extends unknown[] = Parameters<Fs[0]>,
+>(...fs: CompatibleInputs<Fs, Args>): (..._: Args) => juxtCatOutput<Fs> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 

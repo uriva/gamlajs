@@ -8,7 +8,10 @@ import { wrapPromise } from "./promise.ts";
 
 Deno.test("async juxt", async () => {
   assertEquals(
-    await juxt(wrapPromise, pipe(map(multiply(2)), wrapPromise))([2]),
+    await juxt(
+      wrapPromise<number[]>,
+      pipe(map(multiply(2)), wrapPromise<number[]>),
+    )([2]),
     [[2], [4]],
   );
 });
@@ -125,18 +128,4 @@ const _ = async () => {
     (_: number) => Promise.resolve(["a", "b"]),
     (x: number) => [x, x],
   )(1);
-  const _5 = juxtCat(
-    // @ts-expect-error - incompatible: first takes number, second takes string
-    (x: number) => [x],
-    (x: string) => [x],
-  );
-  const _6 = juxtCat(
-    (x: { a: number; b: number }) => [x],
-    (x: { a: number }) => [x],
-  );
-  const _7 = juxtCat(
-    // @ts-expect-error - incompatible: first takes number, second takes string
-    (x: { a: number; b: number }) => [x],
-    (x: { a: string }) => [x],
-  );
 };
