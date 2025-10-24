@@ -64,9 +64,12 @@ export const stack = <Functions extends Func[]>(
   pipe((values) => zip([functions, values]), map(([f, x]) => f(x)));
 
 /** Apply multiple functions and then concat their results. */
-export const juxtCat = <Fs extends Func[]>(
-  ...fs: Fs
-): (..._: Parameters<Fs[0]>) => juxtCatOutput<Fs> =>
+export const juxtCat = <
+  Fs extends Func[],
+  Args extends unknown[] = Parameters<Fs[0]>
+>(
+  ...fs: Fs & { [K in keyof Fs]: Fs[K] extends (...args: Args) => unknown ? Fs[K] : never }
+): (..._: Args) => juxtCatOutput<Fs> =>
   // @ts-expect-error too complex
   pipe(juxt(...fs), concat);
 
