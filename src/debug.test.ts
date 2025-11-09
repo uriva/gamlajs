@@ -76,8 +76,16 @@ Deno.test("tryCatch", () => {
   assertThrows(() => {
     f(3);
   });
-  assertEquals(tryCatch((_e, _: number) => null)(f)(3), null);
+  assertEquals(tryCatch(() => null)(f)(3), null);
 });
+
+const _augmentedType: (n: number) => number | null = tryCatch(() => null)((
+  n: number,
+) => n);
+
+const _augmentedTypeAsync: (n: number) => Promise<number | null> = tryCatch(
+  () => null,
+)((n: number) => Promise.resolve(n));
 
 Deno.test("tryCatch async", async () => {
   const f = (x: number) =>
@@ -93,6 +101,11 @@ Deno.test("tryCatch async", async () => {
     // Thrown successfully.
   }
   assertEquals(await tryCatch((_, _1: number) => null)(f)(3), null);
+});
+
+Deno.test("handler doesn't have to do something with param", () => {
+  const f = (bla: string) => bla;
+  tryCatch((_: Error) => {})(f)("hello");
 });
 
 Deno.test("thrower catcher with value", async () => {

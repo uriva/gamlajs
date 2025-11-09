@@ -131,21 +131,20 @@ type AugmentReturnType<F extends Func, T> = (
 ) => ReturnType<F> | (true extends IsAsync<F> ? Promise<Awaited<T>> : T);
 
 /** Wrap a function with a fallback on exception; supports async. */
-export const tryCatch =
+export const tryCatch = <T>(
   // deno-lint-ignore no-explicit-any
-  <T, Params extends any[]>(fallback: (e: Error, ...xs: Params) => T) =>
-  // deno-lint-ignore no-explicit-any
-  <F extends (...xs: Params) => any>(f: F) =>
-    ((...x: Parameters<F>) => {
-      try {
-        const result = f(...x);
-        return isPromise(result)
-          ? result.catch((e) => fallback(e, ...x))
-          : result;
-      } catch (e) {
-        return fallback(e as Error, ...x);
-      }
-    }) as AugmentReturnType<F, T>;
+  fallback: ((e: Error, ...xs: any[]) => T) | ((e: Error) => T),
+) =>
+<F extends Func>(f: F): AugmentReturnType<F, T> => ((...x: Parameters<F>) => {
+  try {
+    const result = f(...x);
+    return isPromise(result)
+      ? result.catch((e: Error) => fallback(e, ...x))
+      : result;
+  } catch (e) {
+    return fallback(e as Error, ...x);
+  }
+});
 
 /** Return null when function throws; works with async. */
 export const catchWithNull: <F extends Func>(
@@ -154,7 +153,7 @@ export const catchWithNull: <F extends Func>(
   ...args: Parameters<F>
 ) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null> =
   // Provide explicit generic parameters to help inference
-  tryCatch<null, unknown[]>(() => null) as unknown as <F extends Func>(
+  tryCatch(() => null) as unknown as <F extends Func>(
     f: F,
   ) => (
     ...args: Parameters<F>
