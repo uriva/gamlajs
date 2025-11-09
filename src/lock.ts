@@ -141,16 +141,26 @@ const semaphore = (max: number): {
   };
 };
 
-/** Limit concurrency of an async function to N at a time. */
-export const throttle = (max: number): <F extends AsyncFunction>(f: F) => F => {
-  const { acquire, release } = semaphore(max);
-  // @ts-expect-error too complex
-  return <F extends AsyncFunction>(f: F): F => async (...args) => {
-    await acquire();
-    try {
-      return await f(...args);
-    } finally {
-      release();
-    }
+/** Limit concurrency of an async function to N at a time per key. */
+export const throttleKey =
+  <F extends AsyncFunction>(key: (...args: Parameters<F>) => string) =>
+  (max: number) =>
+  (f: F): F => {
+    const semaphores = new Map<string, ReturnType<typeof semaphore>>();
+    return (async (...args: Parameters<F>) => {
+      const k = key(...args);
+      if (!semaphores.has(k)) {
+        semaphores.set(k, semaphore(max));
+      }
+      const { acquire, release } = semaphores.get(k)!;
+      await acquire();
+      try {
+        return await f(...args);
+      } finally {
+        release();
+      }
+    }) as F;
   };
-};
+
+/** Limit concurrency of an async function to N at a time. */
+export const throttle = throttleKey(() => "");

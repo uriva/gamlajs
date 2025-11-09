@@ -1,5 +1,5 @@
 import { assert, assertEquals } from "@std/assert";
-import { rateLimit, sequentialized, throttle } from "./lock.ts";
+import { rateLimit, sequentialized, throttle, throttleKey } from "./lock.ts";
 import { map } from "./map.ts";
 import { sleep } from "./time.ts";
 
@@ -105,4 +105,22 @@ Deno.test("rate limiter by weight", async () => {
   const startTime = Date.now();
   assertEquals(await Promise.all(tasks.map(rateLimitedFunction)), tasks);
   assert(Date.now() - startTime >= timeWindowMs);
+});
+
+Deno.test("throttleKey", async () => {
+  const results: string[] = [];
+  const f = throttleKey((x: string) => x)(1)(async (x: string) => {
+    await sleep(100);
+    results.push(x);
+    return x;
+  });
+
+  const start = Date.now();
+  await Promise.all([f("a"), f("b"), f("a")]);
+  const elapsed = Date.now() - start;
+
+  // "a" and "b" should run in parallel (same key gets throttled)
+  // So we expect approximately 200ms (2 sequential for "a", 1 for "b" in parallel)
+  assert(elapsed >= 200 && elapsed < 300);
+  assertEquals(results.sort(), ["a", "a", "b"]);
 });
