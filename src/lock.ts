@@ -163,4 +163,6 @@ export const throttleKey =
   };
 
 /** Limit concurrency of an async function to N at a time. */
-export const throttle: ReturnType<typeof throttleKey> = throttleKey(() => "");
+export const throttle: <F extends AsyncFunction>(
+  max: number,
+) => (f: F) => F = throttleKey(() => "");
