@@ -126,36 +126,52 @@ export const coerce = <T>(x: T | undefined | null): T => {
   return x;
 };
 
-type AugmentReturnType<F extends Func, T> = (
-  ...inputs: Parameters<F>
-) => ReturnType<F> | (true extends IsAsync<F> ? Promise<Awaited<T>> : T);
+type AugmentReturnType<F extends Func, T> = true extends IsAsync<F> ? (
+    ...inputs: Parameters<F>
+  ) => Promise<Awaited<ReturnType<F>> | Awaited<T>>
+  : (
+    ...inputs: Parameters<F>
+  ) => ReturnType<F> | T;
 
 /** Wrap a function with a fallback on exception; supports async. */
-export const tryCatch = <T>(
+// Overloads keep fallback parameters strictly correlated with the wrapped function
+// Put the simpler overload first to avoid ambiguous inference when fallback ignores args
+export function tryCatch<T>(
+  fallback: (e: Error) => T,
+): <F extends Func>(f: F) => AugmentReturnType<F, T>;
+export function tryCatch<T, P extends unknown[]>(
+  fallback: (e: Error, ...xs: P) => T,
+): <F extends (...args: P) => unknown>(f: F) => AugmentReturnType<F, T>;
+// Implementation
+export function tryCatch<T>(
   // deno-lint-ignore no-explicit-any
   fallback: ((e: Error, ...xs: any[]) => T) | ((e: Error) => T),
-) =>
-<F extends Func>(f: F): AugmentReturnType<F, T> => ((...x: Parameters<F>) => {
-  try {
-    const result = f(...x);
-    return isPromise(result)
-      ? result.catch((e: Error) => fallback(e, ...x))
-      : result;
-  } catch (e) {
-    return fallback(e as Error, ...x);
-  }
-});
+) {
+  return function <F extends Func>(f: F): AugmentReturnType<F, T> {
+    return ((...x: Parameters<F>) => {
+      try {
+        const result = f(...x);
+        return isPromise(result)
+          ? result.catch((e: Error) =>
+            (fallback as (
+              e: Error,
+              ...xs: Parameters<F>
+            ) => T)(e, ...x)
+          )
+          : result;
+      } catch (e) {
+        return (fallback as (e: Error, ...xs: Parameters<F>) => T)(
+          e as Error,
+          ...x,
+        );
+      }
+    });
+  };
+}
 
 /** Return null when function throws; works with async. */
-export const catchWithNull: <F extends Func>(
-  f: F,
-) => (
-  ...args: Parameters<F>
-) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null> =
-  // Provide explicit generic parameters to help inference
-  tryCatch(() => null) as unknown as <F extends Func>(
-    f: F,
-  ) => (
+export const catchWithNull = <F extends Func>(f: F) =>
+  tryCatch<null>(() => null)(f) as (
     ...args: Parameters<F>
   ) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null>;
 
@@ -183,19 +199,19 @@ const handleAsyncOrSyncException = <T, E, F extends Func>(
   }
 };
 
-const catchErrorWithIdAndValue = <T>(id: string) =>
-// deno-lint-ignore no-explicit-any
-<G extends (value: T) => any>(fallback: G) =>
-<F extends Func>(f: F) =>
-(...xs: Parameters<F>): EitherOutput<F, G> =>
-  handleAsyncOrSyncException(
-    f,
-    xs,
-    (e: Error & { id: string; payload: T }) => {
-      if (e.id === id) return fallback(e.payload);
-      throw e;
-    },
-  );
+const catchErrorWithIdAndValue =
+  <T>(id: string) =>
+  <G extends (value: T) => unknown>(fallback: G) =>
+  <F extends Func>(f: F) =>
+  (...xs: Parameters<F>): EitherOutput<F, G> =>
+    handleAsyncOrSyncException(
+      f,
+      xs,
+      (e: Error & { id: string; payload: T }) => {
+        if (e.id === id) return fallback(e.payload);
+        throw e;
+      },
+    );
 
 const catchErrorWithId =
   (id: string) =>

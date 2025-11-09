@@ -87,6 +87,15 @@ const _augmentedTypeAsync: (n: number) => Promise<number | null> = tryCatch(
   () => null,
 )((n: number) => Promise.resolve(n));
 
+// @ts-expect-error should throw - fallback expects string but wrapped function expects number
+tryCatch((_e: Error, _n: string) => null)((n: number, _extra?: boolean) => n);
+
+// Should pass - fallback expects Error and number, wrapped function expects number
+tryCatch((_e: Error, _n: string) => null)((n: string, _extra?: boolean) => n);
+
+// single variable works too (should be typed as Error)
+tryCatch((_e) => {})((n: number) => n);
+
 Deno.test("tryCatch async", async () => {
   const f = (x: number) =>
     new Promise((resolve) => {
@@ -100,7 +109,7 @@ Deno.test("tryCatch async", async () => {
   } catch {
     // Thrown successfully.
   }
-  assertEquals(await tryCatch((_, _1: number) => null)(f)(3), null);
+  assertEquals(await tryCatch((_: Error, _1: number) => null)(f)(3), null);
 });
 
 Deno.test("handler doesn't have to do something with param", () => {
