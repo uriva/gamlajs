@@ -175,8 +175,8 @@ export const catchWithNull = <F extends Func>(f: F) =>
     ...args: Parameters<F>
   ) => ReturnType<F> | Promise<Awaited<ReturnType<F>> | null>;
 
-const makeErrorWithId = (id: string) => {
-  const err = new Error();
+const makeErrorWithId = (message: string, id: string) => {
+  const err = new Error(message);
   // @ts-expect-error changes the typing of `Error`
   err.id = id;
   return err;
@@ -223,23 +223,23 @@ const catchErrorWithId =
       throw e;
     });
 
-export const throwerCatcher: () => {
+export const throwerCatcher: (message: string) => {
   thrower: () => never;
   catcher: <G extends Func>(
     fallback: G,
   ) => <F extends Func>(f: F) => (
     ...xs: Parameters<F>
   ) => EitherOutput<F, G>;
-} = () => {
+} = (message: string) => {
   const id = crypto.randomUUID();
   const catcher = catchErrorWithId(id);
   const thrower = () => {
-    throw makeErrorWithId(id);
+    throw makeErrorWithId(message, id);
   };
   return { thrower, catcher };
 };
 
-export const throwerCatcherWithValue = <T>(): {
+export const throwerCatcherWithValue = <T>(message: string): {
   thrower: (value: T) => never;
   catcher: <G extends (value: T) => unknown>(
     fallback: G,
@@ -250,7 +250,7 @@ export const throwerCatcherWithValue = <T>(): {
   const id = crypto.randomUUID();
   const catcher = catchErrorWithIdAndValue<T>(id);
   const thrower = (value: T) => {
-    const e = makeErrorWithId(id);
+    const e = makeErrorWithId(message, id);
     // @ts-expect-error This code has a distinct type of `Error`
     e.payload = value;
     throw e;

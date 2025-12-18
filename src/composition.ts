@@ -79,9 +79,10 @@ export const errorBoundry = <F extends Func>(f: F): F => {
 };
 
 /** Pipe functions left-to-right; errors get augmented with stack info. */
-export const pipe: typeof pipeWithoutStack = (...fs) =>
-  // @ts-ignore error in deno but not in node
-  errorBoundry(pipeWithoutStack(...fs));
+export const pipe = <Fs extends Func[]>(
+  ...fs: ValidPipe<Fs>
+): Pipeline<Fs> =>
+  errorBoundry(pipeWithoutStack(...(fs as Func[]))) as Pipeline<Fs>;
 
 type Reversed<Tuple> = Tuple extends [infer Head, ...infer Rest]
   ? [...Reversed<Rest>, Head]

@@ -118,7 +118,7 @@ Deno.test("handler doesn't have to do something with param", () => {
 });
 
 Deno.test("thrower catcher with value", async () => {
-  const { thrower, catcher } = throwerCatcherWithValue<string>();
+  const { thrower, catcher } = throwerCatcherWithValue<string>("some error");
   const expectation = "hello";
   let result = "";
   const fAsync = (_: string) => {
@@ -133,7 +133,7 @@ Deno.test("thrower catcher with value", async () => {
   assertEquals(result, expectation);
 });
 
-const { catcher } = throwerCatcherWithValue<string>();
+const { catcher } = throwerCatcherWithValue<string>("some error");
 const f = catcher((_: string) => 7)((_: string) => {
   return Promise.resolve("bla");
 });
