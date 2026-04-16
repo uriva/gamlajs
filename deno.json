@@ -1,6 +1,6 @@
 {
   "name": "@uri/gamla",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "license": "MIT",
   "exports": "./src/index.ts",
   "imports": {

@@ -16,6 +16,10 @@ export const average = (arr: number[]): number => sum(arr) / arr.length;
 /** Multiply two numbers (alias). @example multiply(3)(4) // 12 */
 export const multiply = (x: number) => (y: number): number => x * y;
 
+/** Random integer between 0 and maxInclusive. @example randomInt(2) // 0, 1, or 2 */
+export const randomInt = (maxInclusive: number): number =>
+  Math.floor(Math.random() * (maxInclusive + 1));
+
 /**
  * Fraction of items matching a predicate.
  * @example
