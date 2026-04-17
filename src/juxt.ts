@@ -4,10 +4,10 @@ import { isPromise } from "./promise.ts";
 import { map } from "./map.ts";
 import type {
   AnyAsync,
+  CompatibleInputs,
   Func,
   ParamOf,
   ReturnTypeUnwrapped,
-  CompatibleInputs,
   Union,
 } from "./typing.ts";
 
