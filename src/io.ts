@@ -157,24 +157,34 @@ export const timeout: <F extends AsyncFunction>(
   f: F,
 ) => F = timeoutHelper(new Error("Timed out"));
 
+const conditionalRetryWithDelay =
+  (delayFn: (attempt: number) => number) =>
+  // deno-lint-ignore no-explicit-any
+  (predicate: (e: Error) => any) =>
+  <F extends AsyncFunction>(times: number, f: F): F => {
+    const helper = (remaining: number): F =>
+      // @ts-ignore cannot infer
+      remaining
+        // @ts-ignore cannot infer
+        ? async (...x: Parameters<F>) => {
+          try {
+            return await f(...x);
+          } catch (e) {
+            if (!predicate(e as Error)) throw e;
+            return sleep(delayFn(times - remaining)).then(() =>
+              helper(remaining - 1)(...x)
+            );
+          }
+        }
+        : f;
+    return helper(times);
+  };
+
 export const conditionalRetry =
   // deno-lint-ignore no-explicit-any
   (predicate: (e: Error) => any) =>
   <F extends AsyncFunction>(waitMs: number, times: number, f: F): F =>
-    // @ts-ignore cannot infer, error only in node not in deno
-    times
-      // @ts-ignore cannot infer, error only in deno not in node
-      ? async (...x: Parameters<F>) => {
-        try {
-          return await f(...x);
-        } catch (e) {
-          if (!predicate(e as Error)) throw e;
-          return sleep(waitMs).then(() =>
-            conditionalRetry(predicate)(waitMs, times - 1, f)(...x)
-          );
-        }
-      }
-      : f;
+    conditionalRetryWithDelay(() => waitMs)(predicate)(times, f);
 
 /** Retry an async function a number of times with delay. */
 export const retry = <F extends AsyncFunction>(
@@ -182,6 +192,30 @@ export const retry = <F extends AsyncFunction>(
   times: number,
   f: F,
 ): F => conditionalRetry(() => true)(waitMs, times, f);
+
+const exponentialDelay =
+  (baseMs: number, maxDelayMs: number) => (attempt: number) =>
+    Math.min(baseMs * 2 ** attempt, maxDelayMs);
+
+export const conditionalRetryExponential =
+  // deno-lint-ignore no-explicit-any
+  (predicate: (e: Error) => any) =>
+  <F extends AsyncFunction>(
+    baseMs: number,
+    maxDelayMs: number,
+    times: number,
+    f: F,
+  ): F =>
+    conditionalRetryWithDelay(exponentialDelay(baseMs, maxDelayMs))(
+      predicate,
+    )(times, f);
+
+export const exponentialRetry = <F extends AsyncFunction>(
+  baseMs: number,
+  maxDelayMs: number,
+  times: number,
+  f: F,
+): F => conditionalRetryExponential(() => true)(baseMs, maxDelayMs, times, f);
 
 /** Stable JSON-like hash truncated to maxLength. */
 export const hash = <T>(x: T, maxLength: number): string =>

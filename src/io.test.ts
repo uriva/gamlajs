@@ -6,7 +6,15 @@ import {
 } from "@std/assert";
 import { length } from "./array.ts";
 import { pipe } from "./composition.ts";
-import { batch, hash, retry, timeout, timerCatcher } from "./io.ts";
+import {
+  batch,
+  conditionalRetryExponential,
+  exponentialRetry,
+  hash,
+  retry,
+  timeout,
+  timerCatcher,
+} from "./io.ts";
 import { mapCat } from "./map.ts";
 import { repeat } from "./matrix.ts";
 import { equals, prop } from "./operator.ts";
@@ -176,6 +184,46 @@ Deno.test("retry", async () => {
   await assertRejects(async () => {
     await retry(0, 1, succeedOn3rdAttempt)(23);
   });
+});
+
+Deno.test("exponentialRetry succeeds after retries", async () => {
+  let c = 0;
+  const succeedOn4thAttempt = async (x: number) => {
+    if (c < 3) {
+      c++;
+      throw new Error();
+    }
+    return x;
+  };
+  assertEquals(await exponentialRetry(0, 0, 3, succeedOn4thAttempt)(42), 42);
+});
+
+Deno.test("exponentialRetry throws when retries exhausted", async () => {
+  const alwaysFail = async () => {
+    throw new Error("fail");
+  };
+  await assertRejects(async () => {
+    await exponentialRetry(0, 0, 2, alwaysFail)();
+  });
+});
+
+Deno.test("conditionalRetryExponential only retries matching errors", async () => {
+  let c = 0;
+  const failWithDifferentErrors = async () => {
+    c++;
+    if (c === 1) throw new Error("retryable");
+    if (c === 2) throw new Error("fatal");
+    return "ok";
+  };
+  await assertRejects(async () => {
+    await conditionalRetryExponential((e: Error) => e.message === "retryable")(
+      0,
+      0,
+      3,
+      failWithDifferentErrors,
+    )();
+  });
+  assertEquals(c, 2);
 });
 
 Deno.test("hash", () => {
