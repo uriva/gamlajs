@@ -146,3 +146,22 @@ Deno.test("side effect order of runs", async () => {
   assertEquals(await pipe(sideEffectF, g)(7), 7);
   assertEquals(runOrder, ["f", "g"]);
 });
+
+Deno.test("pipe augments DOMException without throwing getter error", () => {
+  const f = () => {
+    throw new DOMException(
+      "The operation was aborted due to timeout",
+      "TimeoutError",
+    );
+  };
+  try {
+    pipe(f)();
+  } catch (e) {
+    const err = e as DOMException;
+    assertEquals(err.name, "TimeoutError");
+    assertEquals(
+      err.message.includes("The operation was aborted due to timeout"),
+      true,
+    );
+  }
+});
